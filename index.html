@@ -2,75 +2,125 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SC_MALIKOV | UI DESIGN</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SC_MALIKOV | TRADING TERMINAL</title>
     <style>
-        :root { --neon: #00ff88; --bg: #030303; --glass: rgba(255, 255, 255, 0.05); }
-        body { background: var(--bg); color: #fff; font-family: 'Outfit', sans-serif; margin: 0; padding: 15px; overflow-x: hidden; }
-        
-        /* Glassmorphism Card Style */
-        .card { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 15px; margin-bottom: 20px; }
-        .section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: var(--neon); margin-bottom: 15px; font-weight: bold; }
-
-        /* 1-BO'LIM: PARALAR (ASSETS) */
-        .asset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .asset-item { background: rgba(255,255,255,0.03); border: 1px solid #222; border-radius: 12px; padding: 12px 5px; text-align: center; transition: 0.3s; cursor: pointer; }
-        .asset-item b { display: block; font-size: 13px; color: #fff; }
-        .asset-item span { font-size: 9px; color: #888; }
-        .asset-item.active { border-color: var(--neon); box-shadow: 0 0 10px rgba(0,255,136,0.3); background: rgba(0,255,136,0.05); }
-
-        /* 2-BO'LIM: TAYMFREYM (TIMEFRAME) */
-        .tf-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
-        .tf-item { min-width: 60px; background: #111; border: 1px solid #333; padding: 10px; border-radius: 10px; text-align: center; font-size: 12px; font-weight: bold; }
-        .tf-item.active { background: var(--neon); color: #000; border-color: var(--neon); }
-
-        /* 3-BO'LIM: STRATEGIYALAR */
-        .strat-list { display: grid; grid-template-columns: 1fr; gap: 8px; }
-        .strat-btn { background: linear-gradient(90deg, rgba(255,255,255,0.05), transparent); border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: 0.2s; }
-        .strat-btn:active { transform: scale(0.98); background: rgba(255,255,255,0.1); }
-        .strat-btn b { font-size: 13px; }
-        .strat-btn .num { color: var(--neon); font-family: monospace; font-size: 14px; margin-right: 10px; }
-
-        /* FOOTER: ORQAGA */
-        .footer { margin-top: auto; padding: 20px 0; }
-        .back-btn { width: 100%; background: transparent; border: 1px solid var(--red); color: #ff4444; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .back-btn:active { background: rgba(255,68,68,0.1); }
+        :root {
+            --neon-green: #00ff88;
+            --neon-blue: #00d4ff;
+            --bg: #050505;
+            --card-bg: #111;
+        }
+        body {
+            background-color: var(--bg);
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 2px solid var(--neon-green);
+            margin-bottom: 30px;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            letter-spacing: 3px;
+            color: var(--neon-green);
+        }
+        .header p {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+        }
+        .strat-card {
+            background: var(--card-bg);
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            transition: 0.3s;
+            text-decoration: none;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100px;
+        }
+        .strat-card:hover {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+            transform: translateY(-3px);
+        }
+        .strat-card i {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: var(--neon-blue);
+        }
+        .strat-card span {
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .pair-selector {
+            margin-bottom: 20px;
+            background: #111;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            width: 100%;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
 
-    <div class="section-title">01. Savdo Juftliklari</div>
-    <div class="card asset-grid">
-        <div class="asset-item active"><b>BTC</b><span>BITCOIN</span></div>
-        <div class="asset-item"><b>XAU</b><span>GOLD</span></div>
-        <div class="asset-item"><b>EUR</b><span>EURO</span></div>
+    <div class="header">
+        <h1>SC_MALIKOV</h1>
+        <p>16 TA PROFESSIONAL STRATEGIYALAR TERMINALI</p>
     </div>
 
-    <div class="section-title">02. Taymfreym (M1-D1)</div>
-    <div class="card tf-scroll">
-        <div class="tf-item">M1</div>
-        <div class="tf-item">M5</div>
-        <div class="tf-item active">M15</div>
-        <div class="tf-item">M30</div>
-        <div class="tf-item">H1</div>
-        <div class="tf-item">H4</div>
-        <div class="tf-item">D1</div>
+    <select id="pairSelect" class="pair-selector">
+        <option value="BINANCE:BTCUSDT">BTC/USDT</option>
+        <option value="BINANCE:ETHUSDT">ETH/USDT</option>
+        <option value="BINANCE:XAUUSD">GOLD (XAU/USD)</option>
+        <option value="BINANCE:SOLUSDT">SOLANA</option>
+    </select>
+
+    <div class="strategy-grid">
+        <a href="#" onclick="openStrat('fibo_strat.html')" class="strat-card"><span>1. Fibonacci Retracement</span></a>
+        <a href="#" onclick="openStrat('trend_channel.html')" class="strat-card"><span>2. Trend Channel</span></a>
+        <a href="#" onclick="openStrat('horizontal.html')" class="strat-card"><span>3. S/R Levels</span></a>
+        <a href="#" onclick="openStrat('symmetrical_triangle.html')" class="strat-card"><span>4. Symmetrical Triangle</span></a>
+        <a href="#" onclick="openStrat('ascending_triangle.html')" class="strat-card"><span>5. Ascending Triangle</span></a>
+        
+        <a href="#" onclick="openStrat('descending_triangle.html')" class="strat-card"><span>6. Descending Triangle</span></a>
+        <a href="#" onclick="openStrat('flag_pattern.html')" class="strat-card"><span>7. Flag Pattern</span></a>
+        <a href="#" onclick="openStrat('head_shoulders.html')" class="strat-card"><span>8. Head & Shoulders</span></a>
+        <a href="#" onclick="openStrat('double_pattern.html')" class="strat-card"><span>9. Double Top/Bottom</span></a>
+        <a href="#" onclick="openStrat('inverted_hs.html')" class="strat-card"><span>10. Inverted H&S</span></a>
+        
+        <a href="#" onclick="openStrat('cup_handle.html')" class="strat-card"><span>11. Cup & Handle</span></a>
+        <a href="#" onclick="openStrat('wedge_pattern.html')" class="strat-card"><span>12. Wedge Pattern</span></a>
+        <a href="#" onclick="openStrat('rectangle_pattern.html')" class="strat-card"><span>13. Rectangle Pattern</span></a>
+        <a href="#" onclick="openStrat('pennant_pattern.html')" class="strat-card"><span>14. Pennant Pattern</span></a>
+        <a href="#" onclick="openStrat('rounding_bottom.html')" class="strat-card"><span>15. Rounding Bottom</span></a>
+        <a href="#" onclick="openStrat('parallel_channel.html')" class="strat-card"><span>16. Parallel Channel</span></a>
     </div>
 
-    <div class="section-title">03. Strategiyalar</div>
-    <div class="strat-list">
-        <div class="strat-btn"><span class="num">01</span><b>TEXO: FIBO 1.618 + ENGULFING</b><span>➔</span></div>
-        <div class="strat-btn"><span class="num">02</span><b>PA: GORIZONTAL LINIYA</b><span>➔</span></div>
-        <div class="strat-btn"><span class="num">03</span><b>PA: TREND KANAL</b><span>➔</span></div>
-        <div class="strat-btn"><span class="num">11</span><b>PA: PIN-BAR STRATEGIYASI</b><span>➔</span></div>
-        <div class="strat-btn"><span class="num">16</span><b>PA: RETEST MODULI</b><span>➔</span></div>
-    </div>
-
-    <div class="footer">
-        <button class="back-btn" onclick="alert('Asosiy menyuga qaytiladi')">
-            <span>⬅</span> ORQAGA QAYTISH
-        </button>
-    </div>
-
+    <script>
+        function openStrat(page) {
+            const pair = document.getElementById('pairSelect').value;
+            window.location.href = page + "?pair=" + pair;
+        }
+    </script>
 </body>
 </html>
