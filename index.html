@@ -3,39 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SC_MALIKOV | FIBO BREAKOUT</title>
+    <title>SC_MALIKOV | V11</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #020202; --neon: #00ff88; --blue: #00c2ff; --pink: #ff007f; --glass: rgba(255, 255, 255, 0.05); }
-        body { margin: 0; background: var(--bg); color: white; font-family: 'Montserrat', sans-serif; display: flex; justify-content: center; min-height: 100vh; overflow: hidden; }
+        :root { --bg: #010101; --neon: #00ff88; --blue: #00c2ff; --pink: #ff007f; --glass: rgba(255, 255, 255, 0.03); }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Montserrat', sans-serif; display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
         .terminal { width: 100%; max-width: 420px; padding: 15px; box-sizing: border-box; }
-        .box { background: var(--glass); border: 1px solid var(--neon); border-radius: 15px; padding: 20px; text-align: center; margin-top: 15px; box-shadow: 0 0 20px rgba(0, 255, 136, 0.1); }
+        .box { background: var(--glass); border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 15px; padding: 20px; text-align: center; margin-top: 15px; }
         .hidden { display: none !important; }
-        .btn { width: 100%; padding: 14px; margin: 8px 0; border: 1px solid var(--blue); background: none; color: white; border-radius: 10px; cursor: pointer; font-weight: bold; text-transform: uppercase; }
-        #chart-canvas { width: 100%; height: 280px; background: #000; border-radius: 12px; border: 1px solid #222; margin-top: 15px; }
-        .status-msg { color: var(--neon); font-size: 13px; margin: 15px 0; text-align: left; padding: 12px; background: rgba(0, 255, 136, 0.05); border-radius: 8px; border-left: 4px solid var(--neon); }
-        .signal-card { background: linear-gradient(135deg, rgba(0,194,255,0.1) 0%, rgba(0,255,136,0.05) 100%); padding: 18px; border-radius: 12px; border: 1px solid var(--blue); margin-top: 10px; position: relative; }
-        .loader { border: 4px solid #111; border-top: 4px solid var(--neon); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        
+        .pair-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .btn { width: 100%; padding: 12px; border: 1px solid var(--blue); background: none; color: white; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 11px; text-transform: uppercase; transition: 0.2s; }
+        .btn:active { background: var(--blue); color: #000; transform: scale(0.96); }
+        
+        #chart-canvas { width: 100%; height: 260px; background: #000; border-radius: 12px; border: 1px solid #1a1a1a; margin-top: 15px; }
+        .status-msg { color: var(--neon); font-size: 12px; margin: 15px 0; text-align: left; padding: 10px; border-left: 3px solid var(--neon); background: rgba(0, 255, 136, 0.05); line-height: 1.4; }
+        .signal-card { background: rgba(0, 194, 255, 0.08); padding: 15px; border-radius: 12px; border: 1px solid var(--blue); margin-top: 10px; }
+        .loader { border: 3px solid #111; border-top: 3px solid var(--neon); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 15px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
 <div class="terminal">
-    <h2 style="color: var(--neon); text-align: center; letter-spacing: 3px; font-weight: 900;">SC_MALIKOV</h2>
+    <h2 style="color: var(--neon); text-align: center; font-weight: 900; letter-spacing: 2px;">SC_MALIKOV</h2>
 
     <div id="step-1" class="box">
-        <button class="btn" onclick="selectPair('EURUSDT')">EUR / USD</button>
-        <button class="btn" onclick="selectPair('BTCUSDT')">BTC / USDT</button>
-        <button class="btn" onclick="selectPair('ETHUSDT')">ETH / USDT</button>
-        <button class="btn" onclick="selectPair('PAXGUSDT')">GOLD (XAU)</button>
+        <p style="font-size: 10px; opacity: 0.6; margin-bottom: 10px;">AKTIVNI TANLANG</p>
+        <div class="pair-grid">
+            <button class="btn" onclick="selectPair('EURUSDT')">EUR / USD</button>
+            <button class="btn" onclick="selectPair('BTCUSDT')">BTC / USDT</button>
+            <button class="btn" onclick="selectPair('SOLUSDT')">SOL / USDT</button>
+            <button class="btn" onclick="selectPair('PAXGUSDT')">GOLD (XAU)</button>
+        </div>
     </div>
 
     <div id="step-2" class="box hidden">
         <p id="pair-display" style="color: var(--blue); font-weight: 900;"></p>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <button class="btn" onclick="startAnalysis('1m')">M1</button>
+        <div class="pair-grid">
+            <button class="btn" onclick="startAnalysis('5m')">M5</button>
             <button class="btn" onclick="startAnalysis('15m')">M15</button>
             <button class="btn" onclick="startAnalysis('1h')">H1</button>
             <button class="btn" onclick="startAnalysis('4h')">H4</button>
@@ -43,12 +50,12 @@
     </div>
 
     <div id="step-3" class="box hidden">
-        <div id="loader-box"><div class="loader"></div><p>BOZORNI KUZATISH...</p></div>
+        <div id="loader-box"><div class="loader"></div><p style="font-size: 10px;">TREND TAHLIL QILINMOQDA...</p></div>
         <div id="result-box" class="hidden">
             <canvas id="chart-canvas"></canvas>
             <div id="bot-message" class="status-msg"></div>
             <div id="signal-info" class="signal-card"></div>
-            <button class="btn" style="margin-top: 15px; border-color: var(--pink);" onclick="location.reload()">RE-SCAN</button>
+            <button class="btn" style="margin-top: 15px; border-color: var(--pink);" onclick="location.reload()">YANGI TAHLIL</button>
         </div>
     </div>
 </div>
@@ -57,7 +64,6 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
     let selectedPair = '';
-    let activeTrade = null; // Signalni qotirish uchun
 
     function selectPair(p) {
         selectedPair = p;
@@ -72,11 +78,11 @@
         try {
             const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${selectedPair}&interval=${tf}&limit=100`);
             const data = (await res.json()).map(d => ({ o: +d[1], h: +d[2], l: +d[3], c: +d[4] }));
-            processLogic(data);
-        } catch (e) { alert("API Error!"); }
+            runFiboBreakoutLogic(data);
+        } catch (e) { alert("Xatolik: Ma'lumot olib bo'lmadi."); }
     }
 
-    function processLogic(data) {
+    function runFiboBreakoutLogic(data) {
         document.getElementById('loader-box').classList.add('hidden');
         document.getElementById('result-box').classList.remove('hidden');
         
@@ -87,87 +93,66 @@
         ctx.scale(2, 2);
         const w = canvas.offsetWidth, h = canvas.offsetHeight;
 
-        const maxP = Math.max(...data.map(d => d.h)), minP = Math.min(...data.map(d => d.l));
+        // 1. TREND LINIYANI QULFLASH (Surilib ketmasligi uchun oxirgi 20 ta shamni hisobga olmaymiz)
+        const lineData = data.slice(0, 80); 
+        const resistance = Math.max(...lineData.map(d => d.h));
+        const support = Math.min(...lineData.map(d => d.l));
+        
+        const lastSham = data[data.length - 1];
+        const prices = data.map(d => [d.h, d.l]).flat();
+        const maxP = Math.max(...prices), minP = Math.min(...prices);
         const range = maxP - minP;
-        const getY = (p) => h - 40 - ((p - minP) / range) * (h - 80);
+
+        const getY = (p) => h - 40 - ((p - minP) / (maxP - minP)) * (h - 80);
         const getX = (i) => (i / data.length) * w;
 
-        // 1. SHAMCHALAR
+        // 2. GRAFIKNI CHIZISH
         data.forEach((d, i) => {
             const x = getX(i) + (w/data.length/2);
             ctx.strokeStyle = ctx.fillStyle = d.c >= d.o ? '#00ff88' : '#ff007f';
             ctx.beginPath(); ctx.moveTo(x, getY(d.h)); ctx.lineTo(x, getY(d.l)); ctx.stroke();
-            ctx.fillRect(x - 2, Math.min(getY(d.o), getY(d.c)), 4, Math.max(Math.abs(getY(d.o) - getY(d.c)), 1));
+            ctx.fillRect(x - 1.5, Math.min(getY(d.o), getY(d.c)), 3, Math.max(Math.abs(getY(d.o) - getY(d.c)), 1));
         });
 
-        // 2. TRENDLINE & BREAKOUT LOGIC
-        const pHighIdx = data.findIndex(d => d.h === maxP);
-        const pLowIdx = data.findIndex(d => d.l === minP);
-        const last = data[data.length-1];
+        // QULFLANGAN LINIYALARNI CHIZISH
+        ctx.setLineDash([5, 5]); ctx.lineWidth = 1;
+        ctx.strokeStyle = '#ff007f'; ctx.beginPath(); ctx.moveTo(0, getY(resistance)); ctx.lineTo(w, getY(resistance)); ctx.stroke();
+        ctx.strokeStyle = '#00ff88'; ctx.beginPath(); ctx.moveTo(0, getY(support)); ctx.lineTo(w, getY(support)); ctx.stroke();
 
-        // Trend chiziqlarini chizish (DojEmoji uslubi)
-        ctx.setLineDash([5, 5]); ctx.lineWidth = 2;
-        ctx.strokeStyle = '#ff007f'; // Resistance
-        ctx.beginPath(); ctx.moveTo(getX(pHighIdx), getY(maxP)); ctx.lineTo(getX(99), getY(last.h + range*0.02)); ctx.stroke();
-        ctx.strokeStyle = '#00ff88'; // Support
-        ctx.beginPath(); ctx.moveTo(getX(pLowIdx), getY(minP)); ctx.lineTo(getX(99), getY(last.l - range*0.02)); ctx.stroke();
+        // 3. BREAKOUT VA FIBONACCI
+        let msg = "Trend liniya hali buzilmadi, liniya ichida harakat ketyapti. Keyinroq xabar oling.";
+        let signalHTML = `<div style="text-align:center; opacity:0.5;">WAITING BREAKOUT...</div>`;
 
-        // 3. FIBONACCI BREAKOUT ENGINE
-        let statusText = "Trend liniya shakllanmoqda. Liniya buzilmagan, keyinroq xabar oling.";
-        let signalHTML = `<div style="text-align:center; opacity:0.6;">KUTISH...</div>`;
-
-        // Breakout Check: Sham tanasi chiziqdan tepada yoki pastda yopilishi
-        const resLineVal = last.h + range*0.02;
-        const supLineVal = last.l - range*0.02;
-
-        if (last.c > resLineVal) { // BUY SIGNAL
-            const fiboStart = minP;
-            const fiboEnd = last.c;
-            const tp = (fiboEnd + (fiboEnd - fiboStart) * 0.618).toFixed(2);
-            const sl = fiboStart.toFixed(2);
-            
-            statusText = "TREND BUZILDI! BUY SIGNAL faollashdi.";
-            signalHTML = generateSignalUI("BUY", last.c, tp, sl);
-            drawFibo(ctx, getX, getY, fiboStart, fiboEnd, true, w);
+        // Buy Breakout
+        if (lastSham.c > resistance) {
+            const entry = lastSham.c;
+            const fiboZero = support;
+            const tp = (entry + (entry - fiboZero) * 0.618).toFixed(selectedPair.includes('EUR') ? 5 : 2);
+            msg = "🔥 TREND BUZILDI! BUY SIGNAL FAOL.";
+            signalHTML = renderUI("BUY", entry, tp, fiboZero.toFixed(selectedPair.includes('EUR') ? 5 : 2));
         } 
-        else if (last.c < supLineVal) { // SELL SIGNAL
-            const fiboStart = maxP;
-            const fiboEnd = last.c;
-            const tp = (fiboEnd - (fiboStart - fiboEnd) * 0.618).toFixed(2);
-            const sl = fiboStart.toFixed(2);
-
-            statusText = "TREND BUZILDI! SELL SIGNAL faollashdi.";
-            signalHTML = generateSignalUI("SELL", last.c, tp, sl);
-            drawFibo(ctx, getX, getY, fiboStart, fiboEnd, false, w);
+        // Sell Breakout
+        else if (lastSham.c < support) {
+            const entry = lastSham.c;
+            const fiboZero = resistance;
+            const tp = (entry - (fiboZero - entry) * 0.618).toFixed(selectedPair.includes('EUR') ? 5 : 2);
+            msg = "🔥 TREND BUZILDI! SELL SIGNAL FAOL.";
+            signalHTML = renderUI("SELL", entry, tp, fiboZero.toFixed(selectedPair.includes('EUR') ? 5 : 2));
         }
 
-        document.getElementById('bot-message').innerText = statusText;
+        document.getElementById('bot-message').innerText = msg;
         document.getElementById('signal-info').innerHTML = signalHTML;
     }
 
-    function drawFibo(ctx, getX, getY, start, end, isBuy, w) {
-        ctx.setLineDash([]); ctx.lineWidth = 1;
-        ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-        const levels = [0, 0.618, 1, 1.618];
-        const diff = isBuy ? (end - start) : (start - end);
-
-        levels.forEach(lvl => {
-            const price = isBuy ? (start + diff * lvl) : (start - diff * lvl);
-            ctx.beginPath(); ctx.moveTo(0, getY(price)); ctx.lineTo(w, getY(price)); ctx.stroke();
-            ctx.fillStyle = "white"; ctx.font = "8px Arial";
-            ctx.fillText(`Fibo ${lvl}: ${price.toFixed(2)}`, 5, getY(price) - 2);
-        });
-    }
-
-    function generateSignalUI(type, entry, tp, sl) {
-        const color = type === "BUY" ? "var(--neon)" : "var(--pink)";
+    function renderUI(type, ent, tp, sl) {
+        const c = type === "BUY" ? "var(--neon)" : "var(--pink)";
         return `
-            <div style="font-weight:900; color:${color}; letter-spacing:1px;">${type} SIGNAL FAOL</div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:8px;">
-                <div>ENTRY:<br><b style="color:white">${entry}</b></div>
-                <div>TP (1.618):<br><b style="color:${color}">${tp}</b></div>
+            <div style="font-weight:900; color:${c}; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px;">${type} SIGNAL</div>
+            <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:13px;">
+                <span>ENTRY: <b>${ent}</b></span>
+                <span style="color:${c}">TP (1.618): <b>${tp}</b></span>
             </div>
-            <div style="margin-top:5px; font-size:11px; color:var(--blue)">STOP LOSS (0): ${sl}</div>
+            <div style="margin-top:5px; font-size:10px; opacity:0.7;">STOP LOSS (0): ${sl}</div>
         `;
     }
 </script>
