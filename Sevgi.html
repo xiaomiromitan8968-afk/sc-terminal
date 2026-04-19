@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tug'ilgan kuning bilan!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pink: #ff4d94;
+            --dark: #1a000d;
+            --gold: #ffd700;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--dark);
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+        }
+        canvas { position: absolute; top: 0; left: 0; }
+        
+        .content {
+            z-index: 10;
+            text-align: center;
+            padding: 20px;
+            background: rgba(26, 0, 13, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 77, 148, 0.3);
+            box-shadow: 0 0 50px rgba(255, 77, 148, 0.2);
+            animation: fadeIn 3s ease-in;
+        }
+
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 4rem;
+            color: var(--pink);
+            text-shadow: 0 0 20px var(--pink);
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            color: #ffb3d1;
+        }
+
+        .btn-surprise {
+            margin-top: 30px;
+            padding: 15px 40px;
+            background: transparent;
+            border: 2px solid var(--pink);
+            color: var(--pink);
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .btn-surprise:hover {
+            background: var(--pink);
+            color: white;
+            box-shadow: 0 0 30px var(--pink);
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+    <canvas id="heartCanvas"></canvas>
+
+    <div class="content">
+        <h1 id="title">Happy Birthday!</h1>
+        <p id="sub">Dunyo sen bilan chiroyli...</p>
+        <button class="btn-surprise" onclick="startSurprise()">Sovg'ani ochish 🎁</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('heartCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const hearts = [];
+
+        class Heart {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + 100;
+                this.size = Math.random() * 15 + 5;
+                this.speed = Math.random() * 2 + 1;
+                this.opacity = Math.random() * 0.5 + 0.5;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255, 77, 148, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.bezierCurveTo(this.x - this.size, this.y - this.size, this.x - this.size * 1.5, this.y + this.size / 3, this.x, this.y + this.size);
+                ctx.bezierCurveTo(this.x + this.size * 1.5, this.y + this.size / 3, this.x + this.size, this.y - this.size, this.x, this.y);
+                ctx.fill();
+            }
+            update() {
+                this.y -= this.speed;
+                if (this.y < -50) {
+                    this.y = canvas.height + 100;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+        }
+
+        function init() {
+            for (let i = 0; i < 50; i++) hearts.push(new Heart());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hearts.forEach(h => { h.draw(); h.update(); });
+            requestAnimationFrame(animate);
+        }
+
+        function startSurprise() {
+            document.getElementById('title').innerText = "Seni Yaxshi Ko'raman!";
+            document.getElementById('sub').innerText = "Sen hayotimdagi eng go'zal mo'jizasan ❤️";
+            // Ovozli tabrik yoki musiqa qo'shish mumkin
+            alert("Har bir soniya sen bilan baxtli! 🎉");
+        }
+
+        init();
+        animate();
+    </script>
+</body>
+</html>
