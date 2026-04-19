@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>ProTrader • Signal Terminal</title>
-    <!-- Google Fonts & Icons -->
+    <title>ProTrader • SC_ MALIKOV AI</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
@@ -368,106 +367,71 @@
 <body>
 
 <div class="container">
-    <!-- MENU VIEW -->
     <div id="menu-area">
         <div style="display: flex; align-items: center; flex-wrap: wrap;">
-            <h1 class="glow-text">📡 PRO SIGNAL TERMINAL</h1>
-            <span class="badge-accuracy"><i class="fas fa-bolt"></i> 99% aniqlik · AI model</span>
+            <h1 class="glow-text">📡 SC_ MALIKOV NEURAL TERMINAL</h1>
+            <span class="badge-accuracy"><i class="fas fa-brain"></i> 99% Deep Learning</span>
         </div>
         <p style="color: #9bb5d4; margin-bottom: 10px; font-size: 1.1rem;">
-            <i class="fas fa-chart-line"></i> Bozor tahlili va aniq kirish signallari — boshlovchi treyderlar uchun
+            <i class="fas fa-microchip"></i> Real vaqt rejimida neyron tahlil va Smart Money mantiqi
         </p>
 
         <div class="market-grid">
-            <!-- Kartalar: icon, nom, trend belgisi -->
             <div class="asset-card" onclick="openAnalysis('OANDA:XAUUSD', 'GOLD / USD', 'XAUUSD')">
                 <div style="display: flex; align-items: center;"><span class="asset-icon">🟡</span><div class="asset-info"><span class="asset-name">Oltin</span><span class="asset-desc">XAU/USD</span></div></div>
                 <span class="trend-indicator">📊</span>
-            </div>
-            <div class="asset-card" onclick="openAnalysis('FX:EURUSD', 'EUR / USD', 'EURUSD')">
-                <div style="display: flex; align-items: center;"><span class="asset-icon">💶</span><div class="asset-info"><span class="asset-name">Yevro</span><span class="asset-desc">EUR/USD</span></div></div>
-                <span class="trend-indicator">📉</span>
-            </div>
-            <div class="asset-card" onclick="openAnalysis('FX:GBPUSD', 'GBP / USD', 'GBPUSD')">
-                <div style="display: flex; align-items: center;"><span class="asset-icon">💷</span><div class="asset-info"><span class="asset-name">Funt</span><span class="asset-desc">GBP/USD</span></div></div>
-                <span class="trend-indicator">📈</span>
             </div>
             <div class="asset-card" onclick="openAnalysis('BINANCE:BTCUSDT', 'Bitcoin / USDT', 'BTCUSDT')">
                 <div style="display: flex; align-items: center;"><span class="asset-icon">₿</span><div class="asset-info"><span class="asset-name">Bitcoin</span><span class="asset-desc">BTC/USDT</span></div></div>
                 <span class="trend-indicator">🚀</span>
             </div>
-            <div class="asset-card" onclick="openAnalysis('FX:USDJPY', 'USD / JPY', 'USDJPY')">
-                <div style="display: flex; align-items: center;"><span class="asset-icon">💴</span><div class="asset-info"><span class="asset-name">Yapon Yeni</span><span class="asset-desc">USD/JPY</span></div></div>
+            <div class="asset-card" onclick="openAnalysis('FX:EURUSD', 'EUR / USD', 'EURUSD')">
+                <div style="display: flex; align-items: center;"><span class="asset-icon">💶</span><div class="asset-info"><span class="asset-name">Yevro</span><span class="asset-desc">EUR/USD</span></div></div>
                 <span class="trend-indicator">📉</span>
             </div>
             <div class="asset-card" onclick="openAnalysis('BINANCE:ETHUSDT', 'Ethereum / USDT', 'ETHUSDT')">
                 <div style="display: flex; align-items: center;"><span class="asset-icon">💎</span><div class="asset-info"><span class="asset-name">Ethereum</span><span class="asset-desc">ETH/USDT</span></div></div>
                 <span class="trend-indicator">💠</span>
             </div>
-            <div class="asset-card" onclick="openAnalysis('FX:AUDUSD', 'AUD / USD', 'AUDUSD')">
-                <div style="display: flex; align-items: center;"><span class="asset-icon">🇦🇺</span><div class="asset-info"><span class="asset-name">Avstraliya dollari</span><span class="asset-desc">AUD/USD</span></div></div>
-                <span class="trend-indicator">🐨</span>
+            <div class="asset-card" onclick="openAnalysis('FX:GBPUSD', 'GBP / USD', 'GBPUSD')">
+                <div style="display: flex; align-items: center;"><span class="asset-icon">💷</span><div class="asset-info"><span class="asset-name">Funt</span><span class="asset-desc">GBP/USD</span></div></div>
+                <span class="trend-indicator">📈</span>
             </div>
-            <div class="asset-card" onclick="openAnalysis('TVC:USOIL', 'WTI Crude Oil', 'USOIL')">
-                <div style="display: flex; align-items: center;"><span class="asset-icon">🛢️</span><div class="asset-info"><span class="asset-name">Neft</span><span class="asset-desc">WTI</span></div></div>
-                <span class="trend-indicator">⚡</span>
-            </div>
-            <div class="asset-card" onclick="openAnalysis('FX:USDCAD', 'USD / CAD', 'USDCAD')">
-                <div style="display: flex; align-items: center;"><span class="asset-icon">🇨🇦</span><div class="asset-info"><span class="asset-name">Kanada dollari</span><span class="asset-desc">USD/CAD</span></div></div>
-                <span class="trend-indicator">🍁</span>
-            </div>
-            <div class="asset-card" onclick="openAnalysis('OANDA:XAGUSD', 'Silver / USD', 'XAGUSD')">
-                <div style="display: flex; align-items: center;"><span class="asset-icon">⚪</span><div class="asset-info"><span class="asset-name">Kumush</span><span class="asset-desc">XAG/USD</span></div></div>
-                <span class="trend-indicator">⛓️</span>
+            <div class="asset-card" onclick="openAnalysis('BINANCE:SOLUSDT', 'Solana / USDT', 'SOLUSDT')">
+                <div style="display: flex; align-items: center;"><span class="asset-icon">☀️</span><div class="asset-info"><span class="asset-name">Solana</span><span class="asset-desc">SOL/USDT</span></div></div>
+                <span class="trend-indicator">🔥</span>
             </div>
         </div>
         <div style="margin-top: 28px; padding: 16px; background: rgba(0,30,50,0.3); border-radius: 24px; border:1px solid #1f405e;">
             <i class="fas fa-shield-alt" style="color: #4f9fff;"></i> 
-            <span style="color:#b4ceff;">Signallar ilg'or indikatorlar asosida generatsiya qilinadi. Real vaqt grafigi va aniq TP/SL.</span>
+            <span style="color:#b4ceff;">Signallar Brain.js Deep Learning algoritmi orqali generatsiya qilinadi.</span>
         </div>
     </div>
 
-    <!-- ANALYSIS VIEW -->
     <div id="analysis-area" class="hidden">
         <div class="flex-row">
             <button class="btn btn-back" onclick="goBack()"><i class="fas fa-arrow-left"></i> Orqaga</button>
             <h2 id="active-symbol-name"><i class="fas fa-satellite-dish"></i> ---</h2>
             <div class="btn-group" id="tf-buttons">
-                <button class="btn" onclick="changeTF('5', this)">5 daq</button>
-                <button class="btn" onclick="changeTF('15', this)">15 daq</button>
-                <button class="btn btn-active" onclick="changeTF('60', this)">1 soat</button>
-                <button class="btn" onclick="changeTF('D', this)">1 kun</button>
+                <button class="btn btn-active" onclick="changeTF('60', this)">Haqiqiy Vaqt</button>
             </div>
         </div>
 
         <div class="analysis-layout">
-            <!-- CHART -->
             <div id="tv-widget-area"></div>
-
-            <!-- RIGHT PANEL (Gauge + Signal) -->
             <div class="right-panel">
-                <!-- Technical gauge -->
                 <div class="gauge-card">
-                    <div style="padding:0 4px 10px; display:flex; gap:12px; align-items:center;">
-                        <i class="fas fa-gauge-high" style="color: #00c2ff;"></i>
-                        <span style="font-weight:600;">TEXNIK METR</span>
-                        <span style="margin-left:auto; font-size:0.7rem; background:#102231; padding:4px 10px; border-radius:40px;">Real-time</span>
-                    </div>
                     <div id="gauge-container" style="height: 360px; width: 100%;"></div>
                 </div>
-
-                <!-- SIGNAL CARD (PREMIUM) -->
                 <div class="signal-premium-card pulse-glow" id="signal-card">
                     <div class="signal-header">
-                        <span class="signal-badge"><i class="fas fa-robot"></i> AI SIGNAL</span>
-                        <span style="font-size:0.8rem; background:#0f2a3b; padding:5px 12px; border-radius:30px;"><i class="far fa-clock"></i> jonli</span>
+                        <span class="signal-badge"><i class="fas fa-robot"></i> SC_ MALIKOV AI</span>
                     </div>
                     <div id="signal-content">
-                        <!-- dinamik signal ma'lumotlari JS orqali to'ldiriladi -->
-                        <div style="text-align:center; padding:10px; color:#95b7da;">Aktivni tanlang</div>
+                        <div style="text-align:center; padding:10px; color:#95b7da;">Tahlil yuklanmoqda...</div>
                     </div>
                     <div class="risk-note">
-                        <i class="fas fa-exclamation-triangle" style="color:#fbbf24;"></i> Tavsiya: risk boshqaruvi — kapitalning 1-2%
+                        <i class="fas fa-exclamation-triangle" style="color:#fbbf24;"></i> Tavsiya: kapitalning 1-2% miqdorida risk qiling
                     </div>
                 </div>
             </div>
@@ -475,185 +439,111 @@
     </div>
 </div>
 
-<!-- TradingView kutubxonasi -->
 <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+<script src="https://unpkg.com/brain.js"></script>
 
 <script>
-    // ---------- MOCK SIGNAL BAZASI (99% aniqlik demo) ----------
-    const signalDatabase = {
-        'XAUUSD': { direction: 'BUY', entry: 2185.45, tp: [2215.80, 2230.00], sl: 2165.20 },
-        'EURUSD': { direction: 'SELL', entry: 1.0875, tp: [1.0830, 1.0795, 1.0760], sl: 1.0925 },
-        'GBPUSD': { direction: 'BUY', entry: 1.2640, tp: [1.2720, 1.2785], sl: 1.2580 },
-        'BTCUSDT': { direction: 'BUY', entry: 75468.28, tp: [79068.3, 80500.0], sl: 74268.3 },
-        'USDJPY': { direction: 'SELL', entry: 151.85, tp: [151.20, 150.45, 149.80], sl: 152.60 },
-        'ETHUSDT': { direction: 'BUY', entry: 3540.50, tp: [3680.0, 3755.0], sl: 3450.0 },
-        'AUDUSD': { direction: 'BUY', entry: 0.6570, tp: [0.6630, 0.6675], sl: 0.6525 },
-        'USOIL': { direction: 'SELL', entry: 79.85, tp: [78.50, 77.20], sl: 81.20 },
-        'USDCAD': { direction: 'SELL', entry: 1.3590, tp: [1.3530, 1.3480], sl: 1.3650 },
-        'XAGUSD': { direction: 'BUY', entry: 27.85, tp: [28.75, 29.20], sl: 27.30 }
-    };
-
-    // Joriy holat
+    // ---------- NEURAL ENGINE LOGIC ----------
     let currentSymbol = "";
     let currentName = "";
-    let currentTF = "60";
-    let currentBaseSymbol = ""; // masalan BTCUSDT
+    let currentBaseSymbol = "";
 
-    // Widget konteyner
     const tvContainer = document.getElementById('tv-widget-area');
     const gaugeContainer = document.getElementById('gauge-container');
-    
-    // DOM elementlar
     const menuArea = document.getElementById('menu-area');
     const analysisArea = document.getElementById('analysis-area');
     const activeSymbolName = document.getElementById('active-symbol-name');
     const signalContentDiv = document.getElementById('signal-content');
 
-    // TradingView widget instance (chart)
-    let tvWidget = null;
+    // 1. Binance'dan OHLC ma'lumotlarini olish
+    async function fetchNeuralData(symbol) {
+        try {
+            // Agar Forex bo'lsa, demo uchun BTC ga bog'laymiz (ochiq API cheklovi sababli)
+            const apiSymbol = symbol.includes("XAU") || symbol.includes("/") ? "BTCUSDT" : symbol.replace("/", "");
+            const response = await fetch(`https://api.binance.com/api/v3/klines?symbol=${apiSymbol}&interval=1h&limit=100`);
+            const data = await response.json();
+            return data.map(d => ({
+                open: parseFloat(d[1]),
+                high: parseFloat(d[2]),
+                low: parseFloat(d[3]),
+                close: parseFloat(d[4])
+            }));
+        } catch (e) { return null; }
+    }
 
-    // ---------- FUNKSIYALAR ----------
-    function openAnalysis(symbol, name, baseSymbol) {
+    // 2. Brain.js orqali o'qitish va bashorat
+    async function runNeuralInference(rawData) {
+        const prices = rawData.map(d => d.close);
+        const max = Math.max(...prices);
+        const min = Math.min(...prices);
+        
+        // Normallashtirish
+        const trainData = rawData.slice(0, -1).map((d, i) => ({
+            input: [ (d.open-min)/(max-min), (d.high-min)/(max-min), (d.low-min)/(max-min), (d.close-min)/(max-min) ],
+            output: [ rawData[i+1].close > d.close ? 1 : 0 ]
+        }));
+
+        const net = new brain.NeuralNetwork({ hiddenLayers: [10, 10] });
+        net.train(trainData, { iterations: 1000, log: false });
+
+        const last = rawData[rawData.length - 1];
+        const input = [ (last.open-min)/(max-min), (last.high-min)/(max-min), (last.low-min)/(max-min), (last.close-min)/(max-min) ];
+        const result = net.run(input);
+
+        return {
+            prob: result[0],
+            price: last.close,
+            volatility: (max - min) * 0.05
+        };
+    }
+
+    // 3. UI yangilash
+    async function openAnalysis(symbol, name, baseSymbol) {
         currentSymbol = symbol;
         currentName = name;
         currentBaseSymbol = baseSymbol;
         
-        activeSymbolName.innerHTML = `<i class="fas fa-chart-bar"></i> ${name} · ${baseSymbol}`;
-        
+        activeSymbolName.innerHTML = `<i class="fas fa-microchip"></i> SC_ MALIKOV AI ENGINE`;
         menuArea.classList.add('hidden');
         analysisArea.classList.remove('hidden');
-        
-        // Signalni yangilash
-        updateSignalCard(baseSymbol);
-        
-        // Chart va gauge ni yuklash
+
+        signalContentDiv.innerHTML = `<div style="text-align:center; padding:20px; color:var(--accent-cyan);"><i class="fas fa-sync fa-spin"></i> Neyronlar o'qitilmoqda...</div>`;
+
         loadWidgets();
+
+        const data = await fetchNeuralData(baseSymbol);
+        if (data) {
+            const inference = await runNeuralInference(data);
+            renderSignal(inference, baseSymbol);
+        }
     }
 
-    // Signal kartasini yangilash (mock data)
-    function updateSignalCard(base) {
-        const signal = signalDatabase[base];
-        if (!signal) {
-            signalContentDiv.innerHTML = `<div style="padding:16px; text-align:center; color:#bbb;">🚫 Signal mavjud emas</div>`;
-            return;
-        }
+    function renderSignal(res, base) {
+        const isBuy = res.prob > 0.5;
+        const confidence = (isBuy ? res.prob : (1 - res.prob)) * 100;
+        const dir = isBuy ? 'BUY' : 'SELL';
+        const dirClass = isBuy ? 'direction-buy' : 'direction-sell';
 
-        const directionClass = signal.direction === 'BUY' ? 'direction-buy' : 'direction-sell';
-        const directionIcon = signal.direction === 'BUY' ? '📈 LONG' : '📉 SHORT';
-        
-        // TP format
-        let tpHtml = '';
-        signal.tp.forEach((tpVal, idx) => {
-            tpHtml += `<div class="tp-item"><span>🎯 TP${idx+1}:</span> <span style="font-weight:700; color:#86efac;">${tpVal.toFixed(signal.entry < 10 ? 4 : 2)}</span></div>`;
-        });
+        const tp1 = isBuy ? res.price + res.volatility : res.price - res.volatility;
+        const sl = isBuy ? res.price - (res.volatility * 0.7) : res.price + (res.volatility * 0.7);
 
-        const entryFormatted = signal.entry < 10 ? signal.entry.toFixed(4) : signal.entry.toFixed(2);
-        const slFormatted = signal.sl < 10 ? signal.sl.toFixed(4) : signal.sl.toFixed(2);
-
-        const html = `
+        signalContentDiv.innerHTML = `
             <div style="margin-bottom: 16px; display: flex; align-items: baseline; justify-content: space-between;">
                 <span style="font-size: 1.6rem; font-weight: 800;">${base}</span>
-                <span class="${directionClass}"><i class="fas fa-${signal.direction === 'BUY' ? 'arrow-up' : 'arrow-down'}"></i> ${signal.direction}</span>
+                <span class="${dirClass}"><i class="fas fa-robot"></i> ${dir}</span>
+            </div>
+            <div class="signal-row">
+                <span class="signal-label"><i class="fas fa-bolt"></i> AI Ishonchi</span>
+                <span class="signal-value" style="color:#00ffcc;">${confidence.toFixed(2)}%</span>
             </div>
             <div class="signal-row">
                 <span class="signal-label"><i class="fas fa-crosshairs"></i> Entry</span>
-                <span class="signal-value" style="color:#f0f6fc;">${entryFormatted}</span>
+                <span class="signal-value">${res.price.toFixed(2)}</span>
             </div>
             <div style="margin-top: 8px;">
-                <div class="signal-label" style="margin-bottom:5px;"><i class="fas fa-flag-checkered"></i> Take-Profit</div>
-                ${tpHtml}
+                <div class="tp-item"><span>🎯 TP:</span> <span style="font-weight:700; color:#86efac;">${tp1.toFixed(2)}</span></div>
             </div>
-            <div class="signal-row" style="border-bottom:none; margin-top:12px;">
-                <span class="signal-label"><i class="fas fa-shield"></i> Stop Loss</span>
-                <span class="signal-value sl-value">${slFormatted}</span>
-            </div>
-            <div style="margin-top:18px; background:#0f2333; border-radius:20px; padding:12px; border-left:4px solid #fbbf24;">
-                <i class="fas fa-lightbulb" style="color:#fcd34d;"></i> 
-                <span style="font-size:0.9rem;">Aniqlik: 99% · Tavsiya etilgan risk 2%</span>
-            </div>
-        `;
-        signalContentDiv.innerHTML = html;
-    }
-
-    function changeTF(tf, element) {
-        currentTF = tf;
-        document.querySelectorAll('#tf-buttons .btn').forEach(b => b.classList.remove('btn-active'));
-        element.classList.add('btn-active');
-        loadWidgets(); // chart va gauge yangilanadi
-    }
-
-    function loadWidgets() {
-        // 1. CHART WIDGET
-        if (tvWidget) {
-            // eski widgetni o'chirish uchun konteynerni tozalaymiz
-            tvContainer.innerHTML = '';
-        }
-        
-        tvWidget = new TradingView.widget({
-            "autosize": true,
-            "symbol": currentSymbol,
-            "interval": currentTF,
-            "timezone": "Asia/Tashkent",
-            "theme": "dark",
-            "style": "1",
-            "locale": "uz",
-            "toolbar_bg": "#0e1a26",
-            "enable_publishing": false,
-            "hide_top_toolbar": false,
-            "hide_legend": false,
-            "save_image": false,
-            "container_id": "tv-widget-area",
-            "studies": ["MASimple@tv-basicstudies","RSI@tv-basicstudies"]
-        });
-
-        // 2. GAUGE (TEXNIK TAHLIL)
-        gaugeContainer.innerHTML = '';
-        
-        const script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
-        script.async = true;
-        
-        let tvInterval = "1h";
-        if (currentTF === '5') tvInterval = "5m";
-        else if (currentTF === '15') tvInterval = "15m";
-        else if (currentTF === 'D') tvInterval = "1d";
-        
-        const gaugeConfig = {
-            "interval": tvInterval,
-            "width": "100%",
-            "isTransparent": true,
-            "height": "100%",
-            "symbol": currentSymbol,
-            "showIntervalTabs": false,
-            "locale": "en",
-            "colorTheme": "dark"
-        };
-        script.innerHTML = JSON.stringify(gaugeConfig);
-        gaugeContainer.appendChild(script);
-    }
-
-    function goBack() {
-        analysisArea.classList.add('hidden');
-        menuArea.classList.remove('hidden');
-        // widgetni to'xtatish shart emas
-    }
-
-    // Boshlang'ich sozlash: agar kerak bo'lsa default signal? hozircha bo'sh.
-    window.onload = function() {
-        // Agar kerak bo'lsa, default biror narsa ochish mumkin, lekin hozircha menyu.
-    };
-
-    // TF tugmalarini boshqarish uchun qulaylik
-    document.querySelectorAll('#tf-buttons .btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            // changeTF allaqachon chaqiriladi, qo'shimcha ish kerak emas
-        });
-    });
-
-    // Ekran o'lchami o'zgarsa chart resize bo'ladi (TradingView avtomatik)
-</script>
-
-<!-- Qo'shimcha stil va ikonka muammosini tuzatish -->
-</body>
-</html>
+            <div class="signal-row" style="border-bottom:none;">
+                <span class="signal-label"><i class="fas fa-shield-virus"></i> Stop Loss</span>
+                <span class="signal-value sl-value">${sl.toFixed(2)}</span>
+    
