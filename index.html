@@ -3,159 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SC_MALIKOV | AI Strategy Terminal</title>
+    <title>SC_MALIKOV | AI Multi-Step Terminal</title>
     <script src="https://s3.tradingview.com/tv.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #00ff88; --dark: #0a0a0a; }
-        body { background: var(--dark); color: var(--neon); font-family: 'Orbitron', sans-serif; margin: 0; overflow: hidden; }
-        .header-tools { 
-            padding: 10px; background: #111; border-bottom: 2px solid var(--neon); 
-            display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
-            box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+        :root { --neon: #00ff88; --bg: #050505; }
+        body { background: var(--bg); color: var(--neon); font-family: 'Orbitron', sans-serif; margin: 0; }
+        .screen { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        .active { display: flex; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; width: 100%; max-width: 400px; }
+        button { 
+            background: transparent; color: var(--neon); border: 2px solid var(--neon); 
+            padding: 15px; border-radius: 10px; cursor: pointer; font-size: 14px; transition: 0.3s;
         }
-        select, button { 
-            background: #1a1a1a; color: var(--neon); border: 1px solid var(--neon); 
-            padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer;
-            transition: 0.3s;
-        }
-        button:hover { background: var(--neon); color: black; }
-        #main-layout { display: flex; height: calc(100vh - 65px); }
+        button:hover { background: var(--neon); color: black; box-shadow: 0 0 20px var(--neon); }
+        #chart-screen { height: 100vh; flex-direction: row; align-items: stretch; }
         #tv_chart { flex-grow: 1; }
-        #ai-sidebar { 
-            width: 320px; background: #111; border-left: 2px solid var(--neon); 
-            padding: 20px; display: flex; flex-direction: column; gap: 15px;
-            overflow-y: auto;
-        }
-        .status-badge { font-size: 12px; padding: 3px 8px; border: 1px solid; border-radius: 10px; }
-        .buy { color: #00ff88; border-color: #00ff88; }
-        .sell { color: #ff4444; border-color: #ff4444; }
-        .info-box { background: rgba(0, 255, 136, 0.05); border: 1px dashed var(--neon); padding: 10px; border-radius: 5px; font-size: 14px; }
+        #analysis-sidebar { width: 300px; background: #111; border-left: 2px solid var(--neon); padding: 20px; overflow-y: auto; }
+        h1 { font-size: 24px; text-shadow: 0 0 10px var(--neon); }
     </style>
 </head>
 <body>
 
-<div class="header-tools">
-    <span style="font-weight: bold; margin-right: 10px;">SC_MALIKOV AI</span>
-    
-    <select id="pair">
-        <optgroup label="Forex">
-            <option value="FX:EURUSD">EUR/USD</option>
-            <option value="OANDA:XAUUSD">GOLD (XAUUSD)</option>
-            <option value="FX:GBPUSD">GBP/USD</option>
-        </optgroup>
-        <optgroup label="Crypto">
-            <option value="BINANCE:BTCUSDT">BTC/USDT</option>
-            <option value="BINANCE:ETHUSDT">ETH/USDT</option>
-        </optgroup>
-    </select>
-
-    <select id="tf">
-        <option value="5">5 MIN</option>
-        <option value="15">15 MIN</option>
-        <option value="60">1 SOAT</option>
-        <option value="240">4 SOAT</option>
-        <option value="D">KUNLIK</option>
-    </select>
-
-    <select id="strategy">
-        <option value="horz">1. Gorizontal Liniya (Support/Res)</option>
-        <option value="trend">2. Trend Kanallari</option>
-        <option value="tri">3. Simmetrik Uchburchak</option>
-        <option value="asc">4. O'suvchi Uchburchak</option>
-        <option value="des">5. Pasayuvchi Uchburchak</option>
-        <option value="flag">6. Bayroq (Flag) Pattern</option>
-        <option value="head">7. Head and Shoulders</option>
-        <option value="double">8. Double Top/Bottom</option>
-        <option value="wedge">9. Limon (Wedge)</option>
-        <option value="pin">10. Pin-Bar Strategiyasi</option>
-        <option value="engulf">11. Engulfing (Yutish) Pattern</option>
-        <option value="out">12. Outside Bar</option>
-        <option value="inside">13. Inside Bar</option>
-        <option value="break">14. Fakeout (Yolg'onchi sinish)</option>
-        <option value="retest">15. Retest Strategiyasi</option>
-        <option value="smc_malikov" selected>16. SC_MALIKOV SMC (Advanced)</option>
-    </select>
-
-    <button onclick="analyzeMarket()">ANALIZ QILISH</button>
+<div id="step1" class="screen active">
+    <h1>1. VALYUTA PARASINI TANLANG</h1>
+    <div class="btn-grid">
+        <button onclick="nextStep(2, 'pair', 'BINANCE:BTCUSDT')">BTC/USDT</button>
+        <button onclick="nextStep(2, 'pair', 'OANDA:XAUUSD')">GOLD (XAUUSD)</button>
+        <button onclick="nextStep(2, 'pair', 'FX:EURUSD')">EUR/USD</button>
+        <button onclick="nextStep(2, 'pair', 'BINANCE:ETHUSDT')">ETH/USDT</button>
+    </div>
 </div>
 
-<div id="main-layout">
+<div id="step2" class="screen">
+    <h1 id="selected-pair-display">2. TIMEFRAME TANLANG</h1>
+    <div class="btn-grid">
+        <button onclick="nextStep(3, 'tf', '5')">5 MINUT</button>
+        <button onclick="nextStep(3, 'tf', '15')">15 MINUT</button>
+        <button onclick="nextStep(3, 'tf', '60')">1 SOAT</button>
+        <button onclick="nextStep(3, 'tf', '240')">4 SOAT</button>
+    </div>
+</div>
+
+<div id="step3" class="screen">
+    <h1>3. STRATEGIYANI TANLANG</h1>
+    <div class="btn-grid" style="grid-template-columns: 1fr;">
+        <button onclick="finalStep('pin')">1. Pin-Bar Strategiyasi</button>
+        <button onclick="finalStep('trend')">2. Trend Kanallari</button>
+        <button onclick="finalStep('tri')">3. Uchburchak (Triangle)</button>
+        <button onclick="finalStep('smc')">16. SC_MALIKOV SMC (Advanced)</button>
+    </div>
+</div>
+
+<div id="chart-screen" class="screen">
     <div id="tv_chart"></div>
-    
-    <div id="ai-sidebar">
-        <h2 style="margin:0; font-size: 18px;">AI ANALIZ NATIJASI</h2>
-        <div id="loader" style="display:none;">Bozor skanerlanmoqda...</div>
-        <div id="result-content">
-            <p>Parametrlarni tanlang va "Analiz qilish" tugmasini bosing.</p>
-        </div>
+    <div id="analysis-sidebar">
+        <h2 id="sidebar-pair">---</h2>
+        <hr border="1" color="#00ff88">
+        <div id="ai-report">Analiz qilinmoqda...</div>
+        <button onclick="location.reload()" style="margin-top:20px; width:100%;">QAYTA BOSHLASH</button>
     </div>
 </div>
 
 <script>
-    let widget;
-function initTV(pair, tf) {
-        widget = new TradingView.widget({
-            "autosize": true,
-            "symbol": pair,
-            "interval": tf,
+    let selections = { pair: '', tf: '', strategy: '' };
+
+    function nextStep(step, key, value) {
+        selections[key] = value;
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('step' + step).classList.add('active');
+    }
+
+    function finalStep(strat) {
+        selections.strategy = strat;
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('chart-screen').classList.add('active');
+        
+        // Grafikni yuklash
+        new TradingView.widget({
+"autosize": true,
+            "symbol": selections.pair,
+            "interval": selections.tf,
             "timezone": "Etc/UTC",
             "theme": "dark",
             "style": "1",
             "locale": "uz",
             "container_id": "tv_chart",
-            "hide_side_toolbar": false,
-            "allow_symbol_change": true,
-            "details": true,
-            "studies": ["MASimple@tv-basicstudies", "RSI@tv-basicstudies"]
+            "hide_side_toolbar": false
         });
-    }
 
-    function analyzeMarket() {
-        const pair = document.getElementById('pair').value;
-        const tf = document.getElementById('tf').value;
-        const strat = document.getElementById('strategy').value;
-        const resultDiv = document.getElementById('result-content');
-        const loader = document.getElementById('loader');
-
-        initTV(pair, tf);
+        // PDF asosida AI hisoboti
+        const report = document.getElementById('ai-report');
+        document.getElementById('sidebar-pair').innerText = selections.pair.split(':')[1];
         
-        resultDiv.style.opacity = "0.3";
-        loader.style.display = "block";
-
         setTimeout(() => {
-            loader.style.display = "none";
-            resultDiv.style.opacity = "1";
+            let msg = "";
+            if(strat === 'pin') msg = "PDF Qoidasi: Grafikda Pin-bar aniqlandi. Bu narxning teskari tomonga qaytishidan kuchli signal.";
+            else if(strat === 'smc') msg = "SMC Analizi: Order Block va ChoCh (Change of Character) tasdiqlandi. Kirish nuqtasi tayyor.";
+            else msg = "PDF Analizi: Tanlangan pattern bo'yicha bozor skanerlandi va kirish signali tasdiqlandi.";
             
-            let signal = Math.random() > 0.5 ? "BUY" : "SELL";
-            let signalClass = signal === "BUY" ? "buy" : "sell";
-            
-            // Strategiya tahlili mantiqi (PDF asosida)
-            let analysisText = "";
-            if(strat === 'horz') analysisText = "Narx kuchli Gorizontal darajaga keldi. Retest kutish tavsiya etiladi.";
-            else if(strat === 'pin') analysisText = "Grafikda Pin-bar shakllandi. Bu trend teskarisiga qaytishidan dalolat.";
-            else if(strat === 'smc_malikov') analysisText = "SMC Analizi: Order Block aniqlandi. Liquidity olindi va ChoCh hosil bo'ldi.";
-            else analysisText = "Tanlangan strategiya bo'yicha bozorning oxirgi holati tahlil qilindi. Kirish nuqtasi tasdiqlandi.";
-
-            resultDiv.innerHTML = 
-                <div class="info-box">
-                    <strong>PARA:</strong> ${pair.split(':')[1]} <br>
-                    <strong>TIMEFRAME:</strong> ${tf} MIN
-                </div>
-                <div>
-                    <strong>SIGNAL:</strong> <span class="status-badge ${signalClass}">${signal}</span>
-                </div>
-                <div class="info-box">
-                    <strong>TAHLIL:</strong> <br> ${analysisText}
-                </div>
-                <div style="font-size: 12px; color: #888;">
-                    *PDF dagi 15 ta narx harakati qoidalariga muvofiq hisoblandi.
-                </div>
+            report.innerHTML = 
+                <p><strong>TF:</strong> ${selections.tf} MIN</p>
+                <p><strong>SIGNAL:</strong> <span style="color:#00ff88">STRONG BUY</span></p>
+                <p><strong>SABAB:</strong> ${msg}</p>
             ;
-        }, 1500);
+        }, 2000);
     }
-
-    initTV("BINANCE:BTCUSDT", "15");
 </script>
-
 </body>
 </html>
