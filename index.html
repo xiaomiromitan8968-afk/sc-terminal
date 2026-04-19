@@ -87,7 +87,7 @@
 
         setTimeout(() => {
             let info = data.strat === 'SMC' ? "OB va ChoCh tasdiqlandi. Kutilayotgan harakat: BUY." : "PDF qoidasi bo'yicha signal aniqlandi.";
-            document.getElementById('report').innerHTML = `<b>PARA:</b> ${data.pair} | <b>STRAT:</b> ${data.strat}<br><b>AI TAHLIL:</b> ${info}`;
+            document.getElementById('report').innerHTML = <b>PARA:</b> ${data.pair} | <b>STRAT:</b> ${data.strat}<br><b>AI TAHLIL:</b> ${info};
         }, 2000);
     }
 </script>
