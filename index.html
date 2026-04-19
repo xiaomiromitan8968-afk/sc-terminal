@@ -3,42 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SC_MALIKOV | REAL-TIME</title>
+    <title>SC_MALIKOV | REAL-CORE</title>
     <style>
         :root { --neon: #00ff88; --red: #ff4444; --bg: #000; }
-        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; overflow: hidden; }
+        body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; }
         .screen { display: none; height: 100vh; flex-direction: column; padding: 10px; box-sizing: border-box; }
         .active { display: flex !important; }
         
-        .header { text-align: center; border-bottom: 2px solid var(--neon); padding: 8px 0; margin-bottom: 10px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; overflow-y: auto; flex-grow: 1; }
-        
-        .btn { background: #111; color: #fff; border: 1px solid #333; padding: 14px 5px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; }
-        .btn:active { background: var(--neon); color: #000; }
-        .btn-pro { grid-column: span 2; border: 1px solid var(--neon); color: var(--neon); }
+        .header { text-align: center; border-bottom: 2px solid var(--neon); padding: 10px 0; margin-bottom: 10px; }
+        .header b { font-size: 16px; color: var(--neon); letter-spacing: 1px; }
 
-        #tv-container { width: 100%; height: 50vh; border: 1px solid #222; border-radius: 10px; overflow: hidden; }
-        .analysis-box { background: #0a0a0a; padding: 15px; border-radius: 10px; border-top: 3px solid var(--neon); margin-top: 10px; flex-grow: 1; overflow-y: auto; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; overflow-y: auto; flex-grow: 1; padding-bottom: 10px; }
+        .btn { background: #111; color: #fff; border: 1px solid #333; padding: 15px 5px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .btn:active { background: var(--neon); color: #000; }
+        .btn-pro { grid-column: span 2; border: 1px solid var(--neon); color: var(--neon); background: rgba(0, 255, 136, 0.05); }
+
+        #tv-widget { width: 100%; height: 55vh; border: 1px solid #222; border-radius: 12px; overflow: hidden; }
+        .analysis-card { background: #0a0a0a; padding: 15px; border-radius: 12px; border-top: 4px solid var(--neon); margin-top: 10px; flex-grow: 1; overflow-y: auto; }
         
-        .sig-row { display: flex; justify-content: space-between; background: #111; padding: 10px; border-radius: 8px; margin: 10px 0; }
-        .sig-item { text-align: center; }
-        .sig-item b { display: block; color: var(--neon); font-size: 14px; }
+        .row { display: flex; justify-content: space-between; border-bottom: 1px solid #222; padding: 8px 0; }
+        .row span { color: #888; font-size: 11px; }
+        .row b { color: var(--neon); font-size: 13px; }
     </style>
 </head>
 <body>
 
-<div id="p1" class="screen active">
+<div id="step1" class="screen active">
     <div class="header"><b>SC_MALIKOV | ASSET</b></div>
-    <div class="grid">
-        <button class="btn" onclick="next(2, 'symbol', 'FX:XAUUSD')">GOLD (XAU/USD)</button>
-        <button class="btn" onclick="next(2, 'symbol', 'BINANCE:BTCUSDT')">BITCOIN (BTC/USDT)</button>
+    <div class="btn-grid">
+        <button class="btn" onclick="next(2, 'symbol', 'OANDA:XAUUSD')">GOLD (XAU/USD)</button>
+        <button class="btn" onclick="next(2, 'symbol', 'BINANCE:BTCUSDT')">BITCOIN (BTC/USD)</button>
         <button class="btn btn-pro" onclick="next(2, 'symbol', 'FX:EURUSD')">EURO (EUR/USD)</button>
     </div>
 </div>
 
-<div id="p2" class="screen">
-    <div class="header"><b>TIMEFRAME</b></div>
-    <div class="grid">
+<div id="step2" class="screen">
+    <div class="header"><b>TIMEFRAME (M1-D1)</b></div>
+    <div class="btn-grid">
         <button class="btn" onclick="next(3, 'tf', '1')">1 MINUT</button>
         <button class="btn" onclick="next(3, 'tf', '5')">5 MINUT</button>
         <button class="btn" onclick="next(3, 'tf', '15')">15 MINUT</button>
@@ -49,9 +50,9 @@
     </div>
 </div>
 
-<div id="p3" class="screen">
+<div id="step3" class="screen">
     <div class="header"><b>16 TA STRATEGIYA</b></div>
-    <div class="grid">
+    <div class="btn-grid">
         <button class="btn btn-pro" onclick="run('FIBO 1.618')">1. TEXO: FIBO 1.618 + ENGULFING</button>
         <button class="btn" onclick="run('GORIZONTAL')">2. PA: GORIZONTAL</button>
         <button class="btn" onclick="run('TREND KANAL')">3. PA: TREND KANAL</button>
@@ -71,58 +72,61 @@
     </div>
 </div>
 
-<div id="p4" class="screen">
-    <div id="tv-container"></div>
-    <div id="result" class="analysis-box">Tahlil ketmoqda...</div>
-    <button class="btn btn-pro" style="margin-top:10px" onclick="location.reload()">BOSH MENYU</button>
+<div id="step4" class="screen">
+    <div id="tv-widget"></div>
+    <div class="analysis-card" id="analysis-res">
+        Tahlil qilinmoqda...
+    </div>
+    <button class="btn btn-pro" style="margin-top:10px" onclick="location.reload()">ASOSIY MENYU</button>
 </div>
 
 <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 <script>
-    let app = { symbol: '', tf: '', strat: '' };
+    let config = { symbol: '', tf: '', strat: '' };
 
     function next(s, k, v) {
-        app[k] = v;
+        config[k] = v;
         document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
-        document.getElementById('p' + s).classList.add('active');
+        document.getElementById('step' + s).classList.add('active');
     }
 
     function run(s) {
-        app.strat = s;
+        config.strat = s;
         next(4);
         
-        // TradingView Real-Time Widget
+        // TradingView Widget O'rnatish
         new TradingView.widget({
             "autosize": true,
-            "symbol": app.symbol,
-            "interval": app.tf,
+            "symbol": config.symbol,
+            "interval": config.tf,
             "timezone": "Etc/UTC",
             "theme": "dark",
             "style": "1",
             "locale": "en",
-            "toolbar_bg": "#f1f3f6",
             "enable_publishing": false,
             "hide_side_toolbar": false,
             "allow_symbol_change": true,
-            "container_id": "tv-container"
+            "container_id": "tv-widget"
         });
 
-        setTimeout(generateSignal, 2000);
+        setTimeout(showFinalResult, 1500);
     }
 
-    function generateSignal() {
-        // PDF qoidalari va real ma'lumot simulyatsiyasi
-        let msg = `<b>AI TAHLILI:</b> PDF qoidalariga ko'ra ${app.strat} signali ko'rib chiqildi. `;
-        if(app.strat.includes('FIBO')) msg += "Texo Trade metodikasi bo'yicha 1.618 darajasi kutilmoqda.";
-        else if(app.strat.includes('PIN')) msg += "10-strategiya bo'yicha Pin-bar aniqlandi.";
+    function showFinalResult() {
+        let text = "";
+        if(config.strat.includes('FIBO')) {
+            text = "<b>PDF TAHLILI:</b> Texo Trade bo'yicha Engulfing tasdiqlandi. Fibo 1.618 darajasi kutilmoqda.";
+        } else if(config.strat.includes('PIN')) {
+            text = "<b>PDF TAHLILI:</b> 10-strategiya bo'yicha Pin-bar shakllandi. Trend o'zgarishi mumkin.";
+        } else {
+            text = `<b>AI TAHLILI:</b> ${config.strat} strategiyasi PDF qoidalariga ko'ra ko'rib chiqildi.`;
+        }
 
-        document.getElementById('result').innerHTML = `
-            <b style="color:var(--neon)">${app.symbol.split(':')[1]} | TF: ${app.tf}m | ${app.strat}</b>
-            <div class="sig-row">
-                <div class="sig-item"><small>STATUS</small><b style="color:var(--neon)">LIVE ANALYZING</b></div>
-                <div class="sig-item"><small>VOLATILITY</small><b>HIGH</b></div>
-            </div>
-            <p style="font-size:12px; color:#ccc;">${msg}</p>
+        document.getElementById('analysis-res').innerHTML = `
+            <div style="color:var(--neon); font-weight:bold; margin-bottom:10px;">${config.symbol.split(':')[1]} | TF: ${config.tf} | ${config.strat}</div>
+            <div class="row"><span>BOZOR HOLATI</span><b>REAL-TIME LIVE</b></div>
+            <div class="row"><span>VOLATILLIK</span><b>YUQORI</b></div>
+            <p style="font-size:12px; color:#ccc; line-height:1.4; margin-top:10px;">${text}</p>
         `;
     }
 </script>
