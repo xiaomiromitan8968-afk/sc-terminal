@@ -87,7 +87,8 @@
             grid: { vertLines: { color: '#111' }, horzLines: { color: '#111' } },
             timeScale: { timeVisible: true, secondsVisible: false }
         });
-const series = chart.addCandlestickSeries({
+
+        const series = chart.addCandlestickSeries({
             upColor: '#00ff88', downColor: '#ff3333', 
             borderVisible: false, wickUpColor: '#00ff88', wickDownColor: '#ff3333'
         });
@@ -144,7 +145,7 @@ const series = chart.addCandlestickSeries({
         let sl = (currentPrice * 0.995).toFixed(2);
         let tp = (currentPrice * 1.015).toFixed(2);
 
-        document.getElementById('report').innerHTML = 
+        document.getElementById('report').innerHTML = `
             <div style="display:flex; justify-content:space-between;">
                 <span class="badge">BUY SIGNAL</span>
                 <span><b>${state.p}</b> | ${state.t}</span>
@@ -158,7 +159,7 @@ const series = chart.addCandlestickSeries({
                 <b>AI QATLAMI:</b> Grafikni o'zingiz ko'rib turganingizdek, algoritm avtomatik ravishda so'nggi High nuqtada <b>BOS</b> va Low nuqtada <b>ChoCh</b> chiziqlarini tortdi. 
                 Pastdagi yashil strelka (ENTRY) Order Block zonasini bildiradi. 15-betdagi qoidalarga 100% mos keladi.
             </p>
-        ;
+        `;
     }
 </script>
 
