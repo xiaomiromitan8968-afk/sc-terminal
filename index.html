@@ -3,115 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SC_MALIKOV | LEGENDARY TERMINAL</title>
+    <title>SC_MALIKOV | CYBER-DASHBOARD</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* Asosiy sozlamalar */
+        :root {
+            --bg-deep: #000000;
+            --ai-glow: #00c2ff;
+            --main-neon: #00ff88;
+            --strat-left: #ff007f; /* Magenta/Pink */
+            --strat-right: #00ff00; /* Lime Green */
+            --border-capsule: rgba(255, 255, 255, 0.1);
+        }
+
         body {
             margin: 0;
             padding: 0;
-            background: #000;
+            background: var(--bg-deep);
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            justify-content: center;
+            height: 100vh;
             overflow: hidden; /* Sahifani surishni to'xtatish */
-            font-family: sans-serif;
         }
 
-        /* 1. Rasmni fon sifatida joylashtirish */
-        #main-container {
-            width: 100vw;
-            height: 100vh;
-            background: url('terminal_full_visual.png') no-repeat center center; /* Rasming nomi */
-            background-size: contain; /* Rasmni butun ekran bo'ylab siqib joylash */
+        /* Asosiy terminal konteyneri (Rasm hajmini cheklash) */
+        .terminal-container {
+            width: 100%;
+            max-width: 480px; /* Telefon ekrani uchun optimal */
+            height: 100%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             position: relative;
         }
 
-        /* 2. Tepadagi keraksiz yozuvni (Legenda) kod orqali "maskalash" yoki yopish */
-        #mask {
+        /* --- TEPADAGI BO'LIM --- */
+        
+        /* 1. Tepadagi yozuvni (Legenda) olib tashlash */
+        /* Bu qism rasm yuborishdan oldin hammasini to'g'ri qilish uchun kerak */
+
+        /* 2. AI SIGNAL TUGMASI (Blue/Purple Glow) */
+        .ai-btn-container {
+            width: 100%;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .ai-terminal-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(135deg, rgba(0, 194, 255, 0.15), rgba(168, 85, 247, 0.15));
+            border: 2px solid var(--ai-glow);
+            padding: 16px 20px;
+            border-radius: 40px;
+            text-decoration: none;
+            color: #fff;
+            font-weight: bold;
+            letter-spacing: 2px;
+            font-size: 13px;
+            box-shadow: 0 0 20px rgba(0, 194, 255, 0.3), inset 0 0 10px rgba(0, 194, 255, 0.1);
+            transition: 0.3s;
+            backdrop-filter: blur(5px);
+            text-transform: uppercase;
+        }
+        .ai-terminal-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 35px var(--ai-glow);
+        }
+
+        /* 3. ASOSIY LOGO (Green Neon) */
+        .main-logo-frame {
+            border: 3px solid rgba(0, 255, 136, 0.2);
+            padding: 10px 20px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.1), inset 0 0 10px rgba(0, 255, 136, 0.05);
+            text-align: center;
+        }
+        .main-logo {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: var(--main-neon);
+            text-shadow: 0 0 15px var(--main-neon), 0 0 5px #fff;
+            margin: 0;
+        }
+        .sub-title {
+            font-size: 9px;
+            color: #555;
+            letter-spacing: 1.5px;
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+
+        /* 4. SELEKTORLAR (PARA VA TF) */
+        .selector-bar {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            max-width: 440px;
+            margin-bottom: 25px;
+        }
+        .capsule-selector {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-capsule);
+            border-radius: 15px;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+        }
+        .capsule-text { font-size: 12px; font-weight: 700; color: #fff; }
+        .capsule-arrow { font-size: 10px; color: var(--main-neon); }
+
+        /* --- STRATEGIYALAR PANELI (KAPSULALAR) --- */
+        .strategies-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            width: 100%;
+            max-width: 440px;
+            margin-bottom: 20px;
+        }
+
+        /* Kapsula (Energiya To'ldirilgan) Tugmalari */
+        .strat-capsule {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid var(--border-capsule);
+            border-radius: 25px;
+            padding: 20px 10px;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+        }
+
+        /* Energiya To'ldirish Effekti */
+        .strat-capsule::before {
+            content: '';
             position: absolute;
             top: 0;
-            left: 0;
+            left: -100%;
             width: 100%;
-            height: 10% !important; /* Yozuv turgan joyning balandligi */
-            background: rgba(0, 0, 0, 0.9); /* Qora shaffof blok */
-            backdrop-filter: blur(5px);
-            z-index: 5; /* Boshqalardan ustun turishi */
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transition: 0.5s;
+        }
+        .strat-capsule:active {
+            transform: scale(0.95);
+        }
+        .strat-capsule:active::before {
+            left: 100%;
         }
 
-        /* 3. Shaffof tugma zonalarining umumiy uslubi */
-        .click-zone {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.0); /* Shaffof */
-            border: 0px solid white; /* Agar tekshirmoqchi bo'lsang 1px qil */
-            cursor: pointer;
-            z-index: 10;
+        /* Chap Qator Uslubi (Magenta) */
+        .strat-capsule.left {
+            border-color: rgba(255, 0, 127, 0.2);
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.1), inset 0 0 10px rgba(255, 0, 127, 0.05);
         }
+        .strat-capsule.left span { color: var(--strat-left); }
 
-        /* 4. TUGMALARNI JOYLASHTIRISH (Mutlaq koordinatalar) */
-        /* Bu koordinatalar rasmning ekran o'lchamiga qarab biroz o'zgarishi mumkin, moslash kerak */
-
-        #ai-terminal-btn {
-            top: 15%; /* Rasmning 15% balandligidan boshlanadi */
-            left: 10%; /* 10% chapdan */
-            width: 80%; /* 80% kenglikda */
-            height: 5%; /* 5% balandlikda */
+        /* O'ng Qator Uslubi (Lime) */
+        .strat-capsule.right {
+            border-color: rgba(0, 255, 0, 0.2);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.1), inset 0 0 10px rgba(0, 255, 0, 0.05);
         }
+        .strat-capsule.right span { color: var(--strat-right); }
 
-        #pair-selector {
-            top: 25%;
-            left: 5%;
-            width: 40%;
-            height: 6%;
+        /* Kapsula ichidagi matn */
+        .strat-no { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .strat-name { font-size: 11px; font-weight: 700; color: #fff; }
+
+        .footer-info {
+            margin-top: 20px;
+            font-size: 9px;
+            color: #444;
+            letter-spacing: 2px;
         }
-
-        #tf-selector {
-            top: 25%;
-            right: 5%;
-            width: 40%;
-            height: 6%;
-        }
-
-        /* Strategiya kapsulalari - Chap qator */
-        .strat-left {
-            left: 5%;
-            width: 40%;
-            height: 8%;
-        }
-
-        /* Strategiya kapsulalari - O'ng qator */
-        .strat-right {
-            right: 5%;
-            width: 40%;
-            height: 8%;
-        }
-
-        /* Har bir strategiyaning balandligi */
-        #strat01 { top: 38%; } /* Fibonacci */
-        #strat02 { top: 38%; } /* Trend Channel */
-        #strat03 { top: 50%; } /* S/R Levels */
-        #strat04 { top: 50%; } /* Sym Triangle */
-        /* ...va h.k. qolganlarini qo'shib chiqish mumkin */
 
     </style>
 </head>
 <body>
 
-    <div id="main-container">
-        <div id="mask"></div>
-
-        <div id="ai-terminal-btn" class="click-zone" onclick="window.location.href='dashboard.html'"></div>
-
-        <div id="pair-selector" class="click-zone" onclick="alert('Tez orada pair selector qo\'shiladi')"></div>
-
-        <div id="tf-selector" class="click-zone" onclick="alert('Tez orada taymfreym selector qo\'shiladi')"></div>
-
-        <div id="strat01" class="click-zone strat-left" onclick="runStrat('fibo_strat.html')"></div>
-        <div id="strat02" class="click-zone strat-right" onclick="runStrat('trend_channel.html')"></div>
+    <div class="terminal-container">
+        <div class="ai-btn-container">
+            <a href="Dashboard.html" class="ai-terminal-btn">
+                <span>AI SIGNAL TERMINALGA O'TISH</span>
+            </a>
         </div>
 
+        <div class="main-logo-frame">
+            <h1 class="main-logo">SC_MALIKOV</h1>
+            <p class="sub-title">INTELLIGENT TRADING SYSTEM</p>
+        </div>
+
+        <div class="selector-bar">
+            <div class="capsule-selector">
+                <span class="capsule-text">BTC/USDT</span>
+                <span class="capsule-arrow">▼</span>
+            </div>
+            <div class="capsule-selector">
+                <span class="capsule-text">15M</span>
+                <span class="capsule-arrow">▼</span>
+            </div>
+        </div>
+
+        <div class="strategies-grid">
+            <a href="#" onclick="go('fibo_strat.html')" class="strat-capsule left"><span class="strat-no">STRAT 01</span><span class="strat-name">FIBONACCI</span></a>
+            <a href="#" onclick="go('horizontal.html')" class="strat-capsule left"><span class="strat-no">STRAT 03</span><span class="strat-name">S/R LEVELS</span></a>
+            <a href="#" onclick="go('ascending_triangle.html')" class="strat-capsule left"><span class="strat-no">STRAT 05</span><span class="strat-name">ASC TRIANGLE</span></a>
+            <a href="#" onclick="go('flag_pattern.html')" class="strat-capsule left"><span class="strat-no">STRAT 07</span><span class="strat-name">FLAG PATTERN</span></a>
+            <a href="#" onclick="go('double_pattern.html')" class="strat-capsule left"><span class="strat-no">STRAT 09</span><span class="strat-name">DOUBLE TOP/BOT</span></a>
+            <a href="#" onclick="go('cup_handle.html')" class="strat-capsule left"><span class="strat-no">STRAT 11</span><span class="strat-name">CUP & HANDLE</span></a>
+            <a href="#" onclick="go('rectangle_pattern.html')" class="strat-capsule left"><span class="strat-no">STRAT 13</span><span class="strat-name">RECTANGLE</span></a>
+            <a href="#" onclick="go(' rounding_bottom.html')" class="strat-capsule left"><span class="strat-no">STRAT 15</span><span class="strat-name">ROUNDING BOT</span></a>
+
+            <a href="#" onclick="go('trend_channel.html')" class="strat-capsule right"><span class="strat-no">STRAT 02</span><span class="strat-name">TREND CHANNEL</span></a>
+            <a href="#" onclick="go('symmetrical_triangle.html')" class="strat-capsule right"><span class="strat-no">STRAT 04</span><span class="strat-name">SYM TRIANGLE</span></a>
+            <a href="#" onclick="go('descending_triangle.html')" class="strat-capsule right"><span class="strat-no">STRAT 06</span><span class="strat-name">DESC TRIANGLE</span></a>
+            <a href="#" onclick="go('head_shoulders.html')" class="strat-capsule right"><span class="strat-no">STRAT 08</span><span class="strat-name">HEAD & SHOULDERS</span></a>
+            <a href="#" onclick="go('inverted_hs.html')" class="strat-capsule right"><span class="strat-no">STRAT 10</span><span class="strat-name">INVERTED H&S</span></a>
+            <a href="#" onclick="go('wedge_pattern.html')" class="strat-capsule right"><span class="strat-no">STRAT 12</span><span class="strat-name">WEDGE PATTERN</span></a>
+            <a href="#" onclick="go('pennant_pattern.html')" class="strat-capsule right"><span class="strat-no">STRAT 14</span><span class="strat-name">PENNANT</span></a>
+            <a href="#" onclick="go('parallel_channel.html')" class="strat-capsule right"><span class="strat-no">STRAT 16</span><span class="strat-name">PARALLEL CH</span></a>
+        </div>
+
+        <div class="footer-info">SYSTEM STATUS: OPERATIONAL</div>
+
+    </div>
+
     <script>
-        // Tanlangan para va taymfreymni strategiya fayliga yuborish
-        function runStrat(fileName) {
-            // Hozircha para va taymfreym tanlanmagan deb hisoblaymiz
-            alert("Strategiya yuklanmoqda...");
-            window.location.href = fileName + "?pair=BINANCE:BTCUSDT&tf=15";
+        // Barcha strategiya fayllariga yo'naltirish
+        function go(file) {
+            // Dashboard'dagi kabi parametrlarni uzatish
+            const pair = "BINANCE:BTCUSDT"; // Default
+            const tf = "15"; // Default
+            window.location.href = file + "?pair=" + pair + "&tf=" + tf;
         }
     </script>
 </body>
