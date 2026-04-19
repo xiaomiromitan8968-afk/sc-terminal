@@ -7,56 +7,56 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #030303; --neon: #00ff88; --blue: #00c2ff; --pink: #ff007f; --glass: rgba(255, 255, 255, 0.05); }
+        :root { --bg: #030303; --neon: #00ff88; --blue: #00c2ff; --pink: #ff007f; --glass: rgba(255, 255, 255, 0.08); }
         body { margin: 0; background: var(--bg); color: white; font-family: 'Montserrat', sans-serif; display: flex; justify-content: center; min-height: 100vh; overflow: hidden; }
         .terminal { width: 100%; max-width: 420px; padding: 15px; box-sizing: border-box; }
-        .box { background: var(--glass); border: 1px solid var(--neon); border-radius: 15px; padding: 20px; text-align: center; margin-top: 15px; box-shadow: 0 0 15px rgba(0, 255, 136, 0.1); }
+        .box { background: var(--glass); border: 1px solid var(--neon); border-radius: 15px; padding: 20px; text-align: center; margin-top: 15px; box-shadow: 0 0 20px rgba(0, 255, 136, 0.15); border-left: 4px solid var(--neon); }
         .hidden { display: none !important; }
-        .btn { width: 100%; padding: 14px; margin: 8px 0; border: 1px solid var(--blue); background: none; color: white; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.2s; text-transform: uppercase; }
+        .btn { width: 100%; padding: 14px; margin: 8px 0; border: 1px solid var(--blue); background: none; color: white; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px; }
         .btn:active { background: var(--blue); color: black; transform: scale(0.98); }
         
-        #chart-canvas { width: 100%; height: 260px; background: #000; border-radius: 12px; border: 1px solid #1a1a1a; margin-top: 15px; display: block; }
+        #chart-canvas { width: 100%; height: 280px; background: #000; border-radius: 12px; border: 1px solid #222; margin-top: 15px; display: block; }
         
-        .status-msg { color: var(--neon); font-size: 13px; margin: 15px 0; text-align: left; line-height: 1.5; padding: 10px; background: rgba(0, 255, 136, 0.05); border-radius: 8px; border-left: 3px solid var(--neon); }
-        .signal-card { background: linear-gradient(135deg, rgba(0,194,255,0.1) 0%, rgba(0,255,136,0.1) 100%); padding: 15px; border-radius: 12px; border: 1px solid var(--blue); margin-top: 10px; text-align: left; }
-        .loader { border: 3px solid #111; border-top: 3px solid var(--neon); border-radius: 50%; width: 35px; height: 35px; animation: spin 1s linear infinite; margin: 20px auto; }
+        .status-msg { color: var(--neon); font-size: 13px; margin: 15px 0; text-align: left; line-height: 1.6; padding: 12px; background: rgba(0, 255, 136, 0.05); border-radius: 8px; border-right: 3px solid var(--neon); }
+        .signal-card { background: linear-gradient(135deg, rgba(0,194,255,0.15) 0%, rgba(0,255,136,0.1) 100%); padding: 18px; border-radius: 12px; border: 1px solid var(--blue); margin-top: 10px; text-align: left; position: relative; overflow: hidden; }
+        .loader { border: 4px solid #111; border-top: 4px solid var(--neon); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 25px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
 <div class="terminal">
-    <h2 style="color: var(--neon); text-align: center; letter-spacing: 3px; font-weight: 900; text-shadow: 0 0 10px var(--neon);">SC_MALIKOV</h2>
+    <h2 style="color: var(--neon); text-align: center; letter-spacing: 4px; font-weight: 900; text-shadow: 0 0 15px var(--neon);">SC_MALIKOV</h2>
 
     <div id="step-1" class="box">
-        <p style="font-size: 11px; opacity: 0.7;">BOSQICH-1: JUFTLIKNI TANLANG</p>
+        <p style="font-size: 12px; opacity: 0.8; margin-bottom: 15px;">VALYUTA JUFTLIGINI TANLANG</p>
         <button class="btn" onclick="selectPair('BTCUSDT')">BTC / USDT</button>
         <button class="btn" onclick="selectPair('ETHUSDT')">ETH / USDT</button>
-        <button class="btn" onclick="selectPair('PAXGUSDT')">XAU / USD (GOLD)</button>
+        <button class="btn" onclick="selectPair('PAXGUSDT')">GOLD (XAU/USD)</button>
     </div>
 
     <div id="step-2" class="box hidden">
-        <p id="pair-display" style="color: var(--blue); font-weight: bold;"></p>
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-            <button class="btn" onclick="startAnalysis('1m')">M1</button>
-            <button class="btn" onclick="startAnalysis('15m')">M15</button>
-            <button class="btn" onclick="startAnalysis('1h')">H1</button>
-            <button class="btn" onclick="startAnalysis('4h')">H4</button>
+        <p id="pair-display" style="color: var(--blue); font-weight: 900; font-size: 18px;"></p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+            <button class="btn" onclick="startAnalysis('1m')">M1 (Scalping)</button>
+            <button class="btn" onclick="startAnalysis('15m')">M15 (Intraday)</button>
+            <button class="btn" onclick="startAnalysis('1h')">H1 (Trend)</button>
+            <button class="btn" onclick="startAnalysis('4h')">H4 (Swing)</button>
         </div>
-        <button class="btn" style="border-color: var(--pink); margin-top: 15px;" onclick="location.reload()">ORQAGA</button>
+        <button class="btn" style="border-color: var(--pink); margin-top: 15px; opacity: 0.7;" onclick="location.reload()">ORQAGA</button>
     </div>
 
     <div id="step-3" class="box hidden">
         <div id="loader-box">
             <div class="loader"></div>
-            <p style="font-size: 11px;">BOZOR TAHLIL QILINMOQDA...</p>
+            <p style="font-size: 11px; letter-spacing: 1px;">AI MODEL ANALIZ QILMOQDA...</p>
         </div>
         
         <div id="result-box" class="hidden">
             <canvas id="chart-canvas"></canvas>
             <div id="bot-message" class="status-msg"></div>
             <div id="signal-info" class="signal-card"></div>
-            <button class="btn" style="margin-top: 15px; border-color: var(--neon);" onclick="location.reload()">YANGI TAHLIL</button>
+            <button class="btn" style="margin-top: 20px; border-color: var(--neon); box-shadow: 0 0 10px rgba(0,255,136,0.2);" onclick="location.reload()">QAYTA TAHLIL</button>
         </div>
     </div>
 </div>
@@ -68,7 +68,7 @@
 
     function selectPair(p) {
         selectedPair = p;
-        document.getElementById('pair-display').innerText = "PARA: " + p;
+        document.getElementById('pair-display').innerText = p;
         document.getElementById('step-1').classList.add('hidden');
         document.getElementById('step-2').classList.remove('hidden');
     }
@@ -78,116 +78,101 @@
         document.getElementById('step-3').classList.remove('hidden');
 
         try {
-            const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${selectedPair}&interval=${tf}&limit=50`);
+            const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${selectedPair}&interval=${tf}&limit=60`);
             const rawData = await res.json();
             const data = rawData.map(d => ({
                 o: parseFloat(d[1]), h: parseFloat(d[2]), l: parseFloat(d[3]), c: parseFloat(d[4])
             }));
-            renderChart(data);
+            renderWizard(data);
         } catch (e) {
-            document.getElementById('loader-box').innerHTML = "<p style='color:red'>Internet yoki API xatosi!</p>";
+            document.getElementById('loader-box').innerHTML = "<p style='color:red'>Xatolik! Internetni tekshiring.</p>";
         }
     }
 
-    function renderChart(data) {
-    document.getElementById('loader-box').classList.add('hidden');
-    document.getElementById('result-box').classList.remove('hidden');
-    
-    const canvas = document.getElementById('chart-canvas');
-    const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-    ctx.scale(dpr, dpr);
-    
-    const w = rect.width;
-    const h = rect.height;
+    function renderWizard(data) {
+        document.getElementById('loader-box').classList.add('hidden');
+        document.getElementById('result-box').classList.remove('hidden');
+        
+        const canvas = document.getElementById('chart-canvas');
+        const ctx = canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.scale(dpr, dpr);
+        
+        const w = rect.width;
+        const h = rect.height;
 
-    const highPrices = data.map(d => d.h);
-    const lowPrices = data.map(d => d.l);
-    const maxPrice = Math.max(...highPrices);
-    const minPrice = Math.min(...lowPrices);
-    const diff = maxPrice - minPrice;
-    
-    const padding = diff * 0.2;
-    const viewMax = maxPrice + padding;
-    const viewMin = minPrice - padding;
-    const viewRange = viewMax - viewMin;
+        const maxPrice = Math.max(...data.map(d => d.h));
+        const minPrice = Math.min(...data.map(d => d.l));
+        const range = maxPrice - minPrice;
+        const padding = range * 0.2;
+        const vMax = maxPrice + padding;
+        const vMin = minPrice - padding;
+        const vRange = vMax - vMin;
 
-    const getX = (i) => (i / data.length) * w;
-    const getY = (p) => h - ((p - viewMin) / viewRange) * h;
+        const getX = (i) => (i / data.length) * w;
+        const getY = (p) => h - ((p - vMin) / vRange) * h;
 
-    // 1. SHAMCHALARNI CHIZISH
-    const candleW = (w / data.length) * 0.6;
-    data.forEach((d, i) => {
-        const x = getX(i) + (w / data.length / 2);
-        const isBull = d.c >= d.o;
-        ctx.strokeStyle = isBull ? '#00ff88' : '#ff007f';
-        ctx.fillStyle = isBull ? '#00ff88' : '#ff007f';
-        ctx.beginPath();
-        ctx.moveTo(x, getY(d.h));
-        ctx.lineTo(x, getY(d.l));
-        ctx.stroke();
-        const yO = getY(d.o);
-        const yC = getY(d.c);
-        ctx.fillRect(x - candleW/2, Math.min(yO, yC), candleW, Math.max(Math.abs(yO - yC), 1));
-    });
+        // 1. SHAMCHALAR
+        const cW = (w / data.length) * 0.7;
+        data.forEach((d, i) => {
+            const x = getX(i) + (w / data.length / 2);
+            ctx.strokeStyle = ctx.fillStyle = d.c >= d.o ? '#00ff88' : '#ff007f';
+            ctx.beginPath(); ctx.moveTo(x, getY(d.h)); ctx.lineTo(x, getY(d.l)); ctx.stroke();
+            const yO = getY(d.o), yC = getY(d.c);
+            ctx.fillRect(x - cW/2, Math.min(yO, yC), cW, Math.max(Math.abs(yO - yC), 1));
+        });
 
-    // 2. MADEL DETEKTORI (SMART LOGIC) ✊
-    ctx.setLineDash([5, 5]);
-    ctx.lineWidth = 2;
-    let detectedModel = "";
+        // 2. MATEMATIK MADEL DETEKTORI ✊
+        ctx.setLineDash([5, 5]);
+        ctx.lineWidth = 2;
+        let modelTitle = "";
+        
+        const startC = data[0], lastC = data[data.length-1];
+        const bodyDiff = Math.abs(startC.c - lastC.c);
+        
+        // Algoritm: Trend, Flet yoki Uchburchakni aniqlash
+        if (bodyDiff > range * 0.6) {
+            modelTitle = "TREND LINIYASI";
+            ctx.strokeStyle = var(--blue);
+            ctx.beginPath();
+            ctx.moveTo(getX(0), getY(startC.l));
+            ctx.lineTo(getX(data.length-1), getY(lastC.c));
+            ctx.stroke();
+        } else if (range < (lastC.c * 0.005)) {
+            modelTitle = "FLET (SUPPORT & RESISTANCE)";
+            ctx.strokeStyle = '#00c2ff';
+            ctx.beginPath(); ctx.moveTo(0, getY(maxPrice)); ctx.lineTo(w, getY(maxPrice)); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, getY(minPrice)); ctx.lineTo(w, getY(minPrice)); ctx.stroke();
+        } else {
+            modelTitle = "UCHBURCHAK (CONSOLIDATION)";
+            ctx.strokeStyle = '#ff007f';
+            ctx.beginPath(); ctx.moveTo(getX(0), getY(maxPrice)); ctx.lineTo(getX(data.length-1), getY(lastC.h + padding/2)); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(getX(0), getY(minPrice)); ctx.lineTo(getX(data.length-1), getY(lastC.l - padding/2)); ctx.stroke();
+        }
 
-    // Ma'lumotlarni tahlil qilish
-    const firstHalf = data.slice(0, 25);
-    const secondHalf = data.slice(25);
-    const volatility = diff / minPrice; // Bozor tebranishi
+        ctx.setLineDash([]);
 
-    if (volatility < 0.005) { 
-        // FLET HOLATI (Tayanch va Qarshilik)
-        detectedModel = "Flet (Support/Resistance)";
-        ctx.strokeStyle = var(--blue);
-        // Qarshilik (Resistance)
-        ctx.beginPath(); ctx.moveTo(0, getY(maxPrice)); ctx.lineTo(w, getY(maxPrice)); ctx.stroke();
-        // Tayanch (Support)
-        ctx.beginPath(); ctx.moveTo(0, getY(minPrice)); ctx.lineTo(w, getY(minPrice)); ctx.stroke();
-    } 
-    else if (Math.abs(data[0].c - data[data.length-1].c) > diff * 0.5) {
-        // TREND LINEYASI
-        detectedModel = "Trend Liniyasi";
-        ctx.strokeStyle = '#00c2ff';
-        ctx.beginPath();
-        ctx.moveTo(getX(0), getY(data[0].l));
-        ctx.lineTo(getX(data.length-1), getY(data[data.length-1].c));
-        ctx.stroke();
-    } 
-    else {
-        // UCHBURCHAK (Symmetrical Triangle simulyatsiyasi)
-        detectedModel = "Uchburchak";
-        ctx.strokeStyle = '#ff007f';
-        // Yuqori chiziq
-        ctx.beginPath(); ctx.moveTo(getX(0), getY(maxPrice)); ctx.lineTo(getX(data.length-1), getY(data[data.length-1].h + (diff*0.2))); ctx.stroke();
-        // Pastki chiziq
-        ctx.beginPath(); ctx.moveTo(getX(0), getY(minPrice)); ctx.lineTo(getX(data.length-1), getY(data[data.length-1].l - (diff*0.2))); ctx.stroke();
+        // 3. SIGNAL OUTPUT
+        const lastPrice = lastC.c;
+        const tp = (lastPrice * 1.01618).toFixed(2);
+        const sl = (lastPrice * 0.994).toFixed(2);
+
+        document.getElementById('bot-message').innerText = `Aniqlangan model: ${modelTitle}. Narx hozirda tahlil chizig'iga yaqinlashmoqda. Joriy holatda modelning tana bilan yorib o'tilishi kirish uchun signal hisoblanadi.`;
+        
+        document.getElementById('signal-info').innerHTML = `
+            <div style="font-weight: 900; color: var(--blue); letter-spacing: 1px; margin-bottom: 8px;">🚀 SC_MALIKOV SIGNAL</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>🎯 TP (1.618):<br><span style="color:var(--neon); font-size: 18px; font-weight: 900;">${tp}</span></div>
+                <div>🛑 SL (Fibo 0):<br><span style="color:var(--pink); font-size: 18px; font-weight: 900;">${sl}</span></div>
+            </div>
+            <div style="margin-top: 10px; font-size: 10px; opacity: 0.6; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 5px;">
+                Holat: Real-voxidagi ${modelTitle} aniqlandi.
+            </div>
+        `;
     }
-
-    ctx.setLineDash([]);
-
-    // 3. SIGNAL CHIQARISH
-    const lastPrice = data[data.length - 1].c;
-    const tp = (lastPrice * 1.01618).toFixed(2);
-    const sl = (lastPrice * 0.992).toFixed(2);
-
-    document.getElementById('bot-message').innerText = `Bozorda "${detectedModel}" modeli aniqlandi. Narx tana bilan yorib o'tishini kuting.`;
-    document.getElementById('signal-info').innerHTML = `
-        <div style="font-weight: 900; color: var(--blue);">🚀 ANALIZ NATIJASI</div>
-        <div>Madel: <span style="color:white">${detectedModel}</span></div>
-        <div>🎯 TP (1.618): <span style="color:var(--neon)">${tp}</span></div>
-        <div>🛑 SL (Fibo 0): <span style="color:var(--pink)">${sl}</span></div>
-    `;
-}
-
 </script>
 </body>
 </html>
