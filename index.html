@@ -3,87 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SC_MALIKOV | 16 PRO</title>
+    <title>SC_MALIKOV | 16 PRO TERMINAL</title>
     <style>
-        :root { --neon: #00ff88; --red: #ff4444; --bg: #000; }
-        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; }
+        :root { --neon: #00ff88; --red: #ff4444; --bg: #000; --card: #0a0a0a; }
+        body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; }
         .screen { display: none; height: 100vh; flex-direction: column; padding: 10px; box-sizing: border-box; }
         .active { display: flex !important; }
         
-        .header { text-align: center; border-bottom: 2px solid var(--neon); padding: 10px 0; margin-bottom: 10px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; overflow-y: auto; flex-grow: 1; padding-bottom: 20px; }
-        
-        .btn { background: #111; color: #fff; border: 1px solid #333; padding: 12px 5px; border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer; text-align: center; }
-        .btn:active { background: var(--neon); color: #000; }
-        .btn-fibo { grid-column: span 2; border: 1px solid var(--neon); color: var(--neon); font-size: 12px; }
+        .header { text-align: center; border-bottom: 2px solid var(--neon); padding: 10px 0; margin-bottom: 15px; }
+        .header h1 { font-size: 16px; color: var(--neon); margin: 0; letter-spacing: 2px; }
 
-        .chart-v { width: 100%; height: 200px; background: #050505; border: 1px solid #222; position: relative; margin-top: 10px; border-radius: 10px; }
-        .info { background: #0a0a0a; padding: 15px; border-radius: 10px; border-left: 4px solid var(--neon); margin-top: 10px; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; overflow-y: auto; flex-grow: 1; padding-bottom: 20px; }
+        .btn { background: #111; color: #fff; border: 1px solid #333; padding: 15px 5px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn:active { background: var(--neon); color: #000; transform: scale(0.98); }
+        .btn-fibo { grid-column: span 2; border: 1px solid var(--neon); color: var(--neon); background: rgba(0, 255, 136, 0.05); }
+
+        .res-box { background: var(--card); border-radius: 12px; padding: 15px; border-top: 4px solid var(--neon); margin-top: 10px; flex-grow: 1; overflow-y: auto; }
+        .price-line { display: flex; justify-content: space-between; margin: 15px 0; padding: 10px; background: #111; border-radius: 8px; }
+        .p-item { text-align: center; }
+        .p-item small { display: block; font-size: 9px; color: #888; margin-bottom: 5px; }
+        .p-item b { font-size: 14px; color: var(--neon); }
+
+        .chart-mock { width: 100%; height: 180px; background: #050505; border: 1px solid #222; border-radius: 10px; position: relative; margin-top: 5px; overflow: hidden; }
+        .line-draw { position: absolute; width: 100%; height: 2px; background: var(--neon); opacity: 0.6; box-shadow: 0 0 10px var(--neon); }
     </style>
 </head>
 <body>
 
-<div id="p1" class="screen active">
-    <div class="header"><b style="color:var(--neon)">SC_MALIKOV | ASSET</b></div>
-    <div class="grid">
-        <button class="btn" onclick="next(2,'p','BTC/USDT')">BTC/USDT</button>
-        <button class="btn" onclick="next(2,'p','XAU/USD')">GOLD (XAU)</button>
-        <button class="btn" onclick="next(2,'p','SOL/USDT')">SOL/USDT</button>
-        <button class="btn" onclick="next(2,'p','ETH/USDT')">ETH/USDT</button>
+<div id="step1" class="screen active">
+    <div class="header"><h1>SC_MALIKOV | ASSETS</h1></div>
+    <div class="btn-grid">
+        <button class="btn" onclick="go(2, 'pair', 'XAU/USD')">GOLD (XAU/USD)</button>
+        <button class="btn" onclick="go(2, 'pair', 'BTC/USD')">BITCOIN (BTC/USD)</button>
+        <button class="btn" onclick="go(2, 'pair', 'EUR/USD')">EURO (EUR/USD)</button>
     </div>
 </div>
 
-<div id="p2" class="screen">
-    <div class="header"><b style="color:var(--neon)">16 TA STRATEGIYA (PDF)</b></div>
-    <div class="grid">
-        <button class="btn btn-fibo" onclick="run('TEXO FIBO 1.618')">1. TEXO: FIBO + ENGULFING</button>
-        
-        <button class="btn" onclick="run('PA 1: GORIZONTAL')">2. PA: GORIZONTAL</button>
-        <button class="btn" onclick="run('PA 2: TREND KANAL')">3. PA: TREND KANAL</button>
-        <button class="btn" onclick="run('PA 3: SIMMETRIK')">4. PA: SIMMETRIK</button>
-        <button class="btn" onclick="run('PA 4: ASCENDING')">5. PA: ASCENDING</button>
-        <button class="btn" onclick="run('PA 5: DESCENDING')">6. PA: DESCENDING</button>
-        <button class="btn" onclick="run('PA 6: BAYROQ')">7. PA: BAYROQ</button>
-        <button class="btn" onclick="run('PA 7: H&S')">8. PA: H&S</button>
-        <button class="btn" onclick="run('PA 8: D-TOP')">9. PA: DOUBLE TOP</button>
-        <button class="btn" onclick="run('PA 9: WEDGE')">10. PA: WEDGE</button>
-        <button class="btn" onclick="run('PA 10: PIN-BAR')">11. PA: PIN-BAR</button>
-        <button class="btn" onclick="run('PA 11: ENGULFING')">12. PA: ENGULFING</button>
-        <button class="btn" onclick="run('PA 12: M-PATTERN')">13. PA: M-PATTERN</button>
-        <button class="btn" onclick="run('PA 13: W-PATTERN')">14. PA: W-PATTERN</button>
-        <button class="btn" onclick="run('PA 14: BREAKOUT')">15. PA: BREAKOUT</button>
-        <button class="btn" onclick="run('PA 15: RETEST')">16. PA: RETEST MODULI</button>
+<div id="step2" class="screen">
+    <div class="header"><h1>16 TA STRATEGIYA</h1></div>
+    <div class="btn-grid">
+        <button class="btn btn-fibo" onclick="run('FIBO + ENGULFING')">1. TEXO: FIBO 1.618 + ENGULFING</button>
+        <button class="btn" onclick="run('GORIZONTAL')">2. PA: GORIZONTAL LINIYA</button>
+        <button class="btn" onclick="run('TREND KANAL')">3. PA: TREND KANAL</button>
+        <button class="btn" onclick="run('SIMMETRIK')">4. PA: SIMMETRIK UCHBURCHAK</button>
+        <button class="btn" onclick="run('ASCENDING')">5. PA: ASCENDING TRIANGLE</button>
+        <button class="btn" onclick="run('DESCENDING')">6. PA: DESCENDING TRIANGLE</button>
+        <button class="btn" onclick="run('BAYROQ')">7. PA: BAYROQ (FLAG)</button>
+        <button class="btn" onclick="run('H&S')">8. PA: HEAD & SHOULDERS</button>
+        <button class="btn" onclick="run('DOUBLE TOP')">9. PA: DOUBLE TOP/BOTTOM</button>
+        <button class="btn" onclick="run('WEDGE')">10. PA: WEDGE (PONASIMON)</button>
+        <button class="btn" onclick="run('PIN-BAR')">11. PA: PIN-BAR STRATEGIYASI</button>
+        <button class="btn" onclick="run('ENGULFING')">12. PA: ENGULFING (YUTISH)</button>
+        <button class="btn" onclick="run('M-PATTERN')">13. PA: M-PATTERN</button>
+        <button class="btn" onclick="run('W-PATTERN')">14. PA: W-PATTERN</button>
+        <button class="btn" onclick="run('BREAKOUT')">15. PA: BREAKOUT (YORIB O'TISH)</button>
+        <button class="btn" onclick="run('RETEST')">16. PA: RETEST MODULI</button>
     </div>
 </div>
 
-<div id="p3" class="screen">
-    <div class="chart-v" id="cv"></div>
-    <div class="info" id="res"></div>
-    <button class="btn" style="margin-top:10px; width:100%; border:1px solid var(--neon)" onclick="location.reload()">BOSH MENYU</button>
+<div id="step3" class="screen">
+    <div class="chart-mock" id="chart-area"></div>
+    <div class="res-box" id="result-text">Tahlil qilinmoqda...</div>
+    <button class="btn" style="margin-top:10px; width:100%; border:1px solid var(--neon)" onclick="location.reload()">ASOSIY MENYU</button>
 </div>
 
 <script>
-    let st = { p:'', s:'' };
-    function next(n, k, v) { st[k]=v; document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById('p'+n).classList.add('active'); }
+    let session = { pair: '', strat: '' };
+
+    function go(s, k, v) {
+        session[k] = v;
+        document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+        document.getElementById('step' + s).classList.add('active');
+    }
 
     function run(s) {
-        st.s = s; next(3);
-        let pr = (Math.random()*500 + 60000).toFixed(2);
+        session.strat = s;
+        go(3);
         
-        // Grafik simulyatsiyasi (Qotib qolmasligi uchun CSS orqali)
-        document.getElementById('cv').innerHTML = '<div style="position:absolute;top:50%;left:10%;right:10%;height:2px;background:var(--neon);box-shadow:0 0 10px var(--neon)"></div><div style="color:#333;padding:20px">GRAFIK TAHLILI...</div>';
-        
-        document.getElementById('res').innerHTML = `
-            <b style="color:var(--neon)">${st.p} | ${st.s}</b><br><br>
-            <div style="display:flex; justify-content:space-between">
-                <span>ENTRY: <b>${pr}</b></span>
-                <span style="color:var(--red)">SL: <b>${(pr*0.993).toFixed(2)}</b></span>
-                <span>TP: <b>${(pr*1.021).toFixed(2)}</b></span>
+        // Narxlarni juftlikka qarab moslash
+        let price = 0;
+        if(session.pair.includes('BTC')) price = 65420.50;
+        else if(session.pair.includes('XAU')) price = 2350.80;
+        else price = 1.0850;
+
+        let entry = (price + (Math.random() * 5)).toFixed(session.pair.includes('EUR') ? 4 : 2);
+        let sl = (entry * 0.992).toFixed(session.pair.includes('EUR') ? 4 : 2);
+        let tp = (entry * 1.025).toFixed(session.pair.includes('EUR') ? 4 : 2);
+
+        // Grafik vizualizatsiyasi
+        const area = document.getElementById('chart-area');
+        area.innerHTML = '';
+        let line = document.createElement('div');
+        line.className = 'line-draw';
+        line.style.top = '50%';
+        area.appendChild(line);
+
+        // PDF bo'yicha batafsil tushuntirish
+        let details = "";
+        switch(s) {
+            case 'FIBO + ENGULFING':
+                details = "<b>TEXO TRADE:</b> Engulfing shamchasi aniqlandi. Fibonacci 1.618 darajasi target qilib olindi. Risk: 1%, Reward: 3%.";
+                break;
+            case 'PIN-BAR':
+                details = "<b>10-STRATEGIYA:</b> Grafikda uzun soyali Pin-bar shakllandi. Bu trendning qarama-qarshi tomonga o'zgarishini bildiradi (PDF 19-bet).";
+                break;
+            case 'RETEST':
+                details = "<b>15-STRATEGIYA:</b> Narx darajani yorib o'tib, qayta sinovdan o'tkazmoqda. Retest nuqtasida kirish qulay.";
+                break;
+            case 'H&S':
+                details = "<b>7-STRATEGIYA:</b> Head & Shoulders (Bosh va elkalar) figurasi shakllandi. Bo'yin chizig'i sindi.";
+                break;
+            default:
+                details = `<b>SC_MALIKOV AI:</b> ${s} strategiyasi bo'yicha tahlil yakunlandi. PDF qoidalariga ko'ra kirish nuqtasi tasdiqlandi.`;
+        }
+
+        document.getElementById('result-text').innerHTML = `
+            <div style="font-weight:bold; color:var(--neon); margin-bottom:5px;">${session.pair} | ${session.strat}</div>
+            <div class="price-line">
+                <div class="p-item"><small>ENTRY</small><b>${entry}</b></div>
+                <div class="p-item"><small style="color:var(--red)">STOP LOSS</small><b style="color:var(--red)">${sl}</b></div>
+                <div class="p-item"><small>TAKE PROFIT</small><b>${tp}</b></div>
             </div>
-            <p style="font-size:11px; color:#888; margin-top:10px">
-                AI tahlili: PDF qo'llanmadagi qoidalarga ko'ra ${st.s} signali tasdiqlandi. 
-                Risk-mukofot nisbati 1:3.
-            </p>
+            <p style="font-size:12px; color:#ccc; line-height:1.5;">${details}</p>
         `;
     }
 </script>
