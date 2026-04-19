@@ -3,123 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SC_MALIKOV | TRADING TERMINAL</title>
+    <title>SC_MALIKOV | NEON TERMINAL</title>
     <style>
         :root {
-            --neon-green: #00ff88;
-            --neon-blue: #00d4ff;
-            --bg: #050505;
-            --card-bg: #111;
+            --neon: #00ff88;
+            --bg: #000;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(0, 255, 136, 0.3);
         }
         body {
-            background-color: var(--bg);
+            background: var(--bg);
             color: #fff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
             padding: 20px;
-        }
-        .header {
-            text-align: center;
-            padding: 20px 0;
-            border-bottom: 2px solid var(--neon-green);
-            margin-bottom: 30px;
-            box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-            letter-spacing: 3px;
-            color: var(--neon-green);
-        }
-        .header p {
-            font-size: 12px;
-            color: #888;
-            margin-top: 5px;
-        }
-        .strategy-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 15px;
-        }
-        .strat-card {
-            background: var(--card-bg);
-            border: 1px solid #222;
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-            transition: 0.3s;
-            text-decoration: none;
-            color: #fff;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 100px;
         }
-        .strat-card:hover {
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
-            transform: translateY(-3px);
-        }
-        .strat-card i {
-            font-size: 20px;
-            margin-bottom: 8px;
-            color: var(--neon-blue);
-        }
-        .strat-card span {
-            font-size: 13px;
-            font-weight: 500;
-        }
-        .pair-selector {
-            margin-bottom: 20px;
-            background: #111;
-            padding: 10px;
-            border-radius: 10px;
-            border: 1px solid #333;
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
             width: 100%;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: 5px;
+            color: var(--neon);
+            text-shadow: 0 0 15px var(--neon);
+            margin: 0;
+        }
+        .selector-container {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 25px;
+        }
+        select {
+            flex: 1;
+            background: var(--glass);
+            border: 1px solid var(--border);
             color: #fff;
+            padding: 15px;
+            border-radius: 15px;
+            outline: none;
+            backdrop-filter: blur(10px);
+            font-size: 14px;
+            -webkit-appearance: none;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            width: 100%;
+            max-width: 600px;
+        }
+        .btn {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 20px 10px;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            backdrop-filter: blur(15px);
+            box-shadow: inset 0 0 10px rgba(0, 255, 136, 0.05);
+        }
+        .btn:active {
+            transform: scale(0.95);
+            background: rgba(0, 255, 136, 0.2);
+            border-color: var(--neon);
+        }
+        .btn span {
+            color: var(--neon);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .footer-info {
+            margin-top: 30px;
+            font-size: 10px;
+            color: #444;
+            letter-spacing: 2px;
         }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>SC_MALIKOV</h1>
-        <p>16 TA PROFESSIONAL STRATEGIYALAR TERMINALI</p>
+        <p class="logo">SC_MALIKOV</p>
+        <span style="font-size: 10px; color: #666;">INTELLIGENT TRADING SYSTEM</span>
     </div>
 
-    <select id="pairSelect" class="pair-selector">
-        <option value="BINANCE:BTCUSDT">BTC/USDT</option>
-        <option value="BINANCE:ETHUSDT">ETH/USDT</option>
-        <option value="BINANCE:XAUUSD">GOLD (XAU/USD)</option>
-        <option value="BINANCE:SOLUSDT">SOLANA</option>
-    </select>
-
-    <div class="strategy-grid">
-        <a href="#" onclick="openStrat('fibo_strat.html')" class="strat-card"><span>1. Fibonacci Retracement</span></a>
-        <a href="#" onclick="openStrat('trend_channel.html')" class="strat-card"><span>2. Trend Channel</span></a>
-        <a href="#" onclick="openStrat('horizontal.html')" class="strat-card"><span>3. S/R Levels</span></a>
-        <a href="#" onclick="openStrat('symmetrical_triangle.html')" class="strat-card"><span>4. Symmetrical Triangle</span></a>
-        <a href="#" onclick="openStrat('ascending_triangle.html')" class="strat-card"><span>5. Ascending Triangle</span></a>
+    <div class="selector-container">
+        <select id="pairSelect">
+            <option value="BINANCE:BTCUSDT">BTC/USDT</option>
+            <option value="BINANCE:ETHUSDT">ETH/USDT</option>
+            <option value="BINANCE:XAUUSD">GOLD</option>
+            <option value="BINANCE:SOLUSDT">SOLANA</option>
+        </select>
         
-        <a href="#" onclick="openStrat('descending_triangle.html')" class="strat-card"><span>6. Descending Triangle</span></a>
-        <a href="#" onclick="openStrat('flag_pattern.html')" class="strat-card"><span>7. Flag Pattern</span></a>
-        <a href="#" onclick="openStrat('head_shoulders.html')" class="strat-card"><span>8. Head & Shoulders</span></a>
-        <a href="#" onclick="openStrat('double_pattern.html')" class="strat-card"><span>9. Double Top/Bottom</span></a>
-        <a href="#" onclick="openStrat('inverted_hs.html')" class="strat-card"><span>10. Inverted H&S</span></a>
-        
-        <a href="#" onclick="openStrat('cup_handle.html')" class="strat-card"><span>11. Cup & Handle</span></a>
-        <a href="#" onclick="openStrat('wedge_pattern.html')" class="strat-card"><span>12. Wedge Pattern</span></a>
-        <a href="#" onclick="openStrat('rectangle_pattern.html')" class="strat-card"><span>13. Rectangle Pattern</span></a>
-        <a href="#" onclick="openStrat('pennant_pattern.html')" class="strat-card"><span>14. Pennant Pattern</span></a>
-        <a href="#" onclick="openStrat('rounding_bottom.html')" class="strat-card"><span>15. Rounding Bottom</span></a>
-        <a href="#" onclick="openStrat('parallel_channel.html')" class="strat-card"><span>16. Parallel Channel</span></a>
+        <select id="tfSelect">
+            <option value="1">1M</option>
+            <option value="5">5M</option>
+            <option value="15" selected>15M</option>
+            <option value="60">1H</option>
+            <option value="240">4H</option>
+            <option value="D">1D</option>
+        </select>
     </div>
+
+    <div class="grid">
+        <a href="#" onclick="go('fibo_strat.html')" class="btn"><span>STRAT 01</span>FIBONACCI</a>
+        <a href="#" onclick="go('trend_channel.html')" class="btn"><span>STRAT 02</span>TREND CHANNEL</a>
+        <a href="#" onclick="go('horizontal.html')" class="btn"><span>STRAT 03</span>S/R LEVELS</a>
+        <a href="#" onclick="go('symmetrical_triangle.html')" class="btn"><span>STRAT 04</span>SYM TRIANGLE</a>
+        <a href="#" onclick="go('ascending_triangle.html')" class="btn"><span>STRAT 05</span>ASC TRIANGLE</a>
+        <a href="#" onclick="go('descending_triangle.html')" class="btn"><span>STRAT 06</span>DESC TRIANGLE</a>
+        <a href="#" onclick="go('flag_pattern.html')" class="btn"><span>STRAT 07</span>FLAG PATTERN</a>
+        <a href="#" onclick="go('head_shoulders.html')" class="btn"><span>STRAT 08</span>HEAD & SHOULDERS</a>
+        <a href="#" onclick="go('double_pattern.html')" class="btn"><span>STRAT 09</span>DOUBLE TOP/BOT</a>
+        <a href="#" onclick="go('inverted_hs.html')" class="btn"><span>STRAT 10</span>INVERTED H&S</a>
+        <a href="#" onclick="go('cup_handle.html')" class="btn"><span>STRAT 11</span>CUP & HANDLE</a>
+        <a href="#" onclick="go('wedge_pattern.html')" class="btn"><span>STRAT 12</span>WEDGE PATTERN</a>
+        <a href="#" onclick="go('rectangle_pattern.html')" class="btn"><span>STRAT 13</span>RECTANGLE</a>
+        <a href="#" onclick="go('pennant_pattern.html')" class="btn"><span>STRAT 14</span>PENNANT</a>
+        <a href="#" onclick="go('rounding_bottom.html')" class="btn"><span>STRAT 15</span>ROUNDING BOT</a>
+        <a href="#" onclick="go('parallel_channel.html')" class="btn"><span>STRAT 16</span>PARALLEL CH</a>
+    </div>
+
+    <div class="footer-info">SYSTEM STATUS: OPERATIONAL</div>
 
     <script>
-        function openStrat(page) {
+        function go(page) {
             const pair = document.getElementById('pairSelect').value;
-            window.location.href = page + "?pair=" + pair;
+            const tf = document.getElementById('tfSelect').value;
+            // 4. ANALIZ VA SURATGA YO'NALTIRISH
+            window.location.href = page + "?pair=" + pair + "&tf=" + tf;
         }
     </script>
 </body>
