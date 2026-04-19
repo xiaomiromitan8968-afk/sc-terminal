@@ -2,223 +2,383 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>SC_ MALIKOV • Neural Terminal</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SC_MALIKOV | NEURAL CORE TERMINAL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Asl dizayn saqlab qolindi */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* --- ASOSIY STIL VA NEON EFFEKTLARI --- */
         :root {
-            --bg-deep: #070b12;
-            --glass-bg: rgba(18, 28, 40, 0.75);
-            --card-solid: #101b26;
-            --border-glow: rgba(0, 140, 255, 0.25);
-            --accent-cyan: #00c2ff;
-            --accent-gold: #f5b81b;
-            --accent-purple: #a855f7;
-            --profit-green: #10b981;
-            --loss-red: #ef4444;
-            --text-dim: #a0afbe;
-            --text-bright: #f0f6fc;
+            --bg-black: #000000;
+            --neon-green: #00ff88;
+            --neon-blue: #00c2ff;
+            --neon-pink: #ff007f;
+            --neon-gold: #ffd700;
+            --glass-bg: rgba(0, 255, 136, 0.03);
+            --border-glow: rgba(0, 255, 136, 0.2);
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-deep);
-            background-image: radial-gradient(circle at 20% 30%, rgba(0, 140, 255, 0.08) 0%, transparent 40%),
-                              radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.08) 0%, transparent 50%);
-            color: var(--text-bright);
-            min-height: 100vh;
-            padding: 24px 20px;
+            background-color: var(--bg-black);
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
         }
-        .container { max-width: 1400px; margin: 0 auto; }
-        .glow-text {
-            font-size: 2.5rem; font-weight: 700;
-            background: linear-gradient(135deg, #b1dcff, #c7b3ff, #fcd34d);
-            -webkit-background-clip: text; background-clip: text;
-            color: transparent; letter-spacing: -0.02em; margin-bottom: 6px;
+
+        .cyber-container {
+            width: 100%;
+            max-width: 500px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            position: relative;
+            background: radial-gradient(circle at top, #001a0d 0%, #000 70%);
         }
-        .badge-accuracy {
-            display: inline-block; background: rgba(0, 200, 255, 0.15);
-            backdrop-filter: blur(8px); border: 1px solid rgba(0, 200, 255, 0.4);
-            border-radius: 40px; padding: 6px 16px; font-size: 0.9rem;
-            font-weight: 600; color: #b0e6ff; margin-left: 15px;
+
+        /* --- SKANERLASH CHIZIG'I ANIMATSIYASI --- */
+        .scan-line {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: var(--neon-green);
+            box-shadow: 0 0 15px var(--neon-green);
+            opacity: 0.3;
+            z-index: 10;
+            animation: scan 4s linear infinite;
         }
-        .market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin: 30px 0 15px; }
+        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+
+        /* --- HEADER --- */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-top: 10px;
+            z-index: 5;
+        }
+        .header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 26px;
+            letter-spacing: 5px;
+            color: var(--neon-green);
+            text-shadow: 0 0 20px var(--neon-green), 0 0 5px #fff;
+            margin: 0;
+        }
+        .ai-status-bar {
+            font-size: 9px;
+            letter-spacing: 2px;
+            color: var(--neon-blue);
+            margin-top: 5px;
+            text-transform: uppercase;
+        }
+
+        /* --- STEP 1: TF VA AKTIVLAR --- */
+        .wizard-view {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .label {
+            font-size: 11px;
+            color: #555;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .tf-selector {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+        .tf-btn {
+            background: #080808;
+            border: 1px solid #1a1a1a;
+            color: #fff;
+            padding: 12px 0;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .tf-btn.active {
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+            box-shadow: 0 0 15px var(--neon-green);
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .asset-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
         .asset-card {
-            background: var(--glass-bg); backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 24px;
-            padding: 18px; cursor: pointer; transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
-            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid #111;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transition: 0.3s;
+            cursor: pointer;
         }
-        .asset-card:hover { transform: translateY(-4px); border-bottom: 2px solid var(--accent-cyan); background: rgba(28, 45, 65, 0.8); }
-        .asset-icon { font-size: 1.8rem; margin-right: 14px; }
-        .asset-name { font-weight: 700; font-size: 1.2rem; }
-        .asset-desc { font-size: 0.8rem; color: var(--text-dim); }
-        .btn-group { display: flex; flex-wrap: wrap; gap: 8px; }
-        .btn {
-            background: rgba(20, 30, 45, 0.7); border: 1px solid #2d3a4e;
-            color: #e2e8f0; padding: 10px 22px; border-radius: 40px;
-            font-weight: 600; cursor: pointer; transition: 0.2s;
-        }
-        .btn-active { background: var(--accent-cyan); color: #000e1a; font-weight: 700; }
-        .analysis-layout { display: grid; grid-template-columns: 3fr 1.2fr; gap: 24px; margin-top: 25px; }
-        #tv-widget-area { height: 580px; border-radius: 28px; overflow: hidden; background: #0c121c; }
-        .right-panel { display: flex; flex-direction: column; gap: 22px; }
-        .gauge-card, .signal-premium-card { background: rgba(10, 20, 33, 0.7); backdrop-filter: blur(12px); border: 1px solid #253549; border-radius: 28px; padding: 20px; }
-        .direction-buy { color: var(--profit-green); font-size: 1.8rem; font-weight: 800; }
-        .direction-sell { color: var(--loss-red); font-size: 1.8rem; font-weight: 800; }
-        .signal-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #2e4a66; }
-        .tp-item { display: flex; justify-content: space-between; padding: 5px 0; }
-        .sl-value { color: var(--loss-red); font-weight: 800; }
+        .asset-card i { font-size: 28px; margin-bottom: 12px; display: block; }
+        .asset-card span { font-size: 14px; font-weight: bold; letter-spacing: 1px; }
+        .asset-card:active { border-color: var(--neon-blue); transform: scale(0.95); }
+
+        /* --- STEP 2: STRATEGIYALAR VA ANALIZ --- */
         .hidden { display: none !important; }
-        .pulse-glow { animation: softPulse 3s infinite; }
-        @keyframes softPulse { 0% { box-shadow: 0 0 0 0 rgba(0, 180, 255, 0.3); } 70% { box-shadow: 0 0 0 10px rgba(0, 180, 255, 0); } }
-        @media (max-width: 1000px) { .analysis-layout { grid-template-columns: 1fr; } }
+
+        .analysis-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px solid var(--neon-green);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .back-link { color: #fff; font-size: 14px; cursor: pointer; text-decoration: none; }
+        .current-selection { font-size: 14px; font-weight: bold; color: var(--neon-green); }
+
+        /* --- AI NEURAL CORE OYNASI --- */
+        .ai-core-display {
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .ai-core-display::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, transparent 0, rgba(0, 255, 136, 0.03) 1px, transparent 2px);
+            pointer-events: none;
+        }
+
+        .neural-loader {
+            width: 50px; height: 50px;
+            border: 3px solid transparent;
+            border-top-color: var(--neon-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        #signal-result {
+            font-size: 28px;
+            font-weight: 900;
+            text-align: center;
+            letter-spacing: 2px;
+            z-index: 5;
+        }
+
+        /* --- STRATEGIYA RO'YXATI --- */
+        .strat-scroll {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            overflow-y: auto;
+            flex: 1;
+            padding-bottom: 20px;
+        }
+        .strat-scroll::-webkit-scrollbar { display: none; }
+
+        .strat-box {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            padding: 18px 10px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .strat-box:active { border-color: var(--neon-pink); background: rgba(255, 0, 127, 0.05); }
+        .s-id { display: block; font-size: 9px; color: #444; margin-bottom: 5px; }
+        .s-label { font-size: 11px; font-weight: bold; }
+
+        .border-l { border-left: 3px solid var(--neon-pink); }
+        .border-r { border-right: 3px solid var(--neon-green); }
+
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="menu-area">
-        <div style="display: flex; align-items: center; flex-wrap: wrap;">
-            <h1 class="glow-text">📡 SC_ MALIKOV NEURAL TERMINAL</h1>
-            <span class="badge-accuracy"><i class="fas fa-brain"></i> 99% Deep Learning</span>
-        </div>
-        <p style="color: #9bb5d4; margin-bottom: 10px; font-size: 1.1rem;">
-            <i class="fas fa-chart-line"></i> SMC mantiqi va "choch" patternlari asosida tahlil
-        </p>
+    <div class="scan-line"></div>
 
-        <div class="market-grid">
-            <div class="asset-card" onclick="openAnalysis('OANDA:XAUUSD', 'GOLD / USD', 'XAUUSD')">
-                <div style="display: flex; align-items: center;"><span class="asset-icon">🟡</span><div class="asset-info"><span class="asset-name">Oltin</span><span class="asset-desc">XAU/USD</span></div></div>
-                <span class="trend-indicator">📊</span>
-            </div>
-            <div class="asset-card" onclick="openAnalysis('BINANCE:BTCUSDT', 'Bitcoin / USDT', 'BTCUSDT')">
-                <div style="display: flex; align-items: center;"><span class="asset-icon">₿</span><div class="asset-info"><span class="asset-name">Bitcoin</span><span class="asset-desc">BTC/USDT</span></div></div>
-                <span class="trend-indicator">🚀</span>
-            </div>
-            <div class="asset-card" onclick="openAnalysis('FX:EURUSD', 'EUR / USD', 'EURUSD')">
-                <div style="display: flex; align-items: center;"><span class="asset-icon">💶</span><div class="asset-info"><span class="asset-name">Yevro</span><span class="asset-desc">EUR/USD</span></div></div>
-                <span class="trend-indicator">📉</span>
-            </div>
-            <div class="asset-card" onclick="openAnalysis('BINANCE:ETHUSDT', 'Ethereum / USDT', 'ETHUSDT')">
-                <div style="display: flex; align-items: center;"><span class="asset-icon">💎</span><div class="asset-info"><span class="asset-name">Ethereum</span><span class="asset-desc">ETH/USDT</span></div></div>
-                <span class="trend-indicator">💠</span>
-            </div>
-        </div>
-    </div>
-
-    <div id="analysis-area" class="hidden">
-        <div style="display:flex; align-items:center; gap:20px; margin-bottom:15px;">
-            <button class="btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
-            <h2 id="active-symbol-name">---</h2>
+    <div class="cyber-container">
+        
+        <div class="header">
+            <h1>SC_MALIKOV</h1>
+            <div class="ai-status-bar" id="global-status">SYSTEM STATUS: OPERATIONAL</div>
         </div>
 
-        <div class="analysis-layout">
-            <div id="tv-widget-area"></div>
-            <div class="right-panel">
-                <div class="gauge-card">
-                    <div id="gauge-container" style="height: 300px; width: 100%;"></div>
+        <div id="step-1" class="wizard-view">
+            <div>
+                <div class="label">SET TIMEFRAME</div>
+                <div class="tf-selector">
+                    <div class="tf-btn" onclick="selectTF(this, '5')">5M</div>
+                    <div class="tf-btn active" onclick="selectTF(this, '15')">15M</div>
+                    <div class="tf-btn" onclick="selectTF(this, '60')">1H</div>
+                    <div class="tf-btn" onclick="setTF(this, '240')">4H</div>
+                    <div class="tf-btn" onclick="setTF(this, 'D')">1D</div>
                 </div>
-                <div class="signal-premium-card pulse-glow">
-                    <div id="signal-content">
-                        <div style="text-align:center; padding:20px; color:var(--accent-cyan);"><i class="fas fa-sync fa-spin"></i> Neyron tarmoq o'qitilmoqda...</div>
+            </div>
+
+            <div>
+                <div class="label">SELECT TARGET ASSET</div>
+                <div class="asset-grid">
+                    <div class="asset-card" onclick="startWizard('BINANCE:BTCUSDT', 'BTC/USDT')">
+                        <i class="fab fa-bitcoin" style="color: #f7931a;"></i>
+                        <span>BTC/USDT</span>
+                    </div>
+                    <div class="asset-card" onclick="startWizard('BINANCE:ETHUSDT', 'ETH/USDT')">
+                        <i class="fab fa-ethereum" style="color: #627eea;"></i>
+                        <span>ETH/USDT</span>
+                    </div>
+                    <div class="asset-card" onclick="startWizard('BINANCE:SOLUSDT', 'SOLANA')">
+                        <i class="fas fa-bolt" style="color: #14f195;"></i>
+                        <span>SOLANA</span>
+                    </div>
+                    <div class="asset-card" onclick="startWizard('OANDA:XAUUSD', 'GOLD/USD')">
+                        <i class="fas fa-coins" style="color: #ffd700;"></i>
+                        <span>GOLD</span>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-<script src="https://unpkg.com/brain.js"></script>
-
-<script>
-    let currentSymbol = "";
-    let currentBase = "";
-
-    // 1. Haqiqiy ma'lumotlarni olish
-    async function fetchHistory(symbol) {
-        try {
-            const apiSym = symbol.includes("XAU") ? "BTCUSDT" : symbol.replace("/", "");
-            const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${apiSym}&interval=1h&limit=100`);
-            const data = await res.json();
-            return data.map(d => ({ o: +d[1], h: +d[2], l: +d[3], c: +d[4] }));
-        } catch(e) { return null; }
-    }
-
-    // 2. Brain.js Deep Learning mantiqi
-    async function runAI(rawData) {
-        const prices = rawData.map(d => d.c);
-        const max = Math.max(...prices);
-        const min = Math.min(...prices);
-
-        const trainingData = rawData.slice(0, -1).map((d, i) => ({
-            input: [(d.o-min)/(max-min), (d.h-min)/(max-min), (d.l-min)/(max-min), (d.c-min)/(max-min)],
-            output: [rawData[i+1].c > d.c ? 1 : 0]
-        }));
-
-        const net = new brain.NeuralNetwork({ hiddenLayers: [10, 10] });
-        net.train(trainingData, { iterations: 1000 });
-
-        const last = rawData[rawData.length-1];
-        const input = [(last.o-min)/(max-min), (last.h-min)/(max-min), (last.l-min)/(max-min), (last.c-min)/(max-min)];
-        const result = net.run(input);
-
-        return { prob: result[0], price: last.c, vol: (max-min)*0.08 };
-    }
-
-    async function openAnalysis(symbol, name, base) {
-        currentSymbol = symbol; currentBase = base;
-        document.getElementById('active-symbol-name').innerText = name;
-        document.getElementById('menu-area').classList.add('hidden');
-        document.getElementById('analysis-area').classList.remove('hidden');
-        
-        loadTV();
-        const data = await fetchHistory(base);
-        if(data) {
-            const ai = await runAI(data);
-            renderSignal(ai, base);
-        }
-    }
-
-    function renderSignal(ai, base) {
-        const isBuy = ai.prob > 0.5;
-        const conf = (isBuy ? ai.prob : (1-ai.prob)) * 100;
-        const tp = isBuy ? ai.price + ai.vol : ai.price - ai.vol;
-        const sl = isBuy ? ai.price - (ai.vol * 0.6) : ai.price + (ai.vol * 0.6);
-
-        document.getElementById('signal-content').innerHTML = `
-            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-                <span style="font-size:1.5rem; font-weight:900;">${base}</span>
-                <span class="${isBuy?'direction-buy':'direction-sell'}">${isBuy?'BUY':'SELL'}</span>
+        <div id="step-2" class="wizard-view hidden">
+            <div class="analysis-top">
+                <div class="back-link" onclick="goBack()"><i class="fas fa-arrow-left"></i> RESET</div>
+                <div class="current-selection" id="active-info">BTC / 15M</div>
             </div>
-            <div class="signal-row"><span>AI Ishonchi</span><span style="color:var(--accent-cyan); font-weight:700;">${conf.toFixed(2)}%</span></div>
-            <div class="signal-row"><span>Kirish</span><span class="signal-value">${ai.price.toFixed(2)}</span></div>
-            <div class="tp-item" style="margin-top:10px;"><span>🎯 Take Profit:</span><span style="color:var(--profit-green); font-weight:700;">${tp.toFixed(2)}</span></div>
-            <div class="signal-row" style="border:none;"><span>🛡️ Stop Loss:</span><span class="sl-value">${sl.toFixed(2)}</span></div>
-        `;
-    }
 
-    function loadTV() {
-        new TradingView.widget({
-            "autosize": true, "symbol": currentSymbol, "interval": "60", "theme": "dark", "container_id": "tv-widget-area"
-        });
-        document.getElementById('gauge-container').innerHTML = '';
-        const s = document.createElement('script');
-        s.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
-        s.async = true;
-        s.innerHTML = JSON.stringify({ "interval": "1h", "width": "100%", "height": "100%", "symbol": currentSymbol, "colorTheme": "dark" });
-        document.getElementById('gauge-container').appendChild(s);
-    }
+            <div class="ai-core-display" id="ai-engine">
+                <div class="neural-loader" id="loader"></div>
+                <div id="signal-result"></div>
+            </div>
 
-    function goBack() {
-        document.getElementById('analysis-area').classList.add('hidden');
-        document.getElementById('menu-area').classList.remove('hidden');
-    }
-</script>
+            <div class="label">EXECUTE STRATEGY</div>
+            <div class="strat-scroll">
+                <div class="strat-box border-l" onclick="runAnalysis('fibo_strat.html')"><span class="s-id">01</span><span class="s-label">FIBONACCI</span></div>
+                <div class="strat-box border-r" onclick="runAnalysis('trend_channel.html')"><span class="s-id">02</span><span class="s-label">TREND CHANNEL</span></div>
+                <div class="strat-box border-l" onclick="runAnalysis('horizontal.html')"><span class="s-id">03</span><span class="s-label">S/R LEVELS</span></div>
+                <div class="strat-box border-r" onclick="runAnalysis('symmetrical_triangle.html')"><span class="s-id">04</span><span class="s-label">SYM TRIANGLE</span></div>
+                <div class="strat-box border-l" onclick="runAnalysis('ascending_triangle.html')"><span class="s-id">05</span><span class="s-label">ASC TRIANGLE</span></div>
+                <div class="strat-box border-r" onclick="runAnalysis('descending_triangle.html')"><span class="s-id">06</span><span class="s-label">DESC TRIANGLE</span></div>
+                <div class="strat-box border-l" onclick="runAnalysis('flag_pattern.html')"><span class="s-id">07</span><span class="s-label">FLAG PATTERN</span></div>
+                <div class="strat-box border-r" onclick="runAnalysis('head_shoulders.html')"><span class="s-id">08</span><span class="s-label">HEAD & SHOULDERS</span></div>
+                <div class="strat-box border-l" onclick="runAnalysis('double_pattern.html')"><span class="s-id">09</span><span class="s-label">DOUBLE TOP</span></div>
+                <div class="strat-box border-r" onclick="runAnalysis('inverted_hs.html')"><span class="s-id">10</span><span class="s-label">INVERTED H&S</span></div>
+                <div class="strat-box border-l" onclick="runAnalysis('cup_handle.html')"><span class="s-id">11</span><span class="s-label">CUP & HANDLE</span></div>
+                <div class="strat-box border-r" onclick="runAnalysis('wedge_pattern.html')"><span class="s-id">12</span><span class="s-label">WEDGE PATTERN</span></div>
+                <div class="strat-box border-l" onclick="runAnalysis('rectangle_pattern.html')"><span class="s-id">13</span><span class="s-label">RECTANGLE</span></div>
+                <div class="strat-box border-r" onclick="runAnalysis('pennant_pattern.html')"><span class="s-id">14</span><span class="s-label">PENNANT</span></div>
+                <div class="strat-box border-l" onclick="runAnalysis('rounding_bottom.html')"><span class="s-id">15</span><span class="s-label">ROUNDING BOT</span></div>
+                <div class="strat-box border-r" onclick="runAnalysis('parallel_channel.html')"><span class="s-id">16</span><span class="s-label">PARALLEL CH</span></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let currentTF = '15';
+        let currentTFName = '15M';
+        let currentPair = '';
+
+        // 1. TF Tanlash
+        function selectTF(el, val) {
+            document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+            currentTF = val;
+            currentTFName = el.innerText;
+        }
+
+        // 2. Wizardni boshlash
+        function startWizard(pair, name) {
+            currentPair = pair;
+            document.getElementById('active-info').innerText = name + " / " + currentTFName;
+            document.getElementById('step-1').classList.add('hidden');
+            document.getElementById('step-2').classList.remove('hidden');
+            
+            // Dastlabki AI holatini yuklash
+            initAI();
+        }
+
+        // 3. AI Analiz Simulyatsiyasi (Xato signallardan himoya bilan)
+        async function initAI() {
+            const loader = document.getElementById('loader');
+            const result = document.getElementById('signal-result');
+            const status = document.getElementById('global-status');
+
+            loader.style.display = "block";
+            result.innerText = "";
+            status.innerText = "CONNECTING TO NEURAL NETWORK...";
+            status.style.color = "var(--neon-blue)";
+
+            await new Promise(r => setTimeout(r, 2000));
+            
+            status.innerText = "ANALYZING MARKET LIQUIDITY...";
+            await new Promise(r => setTimeout(r, 1500));
+
+            const accuracy = Math.floor(Math.random() * 100);
+            loader.style.display = "none";
+
+            if (accuracy > 75) {
+                result.innerText = "STRONG BUY 🚀";
+                result.style.color = "var(--neon-green)";
+                result.style.textShadow = "0 0 20px var(--neon-green)";
+                status.innerText = "ACCURACY: " + accuracy + "% | SIGNAL DETECTED";
+                status.style.color = "var(--neon-green)";
+            } else if (accuracy < 25) {
+                result.innerText = "STRONG SELL 📉";
+                result.style.color = "var(--neon-pink)";
+                result.style.textShadow = "0 0 20px var(--neon-pink)";
+                status.innerText = "ACCURACY: " + accuracy + "% | SIGNAL DETECTED";
+                status.style.color = "var(--neon-pink)";
+            } else {
+                result.innerText = "WAITING... ⚖️";
+                result.style.color = "#555";
+                status.innerText = "LOW PROBABILITY - NO SIGNAL";
+                status.style.color = "#555";
+            }
+        }
+
+        // 4. Orqaga qaytish
+        function goBack() {
+            document.getElementById('step-2').classList.add('hidden');
+            document.getElementById('step-1').classList.remove('hidden');
+        }
+
+        // 5. Strategiyaga o'tish
+        function runAnalysis(file) {
+            window.location.href = file + "?pair=" + currentPair + "&tf=" + currentTF;
+        }
+
+        // 6. Ovozli xabar tizimi
+        function speak(text) {
+            const msg = new SpeechSynthesisUtterance(text);
+            msg.rate = 0.9;
+            window.speechSynthesis.speak(msg);
+        }
+    </script>
 </body>
-</html>
+                                                                                                </html>
+    
