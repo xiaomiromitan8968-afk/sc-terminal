@@ -80,18 +80,16 @@
         try {
             const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${selectedPair}&interval=${tf}&limit=50`);
             const rawData = await res.json();
-            
             const data = rawData.map(d => ({
                 o: parseFloat(d[1]), h: parseFloat(d[2]), l: parseFloat(d[3]), c: parseFloat(d[4])
             }));
-
-            renderFullTahlil(data);
+            renderChart(data);
         } catch (e) {
-            document.getElementById('loader-box').innerHTML = "<p style='color:red'>Ulanishda xato! Hostingni tekshiring.</p>";
+            document.getElementById('loader-box').innerHTML = "<p style='color:red'>Internet yoki API xatosi!</p>";
         }
     }
 
-    function renderFullTahlil(data) {
+    function renderChart(data) {
         document.getElementById('loader-box').classList.add('hidden');
         document.getElementById('result-box').classList.remove('hidden');
         
@@ -99,69 +97,78 @@
         const ctx = canvas.getContext('2d');
         const dpr = window.devicePixelRatio || 1;
         const rect = canvas.getBoundingClientRect();
-        
         canvas.width = rect.width * dpr;
         canvas.height = rect.height * dpr;
         ctx.scale(dpr, dpr);
         
-        const width = rect.width;
-        const height = rect.height;
+        const w = rect.width;
+        const h = rect.height;
 
-        const prices = data.map(d => [d.h, d.l]).flat();
-        const min = Math.min(...prices);
-        const max = Math.max(...prices);
-        const range = max - min;
+        // Masshtabni to'g'irlash
+        const highPrices = data.map(d => d.h);
+        const lowPrices = data.map(d => d.l);
+        const maxPrice = Math.max(...highPrices);
+        const minPrice = Math.min(...lowPrices);
+        const diff = maxPrice - minPrice;
+        
+        // Ekranda chiroyli ko'rinishi uchun 10% padding
+        const padding = diff * 0.15;
+        const viewMax = maxPrice + padding;
+        const viewMin = minPrice - padding;
+        const viewRange = viewMax - viewMin;
 
-        const getX = (i) => (i / (data.length)) * width + (width / data.length / 2);
-        const getY = (p) => height - 20 - ((p - min) / range) * (height - 40);
+        const getX = (i) => (i / data.length) * w;
+        const getY = (p) => h - ((p - viewMin) / viewRange) * h;
 
-        // 1. SHAMCHALARNI CHIZISH
-        const candleW = (width / data.length) * 0.7;
+        // 1. SHAMCHALAR
+        const candleW = (w / data.length) * 0.6;
         data.forEach((d, i) => {
-            const x = getX(i);
+            const x = getX(i) + (w / data.length / 2);
             const isBull = d.c >= d.o;
             ctx.strokeStyle = isBull ? '#00ff88' : '#ff007f';
             ctx.fillStyle = isBull ? '#00ff88' : '#ff007f';
             
-            // Pilik
+            // Wick
             ctx.beginPath();
             ctx.moveTo(x, getY(d.h));
             ctx.lineTo(x, getY(d.l));
             ctx.stroke();
             
-            // Tana
-            const bodyY1 = getY(d.o);
-            const bodyY2 = getY(d.c);
-            ctx.fillRect(x - candleW/2, Math.min(bodyY1, bodyY2), candleW, Math.abs(bodyY1 - bodyY2) || 1);
+            // Body
+            const yO = getY(d.o);
+            const yC = getY(d.c);
+            ctx.fillRect(x - candleW/2, Math.min(yO, yC), candleW, Math.max(Math.abs(yO - yC), 1));
         });
 
-        // 2. MADELNI TO'G'RI CHIZISH (Trend Line)
-        // Oxirgi 20 ta shamchadan trendni aniqlash
-        const last20 = data.slice(-20);
-        const startIdx = data.length - 20;
-        ctx.setLineDash([4, 4]);
+        // 2. MADELNI CHIZISH (To'g'ri Trend Line)
+        // Oxirgi 30 ta shamchadan trend yo'nalishini aniqlaymiz
+        ctx.setLineDash([5, 5]);
         ctx.strokeStyle = '#00c2ff';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(getX(startIdx), getY(last20[0].l));
-        ctx.lineTo(getX(data.length - 1), getY(data[data.length - 1].c));
+        
+        const startX = getX(data.length - 30);
+        const startY = getY(data[data.length - 30].l);
+        const endX = getX(data.length - 1);
+        const endY = getY(data[data.length - 1].c);
+        
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(endX, endY);
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // 3. SIGNAL MANTIQLARI
+        // 3. SIGNAL MA'LUMOTLARI
         const lastPrice = data[data.length - 1].c;
-        const trend = data[data.length - 1].c > data[data.length - 10].c ? "O'suvchi" : "Tushuvchi";
-        
-        const botMsg = document.getElementById('bot-message');
-        const signalBox = document.getElementById('signal-info');
+        const prevPrice = data[data.length - 2].c;
+        const trendDir = lastPrice >= prevPrice ? "O'suvchi" : "Tushuvchi";
 
-        botMsg.innerText = `Bozorda hozirda ${trend} trend kuzatilmoqda va narx Trend Line ustida harakat qilyapti. Narx chiziqni tana bilan yorib o'tsa xabar beriladi.`;
-        
         const tp = (lastPrice * 1.01618).toFixed(2);
-        const sl = (lastPrice * 0.994).toFixed(2);
+        const sl = (lastPrice * 0.992).toFixed(2);
 
-        signalBox.innerHTML = `
-            <div style="font-weight: 900; color: var(--blue); margin-bottom: 5px;">📊 REAL-TIME SIGNAL</div>
+        document.getElementById('bot-message').innerText = `Bozorda ${trendDir} Trend mavjud va u Trend Line'da harakat qilyapti. Narx chiziqni tana bilan yorib o'tsa SMS yuboriladi.`;
+        
+        document.getElementById('signal-info').innerHTML = `
+            <div style="font-weight: 900; color: var(--blue); margin-bottom: 5px;">📊 SC_MALIKOV SIGNAL</div>
             <div>🎯 TP (1.618): <span style="color: var(--neon)">${tp}</span></div>
             <div>🛑 SL (Fibo 0): <span style="color: var(--pink)">${sl}</span></div>
         `;
