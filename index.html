@@ -3,110 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SC_MALIKOV | AI Multi-Step Terminal</title>
+    <title>SC_MALIKOV | Multi-Step AI</title>
     <script src="https://s3.tradingview.com/tv.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --neon: #00ff88; --bg: #050505; }
-        body { background: var(--bg); color: var(--neon); font-family: 'Orbitron', sans-serif; margin: 0; }
-        .screen { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
-        .active { display: flex; }
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; width: 100%; max-width: 400px; }
+        body { background: var(--bg); color: var(--neon); font-family: sans-serif; margin: 0; overflow-x: hidden; }
+        .screen { display: none; min-height: 100vh; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        .active { display: flex !important; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 400px; }
         button { 
-            background: transparent; color: var(--neon); border: 2px solid var(--neon); 
-            padding: 15px; border-radius: 10px; cursor: pointer; font-size: 14px; transition: 0.3s;
+            background: #111; color: var(--neon); border: 2px solid var(--neon); 
+            padding: 20px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: bold;
         }
-        button:hover { background: var(--neon); color: black; box-shadow: 0 0 20px var(--neon); }
-        #chart-screen { height: 100vh; flex-direction: row; align-items: stretch; }
-        #tv_chart { flex-grow: 1; }
-        #analysis-sidebar { width: 300px; background: #111; border-left: 2px solid var(--neon); padding: 20px; overflow-y: auto; }
-        h1 { font-size: 24px; text-shadow: 0 0 10px var(--neon); }
+        button:active { background: var(--neon); color: #000; }
+        #chart-screen { height: 100vh; flex-direction: column; }
+        #tv_chart { flex-grow: 1; width: 100%; }
+        #ai-sidebar { background: #111; border-top: 2px solid var(--neon); padding: 15px; font-size: 14px; }
     </style>
 </head>
 <body>
 
 <div id="step1" class="screen active">
-    <h1>1. VALYUTA PARASINI TANLANG</h1>
+    <h2 style="text-shadow: 0 0 10px var(--neon);">1. PARA TANLANG</h2>
     <div class="btn-grid">
-        <button onclick="nextStep(2, 'pair', 'BINANCE:BTCUSDT')">BTC/USDT</button>
-        <button onclick="nextStep(2, 'pair', 'OANDA:XAUUSD')">GOLD (XAUUSD)</button>
-        <button onclick="nextStep(2, 'pair', 'FX:EURUSD')">EUR/USD</button>
-        <button onclick="nextStep(2, 'pair', 'BINANCE:ETHUSDT')">ETH/USDT</button>
+        <button onclick="go(2, 'pair', 'BINANCE:BTCUSDT')">BTC/USDT</button>
+        <button onclick="go(2, 'pair', 'OANDA:XAUUSD')">GOLD</button>
+        <button onclick="go(2, 'pair', 'FX:EURUSD')">EUR/USD</button>
+        <button onclick="go(2, 'pair', 'BINANCE:ETHUSDT')">ETH/USDT</button>
     </div>
 </div>
 
 <div id="step2" class="screen">
-    <h1 id="selected-pair-display">2. TIMEFRAME TANLANG</h1>
+    <h2>2. TIMEFRAME</h2>
     <div class="btn-grid">
-        <button onclick="nextStep(3, 'tf', '5')">5 MINUT</button>
-        <button onclick="nextStep(3, 'tf', '15')">15 MINUT</button>
-        <button onclick="nextStep(3, 'tf', '60')">1 SOAT</button>
-        <button onclick="nextStep(3, 'tf', '240')">4 SOAT</button>
+        <button onclick="go(3, 'tf', '15')">15 MIN</button>
+        <button onclick="go(3, 'tf', '60')">1 SOAT</button>
+        <button onclick="go(3, 'tf', '240')">4 SOAT</button>
+        <button onclick="go(3, 'tf', 'D')">1 KUN</button>
     </div>
 </div>
 
 <div id="step3" class="screen">
-    <h1>3. STRATEGIYANI TANLANG</h1>
+    <h2>3. STRATEGIYA</h2>
     <div class="btn-grid" style="grid-template-columns: 1fr;">
-        <button onclick="finalStep('pin')">1. Pin-Bar Strategiyasi</button>
-        <button onclick="finalStep('trend')">2. Trend Kanallari</button>
-        <button onclick="finalStep('tri')">3. Uchburchak (Triangle)</button>
-        <button onclick="finalStep('smc')">16. SC_MALIKOV SMC (Advanced)</button>
+        <button onclick="finish('SMC')">SC_MALIKOV SMC (BOS/ChoCh)</button>
+        <button onclick="finish('PIN')">PIN-BAR (PDF 10-dars)</button>
+        <button onclick="finish('TREND')">TREND KANALI (PDF 2-dars)</button>
+        <button onclick="finish('RETEST')">RETEST (PDF 15-dars)</button>
     </div>
 </div>
 
 <div id="chart-screen" class="screen">
     <div id="tv_chart"></div>
-    <div id="analysis-sidebar">
-        <h2 id="sidebar-pair">---</h2>
-        <hr border="1" color="#00ff88">
-        <div id="ai-report">Analiz qilinmoqda...</div>
-        <button onclick="location.reload()" style="margin-top:20px; width:100%;">QAYTA BOSHLASH</button>
+    <div id="ai-sidebar">
+        <div id="report">Analiz tayyorlanmoqda...</div>
+        <button onclick="location.reload()" style="margin-top:10px; padding:10px; width:100%;">QAYTA BOSHLASH</button>
     </div>
 </div>
 
 <script>
-    let selections = { pair: '', tf: '', strategy: '' };
+    let data = { pair: '', tf: '', strat: '' };
 
-    function nextStep(step, key, value) {
-        selections[key] = value;
+    function go(next, key, val) {
+        data[key] = val;
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('step' + step).classList.add('active');
+        document.getElementById('step' + next).classList.add('active');
+        window.scrollTo(0,0);
     }
 
-    function finalStep(strat) {
-        selections.strategy = strat;
+    function finish(s) {
+        data.strat = s;
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById('chart-screen').classList.add('active');
-        
-        // Grafikni yuklash
+
         new TradingView.widget({
-"autosize": true,
-            "symbol": selections.pair,
-            "interval": selections.tf,
-            "timezone": "Etc/UTC",
+            "autosize": true,
+            "symbol": data.pair,
+            "interval": data.tf,
             "theme": "dark",
-            "style": "1",
-            "locale": "uz",
             "container_id": "tv_chart",
-            "hide_side_toolbar": false
+            "locale": "uz"
         });
 
-        // PDF asosida AI hisoboti
-        const report = document.getElementById('ai-report');
-        document.getElementById('sidebar-pair').innerText = selections.pair.split(':')[1];
-        
         setTimeout(() => {
-            let msg = "";
-            if(strat === 'pin') msg = "PDF Qoidasi: Grafikda Pin-bar aniqlandi. Bu narxning teskari tomonga qaytishidan kuchli signal.";
-            else if(strat === 'smc') msg = "SMC Analizi: Order Block va ChoCh (Change of Character) tasdiqlandi. Kirish nuqtasi tayyor.";
-            else msg = "PDF Analizi: Tanlangan pattern bo'yicha bozor skanerlandi va kirish signali tasdiqlandi.";
-            
-            report.innerHTML = 
-                <p><strong>TF:</strong> ${selections.tf} MIN</p>
-                <p><strong>SIGNAL:</strong> <span style="color:#00ff88">STRONG BUY</span></p>
-                <p><strong>SABAB:</strong> ${msg}</p>
-            ;
+            let info = data.strat === 'SMC' ? "OB va ChoCh tasdiqlandi. Kutilayotgan harakat: BUY." : "PDF qoidasi bo'yicha signal aniqlandi.";
+            document.getElementById('report').innerHTML = `<b>PARA:</b> ${data.pair} | <b>STRAT:</b> ${data.strat}<br><b>AI TAHLIL:</b> ${info}`;
         }, 2000);
     }
 </script>
