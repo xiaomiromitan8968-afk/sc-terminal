@@ -1,172 +1,117 @@
-<div style="text-align: center; margin-bottom: 25px;">
-    <a href="dashboard.html" style="
-        display: inline-block;
-        padding: 15px 30px;
-        background: linear-gradient(135deg, #00c2ff, #a855f7);
-        color: white;
-        text-decoration: none;
-        border-radius: 50px;
-        font-weight: bold;
-        font-size: 14px;
-        letter-spacing: 2px;
-        box-shadow: 0 0 20px rgba(0, 194, 255, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        transition: 0.3s;
-    ">
-        <i class="fas fa-robot"></i> AI SIGNAL TERMINALGA O'TISH
-    </a>
-</div>
-
 <!DOCTYPE html>
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SC_MALIKOV | NEON TERMINAL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SC_MALIKOV | LEGENDARY TERMINAL</title>
     <style>
-        :root {
-            --neon: #00ff88;
-            --bg: #000;
-            --glass: rgba(255, 255, 255, 0.05);
-            --border: rgba(0, 255, 136, 0.3);
-        }
+        /* Asosiy sozlamalar */
         body {
-            background: var(--bg);
-            color: #fff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            padding: 0;
+            background: #000;
+            overflow: hidden; /* Sahifani surishni to'xtatish */
+            font-family: sans-serif;
         }
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
+
+        /* 1. Rasmni fon sifatida joylashtirish */
+        #main-container {
+            width: 100vw;
+            height: 100vh;
+            background: url('terminal_full_visual.png') no-repeat center center; /* Rasming nomi */
+            background-size: contain; /* Rasmni butun ekran bo'ylab siqib joylash */
+            position: relative;
+        }
+
+        /* 2. Tepadagi keraksiz yozuvni (Legenda) kod orqali "maskalash" yoki yopish */
+        #mask {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
+            height: 10% !important; /* Yozuv turgan joyning balandligi */
+            background: rgba(0, 0, 0, 0.9); /* Qora shaffof blok */
+            backdrop-filter: blur(5px);
+            z-index: 5; /* Boshqalardan ustun turishi */
         }
-        .logo {
-            font-size: 28px;
-            font-weight: 900;
-            letter-spacing: 5px;
-            color: var(--neon);
-            text-shadow: 0 0 15px var(--neon);
-            margin: 0;
+
+        /* 3. Shaffof tugma zonalarining umumiy uslubi */
+        .click-zone {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.0); /* Shaffof */
+            border: 0px solid white; /* Agar tekshirmoqchi bo'lsang 1px qil */
+            cursor: pointer;
+            z-index: 10;
         }
-        .selector-container {
-            display: flex;
-            gap: 10px;
-            width: 100%;
-            max-width: 500px;
-            margin-bottom: 25px;
+
+        /* 4. TUGMALARNI JOYLASHTIRISH (Mutlaq koordinatalar) */
+        /* Bu koordinatalar rasmning ekran o'lchamiga qarab biroz o'zgarishi mumkin, moslash kerak */
+
+        #ai-terminal-btn {
+            top: 15%; /* Rasmning 15% balandligidan boshlanadi */
+            left: 10%; /* 10% chapdan */
+            width: 80%; /* 80% kenglikda */
+            height: 5%; /* 5% balandlikda */
         }
-        select {
-            flex: 1;
-            background: var(--glass);
-            border: 1px solid var(--border);
-            color: #fff;
-            padding: 15px;
-            border-radius: 15px;
-            outline: none;
-            backdrop-filter: blur(10px);
-            font-size: 14px;
-            -webkit-appearance: none;
+
+        #pair-selector {
+            top: 25%;
+            left: 5%;
+            width: 40%;
+            height: 6%;
         }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            width: 100%;
-            max-width: 600px;
+
+        #tf-selector {
+            top: 25%;
+            right: 5%;
+            width: 40%;
+            height: 6%;
         }
-        .btn {
-            background: var(--glass);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 20px 10px;
-            text-align: center;
-            text-decoration: none;
-            color: #fff;
-            font-size: 12px;
-            font-weight: 600;
-            transition: 0.3s;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            backdrop-filter: blur(15px);
-            box-shadow: inset 0 0 10px rgba(0, 255, 136, 0.05);
+
+        /* Strategiya kapsulalari - Chap qator */
+        .strat-left {
+            left: 5%;
+            width: 40%;
+            height: 8%;
         }
-        .btn:active {
-            transform: scale(0.95);
-            background: rgba(0, 255, 136, 0.2);
-            border-color: var(--neon);
+
+        /* Strategiya kapsulalari - O'ng qator */
+        .strat-right {
+            right: 5%;
+            width: 40%;
+            height: 8%;
         }
-        .btn span {
-            color: var(--neon);
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .footer-info {
-            margin-top: 30px;
-            font-size: 10px;
-            color: #444;
-            letter-spacing: 2px;
-        }
+
+        /* Har bir strategiyaning balandligi */
+        #strat01 { top: 38%; } /* Fibonacci */
+        #strat02 { top: 38%; } /* Trend Channel */
+        #strat03 { top: 50%; } /* S/R Levels */
+        #strat04 { top: 50%; } /* Sym Triangle */
+        /* ...va h.k. qolganlarini qo'shib chiqish mumkin */
+
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <p class="logo">SC_MALIKOV</p>
-        <span style="font-size: 10px; color: #666;">INTELLIGENT TRADING SYSTEM</span>
-    </div>
+    <div id="main-container">
+        <div id="mask"></div>
 
-    <div class="selector-container">
-        <select id="pairSelect">
-            <option value="BINANCE:BTCUSDT">BTC/USDT</option>
-            <option value="BINANCE:ETHUSDT">ETH/USDT</option>
-            <option value="BINANCE:XAUUSD">GOLD</option>
-            <option value="BINANCE:SOLUSDT">SOLANA</option>
-        </select>
-        
-        <select id="tfSelect">
-            <option value="1">1M</option>
-            <option value="5">5M</option>
-            <option value="15" selected>15M</option>
-            <option value="60">1H</option>
-            <option value="240">4H</option>
-            <option value="D">1D</option>
-        </select>
-    </div>
+        <div id="ai-terminal-btn" class="click-zone" onclick="window.location.href='dashboard.html'"></div>
 
-    <div class="grid">
-        <a href="#" onclick="go('fibo_strat.html')" class="btn"><span>STRAT 01</span>FIBONACCI</a>
-        <a href="#" onclick="go('trend_channel.html')" class="btn"><span>STRAT 02</span>TREND CHANNEL</a>
-        <a href="#" onclick="go('horizontal.html')" class="btn"><span>STRAT 03</span>S/R LEVELS</a>
-        <a href="#" onclick="go('symmetrical_triangle.html')" class="btn"><span>STRAT 04</span>SYM TRIANGLE</a>
-        <a href="#" onclick="go('ascending_triangle.html')" class="btn"><span>STRAT 05</span>ASC TRIANGLE</a>
-        <a href="#" onclick="go('descending_triangle.html')" class="btn"><span>STRAT 06</span>DESC TRIANGLE</a>
-        <a href="#" onclick="go('flag_pattern.html')" class="btn"><span>STRAT 07</span>FLAG PATTERN</a>
-        <a href="#" onclick="go('head_shoulders.html')" class="btn"><span>STRAT 08</span>HEAD & SHOULDERS</a>
-        <a href="#" onclick="go('double_pattern.html')" class="btn"><span>STRAT 09</span>DOUBLE TOP/BOT</a>
-        <a href="#" onclick="go('inverted_hs.html')" class="btn"><span>STRAT 10</span>INVERTED H&S</a>
-        <a href="#" onclick="go('cup_handle.html')" class="btn"><span>STRAT 11</span>CUP & HANDLE</a>
-        <a href="#" onclick="go('wedge_pattern.html')" class="btn"><span>STRAT 12</span>WEDGE PATTERN</a>
-        <a href="#" onclick="go('rectangle_pattern.html')" class="btn"><span>STRAT 13</span>RECTANGLE</a>
-        <a href="#" onclick="go('pennant_pattern.html')" class="btn"><span>STRAT 14</span>PENNANT</a>
-        <a href="#" onclick="go('rounding_bottom.html')" class="btn"><span>STRAT 15</span>ROUNDING BOT</a>
-        <a href="#" onclick="go('parallel_channel.html')" class="btn"><span>STRAT 16</span>PARALLEL CH</a>
-    </div>
+        <div id="pair-selector" class="click-zone" onclick="alert('Tez orada pair selector qo\'shiladi')"></div>
 
-    <div class="footer-info">SYSTEM STATUS: OPERATIONAL</div>
+        <div id="tf-selector" class="click-zone" onclick="alert('Tez orada taymfreym selector qo\'shiladi')"></div>
+
+        <div id="strat01" class="click-zone strat-left" onclick="runStrat('fibo_strat.html')"></div>
+        <div id="strat02" class="click-zone strat-right" onclick="runStrat('trend_channel.html')"></div>
+        </div>
 
     <script>
-        function go(page) {
-            const pair = document.getElementById('pairSelect').value;
-            const tf = document.getElementById('tfSelect').value;
-            // 4. ANALIZ VA SURATGA YO'NALTIRISH
-            window.location.href = page + "?pair=" + pair + "&tf=" + tf;
+        // Tanlangan para va taymfreymni strategiya fayliga yuborish
+        function runStrat(fileName) {
+            // Hozircha para va taymfreym tanlanmagan deb hisoblaymiz
+            alert("Strategiya yuklanmoqda...");
+            window.location.href = fileName + "?pair=BINANCE:BTCUSDT&tf=15";
         }
     </script>
 </body>
