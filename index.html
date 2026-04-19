@@ -3,156 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SC_MALIKOV | MODULAR</title>
+    <title>SC_MALIKOV | UI DESIGN</title>
     <style>
-        :root { --neon: #00ff88; --red: #ff4444; --bg: #000; }
-        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; overflow-x: hidden; }
-        .screen { display: none; height: 100vh; flex-direction: column; padding: 10px; box-sizing: border-box; }
-        .active { display: flex !important; }
-        .header { text-align: center; border-bottom: 2px solid var(--neon); padding: 10px 0; margin-bottom: 10px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .btn { background: #111; color: #fff; border: 1px solid #333; padding: 15px 5px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; }
-        .btn:active { background: var(--neon); color: #000; }
-        #tv-widget { width: 100%; height: 45vh; border: 1px solid #222; border-radius: 12px; overflow: hidden; }
-        .sig-panel { background: #0a0a0a; padding: 15px; border-radius: 12px; border-top: 4px solid var(--neon); margin-top: 10px; flex-grow: 1; }
-        .price-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px; }
-        .p-box { background: #111; padding: 8px; border-radius: 6px; text-align: center; border: 1px solid #222; }
-        .p-box small { display: block; font-size: 9px; color: #888; }
-        .p-box b { font-size: 13px; color: var(--neon); }
-        .buy { background: var(--neon); color: #000; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
-        .sell { background: var(--red); color: #fff; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
+        :root { --neon: #00ff88; --bg: #030303; --glass: rgba(255, 255, 255, 0.05); }
+        body { background: var(--bg); color: #fff; font-family: 'Outfit', sans-serif; margin: 0; padding: 15px; overflow-x: hidden; }
+        
+        /* Glassmorphism Card Style */
+        .card { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 15px; margin-bottom: 20px; }
+        .section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: var(--neon); margin-bottom: 15px; font-weight: bold; }
+
+        /* 1-BO'LIM: PARALAR (ASSETS) */
+        .asset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .asset-item { background: rgba(255,255,255,0.03); border: 1px solid #222; border-radius: 12px; padding: 12px 5px; text-align: center; transition: 0.3s; cursor: pointer; }
+        .asset-item b { display: block; font-size: 13px; color: #fff; }
+        .asset-item span { font-size: 9px; color: #888; }
+        .asset-item.active { border-color: var(--neon); box-shadow: 0 0 10px rgba(0,255,136,0.3); background: rgba(0,255,136,0.05); }
+
+        /* 2-BO'LIM: TAYMFREYM (TIMEFRAME) */
+        .tf-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+        .tf-item { min-width: 60px; background: #111; border: 1px solid #333; padding: 10px; border-radius: 10px; text-align: center; font-size: 12px; font-weight: bold; }
+        .tf-item.active { background: var(--neon); color: #000; border-color: var(--neon); }
+
+        /* 3-BO'LIM: STRATEGIYALAR */
+        .strat-list { display: grid; grid-template-columns: 1fr; gap: 8px; }
+        .strat-btn { background: linear-gradient(90deg, rgba(255,255,255,0.05), transparent); border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: 0.2s; }
+        .strat-btn:active { transform: scale(0.98); background: rgba(255,255,255,0.1); }
+        .strat-btn b { font-size: 13px; }
+        .strat-btn .num { color: var(--neon); font-family: monospace; font-size: 14px; margin-right: 10px; }
+
+        /* FOOTER: ORQAGA */
+        .footer { margin-top: auto; padding: 20px 0; }
+        .back-btn { width: 100%; background: transparent; border: 1px solid var(--red); color: #ff4444; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .back-btn:active { background: rgba(255,68,68,0.1); }
     </style>
 </head>
 <body>
 
-<div id="step1" class="screen active">
-    <div class="header"><b>SC_MALIKOV | ASSET</b></div>
-    <div class="grid">
-        <button class="btn" onclick="nav(2,'pair','BINANCE:BTCUSDT')">BITCOIN</button>
-        <button class="btn" onclick="nav(2,'pair','OANDA:XAUUSD')">GOLD (XAU)</button>
-        <button class="btn" onclick="nav(2,'pair','FX:EURUSD')">EURO (EUR)</button>
+    <div class="section-title">01. Savdo Juftliklari</div>
+    <div class="card asset-grid">
+        <div class="asset-item active"><b>BTC</b><span>BITCOIN</span></div>
+        <div class="asset-item"><b>XAU</b><span>GOLD</span></div>
+        <div class="asset-item"><b>EUR</b><span>EURO</span></div>
     </div>
-</div>
 
-<div id="step2" class="screen">
-    <div class="header"><b>TIMEFRAME</b></div>
-    <div class="grid">
-        <button class="btn" onclick="nav(3,'tf','15')">15 MINUT</button>
-        <button class="btn" onclick="nav(3,'tf','60')">1 SOAT</button>
-        <button class="btn" onclick="nav(3,'tf','240')">4 SOAT</button>
-        <button class="btn" onclick="nav(3,'tf','D')">1 KUN</button>
+    <div class="section-title">02. Taymfreym (M1-D1)</div>
+    <div class="card tf-scroll">
+        <div class="tf-item">M1</div>
+        <div class="tf-item">M5</div>
+        <div class="tf-item active">M15</div>
+        <div class="tf-item">M30</div>
+        <div class="tf-item">H1</div>
+        <div class="tf-item">H4</div>
+        <div class="tf-item">D1</div>
     </div>
-</div>
 
-<div id="step3" class="screen">
-    <div class="header"><b>16 STRATEGIYA (ADELNI)</b></div>
-    <div class="grid" id="strat-list">
-        </div>
-</div>
+    <div class="section-title">03. Strategiyalar</div>
+    <div class="strat-list">
+        <div class="strat-btn"><span class="num">01</span><b>TEXO: FIBO 1.618 + ENGULFING</b><span>➔</span></div>
+        <div class="strat-btn"><span class="num">02</span><b>PA: GORIZONTAL LINIYA</b><span>➔</span></div>
+        <div class="strat-btn"><span class="num">03</span><b>PA: TREND KANAL</b><span>➔</span></div>
+        <div class="strat-btn"><span class="num">11</span><b>PA: PIN-BAR STRATEGIYASI</b><span>➔</span></div>
+        <div class="strat-btn"><span class="num">16</span><b>PA: RETEST MODULI</b><span>➔</span></div>
+    </div>
 
-<div id="step4" class="screen">
-    <div id="tv-widget"></div>
-    <div id="signal-area" class="sig-panel">Tahlil ketmoqda...</div>
-    <button class="btn" style="width:100%; margin-top:10px; border-color:var(--neon)" onclick="location.reload()">RESTART</button>
-</div>
+    <div class="footer">
+        <button class="back-btn" onclick="alert('Asosiy menyuga qaytiladi')">
+            <span>⬅</span> ORQAGA QAYTISH
+        </button>
+    </div>
 
-<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-<script>
-    let app = { pair: '', tf: '', strat: '' };
-
-    // --- STRATEGIYALARNING ADELNI LOGIKASI ---
-    const Strategies = {
-        "TEXO_FIBO": {
-            name: "TEXO: FIBO 1.618 + ENGULFING",
-            logic: (p) => {
-                return { side: 'BUY', sl: p * 0.995, tp: p * 1.01618, desc: "Texo Trade: Fibo 1.618 test qilindi + Engulfing tasdiqlangan." };
-            }
-        },
-        "PA_PINBAR": {
-            name: "PA: PIN-BAR STRATEGIYASI",
-            logic: (p) => {
-                return { side: 'SELL', sl: p * 1.005, tp: p * 0.985, desc: "PA 10-strategiya: Kuchli Resistance zonada Pin-bar hosil bo'ldi." };
-            }
-        },
-        "PA_RETEST": {
-            name: "PA: RETEST MODULI",
-            logic: (p) => {
-                return { side: 'BUY', sl: p * 0.997, tp: p * 1.009, desc: "PA 15-strategiya: Level yorildi va Retest muvaffaqiyatli yakunlandi." };
-            }
-        },
-        "PA_H_S": {
-            name: "PA: HEAD & SHOULDERS",
-            logic: (p) => {
-                return { side: 'SELL', sl: p * 1.008, tp: p * 0.975, desc: "PA 7-strategiya: Neckline sindi. Bosh va elkalar figurasi yakunlandi." };
-            }
-        }
-        // Qolgan 12 ta strategiyani ham shu tartibda qo'shish mumkin
-    };
-
-    // Strategiyalar ro'yxatini chiqarish
-    const list = document.getElementById('strat-list');
-    Object.keys(Strategies).forEach(key => {
-        let b = document.createElement('button');
-        b.className = 'btn';
-        b.innerText = Strategies[key].name;
-        b.onclick = () => run(key);
-        list.appendChild(b);
-    });
-
-    function nav(s, k, v) {
-        app[k] = v;
-        document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
-        document.getElementById('step' + s).classList.add('active');
-    }
-
-    async function run(sKey) {
-        app.strat = sKey;
-        nav(4);
-        
-        // TradingView
-        new TradingView.widget({ "autosize": true, "symbol": app.pair, "interval": app.tf, "theme": "dark", "container_id": "tv-widget" });
-
-        // Real narxni olish (Sinxronizatsiya uchun)
-        try {
-            let symbol = app.pair.split(':')[1].replace('USDT', 'USDT');
-            if(symbol === 'XAUUSD') symbol = 'PAXGUSDT';
-            let res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
-            let data = await res.json();
-            let livePrice = parseFloat(data.price);
-            if(app.pair.includes('XAU')) livePrice = livePrice * 1; // Gold fix
-
-            displaySignal(livePrice, sKey);
-        } catch(e) {
-            displaySignal(app.pair.includes('BTC') ? 65000 : 2300, sKey);
-        }
-    }
-
-    function displaySignal(price, key) {
-        const result = Strategies[key].logic(price);
-        const pD = app.pair.includes('EUR') ? 4 : 2;
-
-        document.getElementById('signal-area').innerHTML = `
-            <span class="${result.side === 'BUY' ? 'buy' : 'sell'}">${result.side} SIGNAL</span>
-            <div style="margin-top:10px; font-size:12px;"><b>${app.pair.split(':')[1]}</b> | ${Strategies[key].name}</div>
-            
-            <div class="price-grid">
-                <div class="p-box"><small>ENTRY</small><b>${price.toFixed(pD)}</b></div>
-                <div class="p-box"><small>S/L</small><b style="color:var(--red)">${result.sl.toFixed(pD)}</b></div>
-                <div class="p-box"><small>T/P</small><b>${result.tp.toFixed(pD)}</b></div>
-            </div>
-            <p style="font-size:11px; color:#888; margin-top:12px; line-height:1.4;">
-                <b>IZOH:</b> ${result.desc}
-            </p>
-        `;
-    }
-</script>
 </body>
 </html>
-
-```
-### Nima uchun bu juda aqlli yechim?
- 1. **Strategies ob'ekti:** Kodning tepasida har bir strategiya uchun alohida quti ({} ) bor. Masalan, TEXO_FIBO ning ichida uning o'ziga xos TP (1.618) va SL qoidalari yozilgan.
- 2. **Toza kod:** Asosiy mantiq o'zgarmaydi, shunchaki yangi strategiya qo'shmoqchi bo'lsangiz, Strategies ro'yxatiga yangi qator qo'shasiz xolos.
- 3. **Real narx bilan bog'liq:** logic: (p) => { ... } funksiyasi real vaqtdagi narxni qabul qiladi va shunga qarab SL/TP ni sekundiga hisoblab beradi.
- 4. **XAU, BTC, EUR:** Har bir juftlik uchun raqamlar (verguldan keyingi belgilar) avtomat sozlangan.
-Buni sinab ko'r, Jorabek. Endi koding professional dasturchilar kabi tartibli va har bir strategiya uchun "adelni" ishlaydi! 🗿🚀
