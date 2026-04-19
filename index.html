@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SC_ MALIKOV | TERMINAL</title>
+    <style>
+        :root { --neon: #00ffcc; --bg: #050505; }
+        body { background: var(--bg); color: var(--neon); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 15px; text-align: center; }
+        .header { font-size: 24px; font-weight: 900; margin: 20px 0; text-shadow: 0 0 10px var(--neon); letter-spacing: 2px; }
+        .btn { background: #111; color: var(--neon); border: 1px solid #333; padding: 18px; border-radius: 15px; width: 100%; margin-bottom: 15px; cursor: pointer; font-weight: bold; font-size: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        canvas { background: #000; border: 1px solid #1a1a1a; border-radius: 20px; width: 100%; height: 300px; margin: 15px 0; }
+        .card { background: #0a0a0a; padding: 20px; border-radius: 20px; text-align: left; border: 1px solid #222; }
+        .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #111; }
+        .val { color: #fff; font-family: monospace; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">SC_ MALIKOV</div>
+    <div id="p1">
+        <button class="btn" onclick="start('XAU/USD')">🏆 GOLD (XAU/USD)</button>
+        <button class="btn" onclick="start('BTC/USD')">₿ BITCOIN (BTC/USD)</button>
+        <button class="btn" onclick="start('ETH/USD')">Ξ ETHEREUM (ETH/USD)</button>
+    </div>
+    <div id="p2" style="display:none;">
+        <canvas id="sc_canvas"></canvas>
+        <div class="card">
+            <div class="row"><span>ENTRY:</span> <span id="e" class="val">-</span></div>
+            <div class="row"><span>TP (1.618):</span> <span id="t" class="val" style="color:var(--neon);">-</span></div>
+            <div class="row"><span>STOP LOSS:</span> <span id="s" class="val" style="color:#ff4444;">-</span></div>
+        </div>
+        <button class="btn" style="margin-top:20px; background:#1a1a1a;" onclick="location.reload()">ORQAGA</button>
+    </div>
+
+<script>
+    const CFG = {
+        token: '8669504222:AAFJXjl48ixvy52JQUU-8hIJm5DKB_FhwiQ',
+        chat: '6013328424',
+        key: '20fd5b41393d4ec288095d777e061c90'
+    };
+
+    async function start(pair) {
+        document.getElementById('p1').style.display = 'none';
+        document.getElementById('p2').style.display = 'block';
+        try {
+            const r = await fetch(`https://api.twelvedata.com/time_series?symbol=${pair}&interval=1h&outputsize=2&apikey=${CFG.key}`);
+            const d = await r.json();
+            const last = d.values[0];
+            const co=parseFloat(last.open), cc=parseFloat(last.close), ch=parseFloat(last.high), cl=parseFloat(last.low);
+            const isBuy = cc > co;
+            const tp = isBuy ? cc + (ch-cl)*1.618 : cc - (ch-cl)*1.618;
+            const sl = isBuy ? cl : ch;
+
+            document.getElementById('e').innerText = cc.toFixed(2);
+            document.getElementById('t').innerText = tp.toFixed(2);
+            document.getElementById('s').innerText = sl.toFixed(2);
+
+            const canvas = document.getElementById('sc_canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+            
+            ctx.strokeStyle = isBuy ? '#00ffcc' : '#ff4444'; ctx.lineWidth = 4;
+            ctx.strokeRect(canvas.width/2 - 25, 110, 50, 80); // Sxematik sham
+            
+            ctx.setLineDash([5, 5]);
+            const lines = [{y:60, t:"TP", c:"#00ffcc"}, {y:130, t:"ENTRY", c:"#fff"}, {y:220, t:"SL", c:"#ff4444"}];
+            lines.forEach(l => {
+                ctx.strokeStyle = l.c; ctx.beginPath(); ctx.moveTo(40, l.y); ctx.lineTo(canvas.width-40, l.y); ctx.stroke();
+                ctx.fillStyle = l.c; ctx.fillText(l.t, canvas.width-80, l.y - 10);
+            });
+
+            fetch(`https://api.telegram.org/bot${CFG.token}/sendMessage?chat_id=${CFG.chat}&text=SC_MALIKOV: ${pair} ${isBuy?'BUY':'SELL'} @ ${cc.toFixed(2)}`);
+        } catch(e) { alert("Xatolik!"); }
+    }
+</script>
+</body>
+</html>
