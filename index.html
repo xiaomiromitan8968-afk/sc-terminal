@@ -38,10 +38,8 @@
             flex-direction: column;
         }
 
-        /* YASHIRIN BO'LIMLAR UCHUN KLASS */
         .hidden { display: none !important; }
 
-        /* --- UMUMIY LOGO --- */
         .main-logo {
             text-align: center;
             margin-bottom: 20px;
@@ -55,7 +53,6 @@
             margin: 0;
         }
 
-        /* --- AI SIGNAL TUGMASI --- */
         .ai-terminal-btn {
             display: flex;
             align-items: center;
@@ -76,7 +73,6 @@
         }
         .ai-terminal-btn:active { transform: scale(0.95); }
 
-        /* --- 1-BOSQICH: TAYMFREYM VA PARALAR --- */
         .section-title {
             font-size: 11px;
             color: #888;
@@ -128,7 +124,6 @@
         .pair-card i { font-size: 24px; margin-bottom: 10px; color: var(--ai-glow); }
         .pair-card span { display: block; font-size: 14px; font-weight: bold; }
 
-        /* --- 2-BOSQICH: STRATEGIYALAR --- */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -185,7 +180,7 @@
             <h1>SC_MALIKOV</h1>
         </div>
 
-        <a href="Dashboard.html" class="ai-terminal-btn">
+        <a href="dashboard.html" class="ai-terminal-btn">
             <i class="fas fa-robot"></i> AI SIGNAL TERMINALGA O'TISH
         </a>
 
@@ -250,44 +245,30 @@
     </div>
 
     <script>
-        // Xotirada saqlanuvchi o'zgaruvchilar
         let currentTF = '15';
         let currentTFName = '15M';
         let currentPair = '';
 
-        // Taymfreymni tanlash funksiyasi
         function setTF(element, tfValue) {
-            // Barcha tugmalardan 'active' klassini olib tashlash
             let btns = document.querySelectorAll('.tf-btn');
             btns.forEach(btn => btn.classList.remove('active'));
-            
-            // Bosilgan tugmaga 'active' klassini berish
             element.classList.add('active');
-            
-            // Qiymatlarni xotiraga olish
             currentTF = tfValue;
             currentTFName = element.innerText;
         }
 
-        // Parani tanlaganda 2-bosqichga o'tish
         function selectPair(pairCode, pairName) {
             currentPair = pairCode;
-            
-            // Yuqori panelda ko'rsatish
             document.getElementById('display-selection').innerText = pairName + " / " + currentTFName;
-
-            // 1-bosqichni yashirib, 2-bosqichni ochish
             document.getElementById('step-1').classList.add('hidden');
             document.getElementById('step-2').classList.remove('hidden');
         }
 
-        // Orqaga qaytish tugmasi
         function goBack() {
             document.getElementById('step-2').classList.add('hidden');
             document.getElementById('step-1').classList.remove('hidden');
         }
 
-        // Strategiyani ochish
         function run(fileName) {
             window.location.href = fileName + "?pair=" + currentPair + "&tf=" + currentTF;
         }
