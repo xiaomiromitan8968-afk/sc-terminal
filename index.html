@@ -1,153 +1,77 @@
-<!DOCTYPE html>
-<html lang="uz">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SC_ MALIKOV AI</title>
-    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
-    <style>
-        :root { --neon: #00ff88; --red: #ff3e3e; --bg: #000000; --card: #111111; }
-        body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; }
+<div id="p5" class="page">
+    <div class="result-box">
+        <h3 id="res-sig" style="text-align:center;"></h3>
+        <p class="label">STRATEGIYA: <span id="res-strat" style="color:var(--neon);"></span></p>
         
-        .screen { display: none; height: 100vh; flex-direction: column; padding: 20px; box-sizing: border-box; }
-        .active { display: flex !important; }
-        
-        .header { text-align: center; border-bottom: 1px solid var(--neon); padding-bottom: 10px; margin-bottom: 20px; }
-        .header h1 { font-size: 18px; color: var(--neon); letter-spacing: 2px; margin: 0; }
+        <div id="diagram-container" style="background: #111; border: 1px dashed #333; margin: 10px 0; border-radius: 10px; position: relative;">
+            <canvas id="strategyCanvas" width="300" height="200" style="width:100%; height:auto;"></canvas>
+            <div id="diag-label" style="position:absolute; top:5px; right:10px; font-size:10px; color:#555;">SC_ MALIKOV VISUALIZER</div>
+        </div>
 
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; overflow-y: auto; max-height: 70vh; padding-right: 5px; }
-        .btn { 
-            background: var(--card); color: #fff; border: 1px solid #333; padding: 15px 5px; 
-            border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s;
-        }
-        .btn:active { background: var(--neon); color: #000; transform: scale(0.95); }
-        .btn-smc { grid-column: span 2; border: 1px solid var(--neon); background: rgba(0, 255, 136, 0.1); font-size: 14px; }
-
-        #chart-cont { width: 100%; height: 50vh; background: #000; border-radius: 10px; border: 1px solid #222; }
-        .info-panel { background: var(--card); margin-top: 10px; padding: 15px; border-radius: 10px; border-left: 4px solid var(--neon); flex-grow: 1; overflow-y: auto; }
-        
-        .price-row { display: flex; justify-content: space-between; margin: 10px 0; border-top: 1px solid #222; padding-top: 10px; }
-        .price-item { text-align: center; }
-        .price-item span { display: block; font-size: 10px; color: #888; margin-bottom: 5px; }
-        .price-item b { font-size: 14px; }
-    </style>
-</head>
-<body>
-
-<div id="step1" class="screen active">
-    <div class="header"><h1>SC_ MALIKOV | ASSET</h1></div>
-    <div class="btn-grid">
-        <button class="btn" onclick="go(2, 'pair', 'BTC/USDT')">BTC / USDT</button>
-        <button class="btn" onclick="go(2, 'pair', 'XAU/USD')">GOLD (XAU)</button>
-        <button class="btn" onclick="go(2, 'pair', 'ETH/USDT')">ETH / USDT</button>
-        <button class="btn" onclick="go(2, 'pair', 'EUR/USD')">EUR / USD</button>
+        <hr style="border:0; border-top:1px solid #222;">
+        <div style="display:flex; justify-content:space-between;">
+            <span class="label">ENTRY:</span> <span class="val" id="res-ent"></span>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+            <span class="label">TP (1.618):</span> <span class="val" id="res-tp" style="color:var(--neon);"></span>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+            <span class="label">STOP LOSS:</span> <span class="val" id="res-sl" style="color:#ff4444;"></span>
+        </div>
+        <button class="btn" style="width:100%; margin-top:15px;" onclick="location.reload()">YANGI TAHLIL</button>
     </div>
-</div>
-
-<div id="step2" class="screen">
-    <div class="header"><h1>TIMEFRAME</h1></div>
-    <div class="btn-grid">
-        <button class="btn" onclick="go(3, 'tf', '15m')">15 MINUT</button>
-        <button class="btn" onclick="go(3, 'tf', '1h')">1 SOAT</button>
-        <button class="btn" onclick="go(3, 'tf', '4h')">4 SOAT</button>
-        <button class="btn" onclick="go(3, 'tf', '1D')">1 KUN</button>
-    </div>
-</div>
-
-<div id="step3" class="screen">
-    <div class="header"><h1>16 STRATEGIYA</h1></div>
-    <div class="btn-grid">
-        <button class="btn btn-smc" onclick="start('SMC')">16. SMC (BOS & CHOCH)</button>
-        <button class="btn" onclick="start('1')">1. GORIZONTAL</button>
-        <button class="btn" onclick="start('2')">2. TREND KANAL</button>
-        <button class="btn" onclick="start('3')">3. SIMMETRIK</button>
-        <button class="btn" onclick="start('6')">6. BAYROQ (FLAG)</button>
-        <button class="btn" onclick="start('7')">7. H&S (BOSH-YELKA)</button>
-        <button class="btn" onclick="start('8')">8. DOUBLE TOP</button>
-        <button class="btn" onclick="start('9')">9. WEDGE (LIMON)</button>
-        <button class="btn" onclick="start('10')">10. PIN-BAR</button>
-        <button class="btn" onclick="start('11')">11. ENGULFING</button>
-        <button class="btn" onclick="start('15')">15. RETEST</button>
-        <button class="btn" onclick="start('QM')">QUASIMODO (QM)</button>
-    </div>
-</div>
-
-<div id="step4" class="screen" style="padding: 10px;">
-    <div id="chart-cont"></div>
-    <div class="info-panel" id="result-ui">Tahlil ketmoqda...</div>
-    <button class="btn btn-smc" style="margin-top: 10px;" onclick="location.reload()">QAYTA BOSHLASH</button>
 </div>
 
 <script>
-    let session = { pair: '', tf: '', strat: '' };
+// Sxematik rasmni chizish funksiyasi
+function drawStrategyDiagram(type, signalType, entry, tp, sl) {
+    const canvas = document.getElementById('strategyCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    const color = signalType === 'BUY' ? '#00ffcc' : '#ff4444';
+    ctx.lineWidth = 2;
 
-    function go(next, key, val) {
-        session[key] = val;
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('step' + next).classList.add('active');
-    }
-
-    function start(s) {
-        session.strat = s;
-        go(4);
-        // Kutubxona yuklanganini tekshirish
-        if (typeof LightweightCharts === 'undefined') {
-            document.getElementById('result-ui').innerHTML = "XATO: Kutubxona yuklanmadi. Internetni tekshiring.";
-            return;
-        }
-        setTimeout(initChart, 300);
-    }
-
-    function initChart() {
-        const container = document.getElementById('chart-cont');
-        container.innerHTML = "";
-        
-        const chart = LightweightCharts.createChart(container, {
-            layout: { background: { color: '#000' }, textColor: '#00ff88' },
-            grid: { vertLines: { color: '#111' }, horzLines: { color: '#111' } },
-            timeScale: { borderVisible: false }
-        });
-
-        const series = chart.addCandlestickSeries({
-            upColor: '#00ff88', downColor: '#ff3e3e', borderVisible: false, wickUpColor: '#00ff88', wickDownColor: '#ff3e3e'
-        });
-
-        // Simulyatsiya ma'lumotlari
-        let data = [], price = 50000;
-        for(let i=0; i<70; i++) {
-            let o = price, c = o + (Math.random()-0.45)*400;
-            data.push({ time: i*86400, open: o, high: Math.max(o,c)+100, low: Math.min(o,c)-100, close: c });
-            price = c;
-        }
-        series.setData(data);
-
-        // ANALIZ VA CHIZMALAR
-        let last = data[data.length-1];
-        let en = last.close.toFixed(2);
-        let sl = (en * 0.994).toFixed(2);
-        let tp = (en * 1.021).toFixed(2);
-        let txt = "";
-
-        if(session.strat === 'SMC') {
-            series.createPriceLine({ price: data[55].high, color: '#ff3e3e', lineWidth: 2, lineStyle: 2, title: 'BOS' });
-            series.createPriceLine({ price: data[62].low, color: '#00ff88', lineWidth: 2, title: 'CHOCH' });
-            series.setMarkers([{ time: last.time, position: 'belowBar', color: '#00ff88', shape: 'arrowUp', text: 'OB ENTRY' }]);
-            txt = "<b>SMC ANALIZ:</b> Bozor strukturasi (BOS) sindi va CHOCH tasdiqlandi. Narx Order Block zonasiga qaytdi.";
+    if (type === 'SC_PRO') { // Engulfing chizmasi
+        // Birinchi sham (kichik)
+        ctx.strokeStyle = signalType === 'BUY' ? '#ff4444' : '#00ffcc';
+        ctx.strokeRect(80, 80, 30, 40);
+        // Ikkinchi sham (yutib yuboruvchi katta)
+        ctx.fillStyle = color;
+        if(signalType === 'BUY') ctx.fillRect(120, 50, 35, 90);
+        else ctx.fillRect(120, 80, 35, 90);
+    } 
+    else if (type === 'PINBAR') { // Pin Bar chizmasi
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        if (signalType === 'BUY') {
+            ctx.beginPath(); ctx.moveTo(150, 50); ctx.lineTo(150, 160); ctx.stroke(); // Uzun soya
+            ctx.fillRect(135, 50, 30, 20); // Tana tepada
         } else {
-            series.setMarkers([{ time: last.time, position: 'belowBar', color: '#00ff88', shape: 'arrowUp', text: 'SIGNAL' }]);
-            txt = `<b>STRATEGIYA ${session.strat}:</b> PDF-dagi qoidalar asosida kirish nuqtasi aniqlandi. Pattern tasdiqlangan.`;
+            ctx.beginPath(); ctx.moveTo(150, 40); ctx.lineTo(150, 150); ctx.stroke(); // Uzun soya
+            ctx.fillRect(135, 130, 30, 20); // Tana pastda
         }
-
-        document.getElementById('result-ui').innerHTML = `
-            <div style="font-size: 14px; font-weight: bold; color: var(--neon); margin-bottom: 5px;">${session.pair} | ${session.tf} | SIGNAL: BUY</div>
-            <div class="price-row">
-                <div class="price-item"><span>ENTRY</span><b>${en}</b></div>
-                <div class="price-item"><span style="color:var(--red)">STOP LOSS</span><b>${sl}</b></div>
-                <div class="price-item"><span>TAKE PROFIT</span><b>${tp}</b></div>
-            </div>
-            <div style="font-size: 12px; color: #aaa; margin-top: 10px;">${txt}</div>
-        `;
     }
+
+    // Narx chiziqlari (Xuddi rasmda ko'rsatilgandek)
+    ctx.setLineDash([5, 5]);
+    // Entry
+    ctx.strokeStyle = '#fff'; ctx.beginPath(); ctx.moveTo(160, 90); ctx.lineTo(280, 90); ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.fillText('ENTRY', 230, 85);
+    // TP
+    ctx.strokeStyle = '#00ffcc'; ctx.beginPath(); ctx.moveTo(160, 40); ctx.lineTo(280, 40); ctx.stroke();
+    ctx.fillStyle = '#00ffcc'; ctx.fillText('TP', 230, 35);
+    // SL
+    ctx.strokeStyle = '#ff4444'; ctx.beginPath(); ctx.moveTo(160, 140); ctx.lineTo(280, 140); ctx.stroke();
+    ctx.fillStyle = '#ff4444'; ctx.fillText('SL', 230, 135);
+}
+
+// analyze funksiyasida showResult chaqirilganda drawStrategyDiagram-ni ham chaqiramiz
+function showResult(s) {
+    next(4, 5);
+    // ... avvalgi kodlar ...
+    if (s) {
+        drawStrategyDiagram(state.strategy, s.type, s.ent, s.tp, s.sl);
+    }
+}
 </script>
-</body>
-</html>
