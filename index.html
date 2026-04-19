@@ -83,8 +83,7 @@
         document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
         document.getElementById('step' + s).classList.add('active');
     }
-
-    function run(strat) {
+function run(strat) {
         config.strategy = strat;
         next(4);
         
@@ -122,7 +121,7 @@
                 logic = "<b>Mantiq:</b> Grafikda narx siqilishi (Triangle) kuzatildi. PDF 3-betdagi qoidaga asosan sinish (breakout) yo'nalishi aniqlandi.";
             }
 
-            ui.innerHTML = `
+            ui.innerHTML = 
                 <div style="margin-bottom:10px;">
                     <span class="badge ${colorClass}">${side} SIGNAL</span>
                     <span style="margin-left:10px; color:#fff">Confidence: 94%</span>
@@ -133,7 +132,7 @@
                     <span style="color:var(--neon)">TP: NEXT OB</span>
                     <span style="color:var(--red)">SL: BELOW SWING</span>
                 </div>
-            `;
+            ;
         }, 2500);
     }
 </script>
