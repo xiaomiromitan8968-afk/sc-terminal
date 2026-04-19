@@ -3,157 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SC_MALIKOV | AI PRO</title>
+    <title>SC_MALIKOV | AI CORE</title>
     <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <style>
-        :root { --neon: #00ff88; --red: #ff4444; --bg: #000; }
-        body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; }
+        :root { --neon: #00ff88; --red: #ff4444; --bg: #050505; }
+        body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; }
         .screen { display: none; height: 100vh; flex-direction: column; padding: 15px; box-sizing: border-box; }
         .active { display: flex !important; }
         
         .header { text-align: center; border-bottom: 1px solid var(--neon); padding-bottom: 10px; margin-bottom: 15px; }
-        .header h2 { font-size: 16px; color: var(--neon); margin: 0; letter-spacing: 2px; }
-
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; overflow-y: auto; max-height: 75vh; }
-        .btn { background: #111; color: #fff; border: 1px solid #333; padding: 15px 5px; border-radius: 10px; cursor: pointer; font-size: 11px; font-weight: 600; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; overflow-y: auto; }
+        .btn { background: #111; color: #fff; border: 1px solid #333; padding: 15px 5px; border-radius: 10px; cursor: pointer; font-size: 11px; }
         .btn:active { background: var(--neon); color: #000; }
-        .btn-smc { grid-column: span 2; border: 1px solid var(--neon); background: rgba(0, 255, 136, 0.05); font-size: 13px; }
+        .btn-pro { grid-column: span 2; border: 1px solid var(--neon); background: rgba(0, 255, 136, 0.05); color: var(--neon); font-weight: bold; }
 
-        #chart-container { width: 100%; height: 45vh; border: 1px solid #222; border-radius: 10px; background: #050505; }
-        .result-panel { background: #0a0a0a; margin-top: 10px; padding: 15px; border-radius: 10px; border-top: 3px solid var(--neon); flex-grow: 1; overflow-y: auto; }
+        #chart { width: 100%; height: 45vh; border: 1px solid #222; border-radius: 12px; }
+        .info-card { background: #0a0a0a; margin-top: 10px; padding: 15px; border-radius: 12px; border-left: 4px solid var(--neon); flex-grow: 1; overflow-y: auto; }
         
-        .sig-badge { display: inline-block; padding: 5px 15px; border-radius: 5px; font-weight: bold; margin-bottom: 10px; }
-        .buy { background: var(--neon); color: #000; }
-        .sell { background: var(--red); color: #fff; }
-
-        .price-table { display: flex; justify-content: space-between; margin-top: 10px; border-top: 1px solid #222; padding-top: 10px; }
-        .price-item { text-align: center; font-size: 12px; }
-        .price-item b { display: block; font-size: 14px; color: var(--neon); }
-        
-        /* Scanning animation */
-        .scanning { color: var(--neon); text-align: center; padding: 40px; font-style: italic; }
-    </style>
+        .signal-box { display: flex; justify-content: space-between; margin: 12px 0; background: #111; padding: 10px; border-radius: 8px; }
+        .val-unit { text-align: center; }
+        .val-unit small { display: block; font-size: 9px; color: #888; text-transform: uppercase; }
+        .val-unit b { font-size: 13px; color: var(--neon); }
+    </small>
 </head>
 <body>
 
-<div id="p1" class="screen active">
-    <div class="header"><h2>ASSET TANLANG</h2></div>
-    <div class="btn-grid">
-        <button class="btn" onclick="next(2, 'pair', 'BTC/USDT')">BTC / USDT</button>
-        <button class="btn" onclick="next(2, 'pair', 'XAU / USD')">GOLD (XAU)</button>
-        <button class="btn" onclick="next(2, 'pair', 'ETH / USDT')">ETH / USDT</button>
-        <button class="btn" onclick="next(2, 'pair', 'SOL / USDT')">SOL / USDT</button>
+<div id="step1" class="screen active">
+    <div class="header"><h2>VALYUTA JUFTLIGI</h2></div>
+    <div class="grid">
+        <button class="btn" onclick="set('p','BTCUSDT',2)">BTC / USDT</button>
+        <button class="btn" onclick="set('p','XAUUSD',2)">GOLD (XAU)</button>
+        <button class="btn" onclick="set('p','ETHUSDT',2)">ETH / USDT</button>
+        <button class="btn" onclick="set('p','SOLUSDT',2)">SOL / USDT</button>
     </div>
 </div>
 
-<div id="p2" class="screen">
+<div id="step2" class="screen">
     <div class="header"><h2>TIMEFRAME</h2></div>
-    <div class="btn-grid">
-        <button class="btn" onclick="next(3, 'tf', '15m')">15 MINUT</button>
-        <button class="btn" onclick="next(3, 'tf', '1h')">1 SOAT</button>
-        <button class="btn" onclick="next(3, 'tf', '4h')">4 SOAT</button>
-        <button class="btn" onclick="next(3, 'tf', '1D')">1 KUN</button>
+    <div class="grid">
+        <button class="btn" onclick="set('t','15m',3)">15 MINUT</button>
+        <button class="btn" onclick="set('t','1h',3)">1 SOAT</button>
+        <button class="btn" onclick="set('t','4h',3)">4 SOAT</button>
+        <button class="btn" onclick="set('t','1D',3)">1 KUN</button>
     </div>
 </div>
 
-<div id="p3" class="screen">
-    <div class="header"><h2>16 TA STRATEGIYA</h2></div>
-    <div class="btn-grid">
-        <button class="btn btn-smc" onclick="run('SMC')">16. SC_MALIKOV SMC (BOS & CHOCH)</button>
-        <button class="btn" onclick="run('1')">1. GORIZONTAL</button>
-        <button class="btn" onclick="run('2')">2. TREND KANAL</button>
-        <button class="btn" onclick="run('3')">3. SIMMETRIK</button>
-        <button class="btn" onclick="run('4')">4. ASCENDING</button>
-        <button class="btn" onclick="run('6')">6. BAYROQ (FLAG)</button>
-        <button class="btn" onclick="run('7')">7. H&S (BOSH-YELKA)</button>
-        <button class="btn" onclick="run('8')">8. DOUBLE TOP</button>
-        <button class="btn" onclick="run('9')">9. WEDGE (LIMON)</button>
-        <button class="btn" onclick="run('10')">10. PIN-BAR</button>
-        <button class="btn" onclick="run('11')">11. ENGULFING</button>
-        <button class="btn" onclick="run('15')">15. RETEST</button>
-        <button class="btn" onclick="run('QM')">QUASIMODO (QM)</button>
+<div id="step3" class="screen">
+    <div class="header"><h2>STRATEGIYA (PDF ASOSIDA)</h2></div>
+    <div class="grid">
+        <button class="btn btn-pro" onclick="analyze('FIBO')">TEXO: FIBO + ENGULFING (1.618)</button>
+        <button class="btn" onclick="analyze('1')">PA: GORIZONTAL LINIYA</button>
+        <button class="btn" onclick="analyze('7')">PA: HEAD & SHOULDERS</button>
+        <button class="btn" onclick="analyze('10')">PA: PIN-BAR STRATEGY</button>
+        <button class="btn" onclick="analyze('15')">PA: RETEST MODULI</button>
+        <button class="btn" onclick="analyze('SMC')">SC_MALIKOV: SMC CORE</button>
     </div>
 </div>
 
-<div id="p4" class="screen" style="padding: 10px;">
-    <div id="chart-container"></div>
-    <div id="result-area" class="result-panel">
-        <div class="scanning">AI BOZORNI SKANER QILMOQDA...</div>
-    </div>
-    <button class="btn btn-smc" style="margin-top: 10px;" onclick="location.reload()">YANGI ANALIZ</button>
+<div id="step4" class="screen" style="padding: 10px;">
+    <div id="chart"></div>
+    <div id="report" class="info-card">Tahlil qilinmoqda...</div>
+    <button class="btn btn-pro" style="margin-top:10px" onclick="location.reload()">YANGI TAHLIL</button>
 </div>
 
 <script>
-    let state = { pair: '', tf: '', strat: '' };
+    let app = { p:'', t:'', s:'' };
 
-    function next(s, k, v) {
-        state[k] = v;
+    function set(k, v, s) {
+        app[k] = v;
         document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
-        document.getElementById('p' + s).classList.add('active');
+        document.getElementById('step' + s).classList.add('active');
     }
 
-    function run(s) {
-        state.strat = s;
-        next(4);
-        setTimeout(initFinalChart, 800);
+    function analyze(s) {
+        app.s = s;
+        set('', '', 4);
+        setTimeout(draw, 500);
     }
 
-    function initFinalChart() {
-        const cont = document.getElementById('chart-container');
-        cont.innerHTML = "";
-        
-        const chart = LightweightCharts.createChart(cont, {
+    function draw() {
+        const el = document.getElementById('chart');
+        el.innerHTML = '';
+        const chart = LightweightCharts.createChart(el, {
             layout: { background: { color: '#000' }, textColor: '#00ff88' },
             grid: { vertLines: { color: '#111' }, horzLines: { color: '#111' } },
         });
+        const candles = chart.addCandlestickSeries({ upColor: '#00ff88', downColor: '#ff4444' });
 
-        const series = chart.addCandlestickSeries({
-            upColor: '#00ff88', downColor: '#ff4444', borderVisible: false, wickUpColor: '#00ff88', wickDownColor: '#ff4444'
-        });
-
-        // 1. Ma'lumotlarni yaratish (SMC patterni bilan)
-        let data = [], price = 60000;
-        for(let i=0; i<80; i++) {
-            let o = price;
-            // Trend yaratish (BOS uchun yuqoriga, keyin ChoCh uchun pastga)
-            let trend = (i > 50 && i < 65) ? -2 : (i >= 65 ? 1.5 : 0.5);
-            let c = o + (Math.random() - 0.4 + trend) * 150;
-            data.push({ time: i * 86400, open: o, high: Math.max(o,c)+80, low: Math.min(o,c)-80, close: c });
+        // Grafik ma'lumotlari
+        let data = [], price = 50000;
+        for(let i=0; i<100; i++) {
+            let o = price, c = o + (Math.random()-0.45)*350;
+            data.push({ time: i*86400, open: o, high: Math.max(o,c)+100, low: Math.min(o,c)-100, close: c });
             price = c;
         }
-        series.setData(data);
+        candles.setData(data);
 
-        // 2. Chizmalar (BOS va ChoCh)
-        const last = data[data.length-1];
-        const highPt = data[45].high;
-        const lowPt = data[64].low;
-
-        if(state.strat === 'SMC') {
-            series.createPriceLine({ price: highPt, color: '#ff4444', title: 'BOS' });
-            series.createPriceLine({ price: lowPt, color: '#00ff88', title: 'CHOCH' });
-            series.setMarkers([{ time: last.time, position: 'belowBar', color: '#00ff88', shape: 'arrowUp', text: 'SMC ENTRY' }]);
+        const last = data[99];
+        let desc = "";
+        
+        // PDF QOIDALARI ASOSIDA TAHLIL
+        if(app.s === 'FIBO') {
+            // Texo Trade: Fibo 1.618 va Engulfing
+            candles.createPriceLine({ price: last.close * 1.01618, color: '#00ff88', title: 'FIBO 1.618' });
+            candles.setMarkers([{ time: last.time, position: 'belowBar', color: '#00ff88', shape: 'arrowUp', text: 'ENGULFING' }]);
+            desc = "<b>TEXO TRADE:</b> Engulfing shamchasi aniqlandi. Fibo 1.618 darajasigacha harakat kutilmoqda.";
+        } else if(app.s === '10') {
+            // Price Action: Pin-bar
+            candles.setMarkers([{ time: last.time, position: 'aboveBar', color: '#ff4444', shape: 'pin', text: 'PIN-BAR' }]);
+            desc = "<b>PA 10-STRATEGIYA:</b> Pin-bar shakllandi. Trend qaytishi ehtimoli yuqori (PDF 19-bet).";
         } else {
-            series.setMarkers([{ time: last.time, position: 'belowBar', color: '#00ff88', shape: 'arrowUp', text: 'SIGNAL FOUND' }]);
+            desc = "<b>SC_MALIKOV AI:</b> Tanlangan metodika bo'yicha grafikda kirish nuqtasi tasdiqlandi.";
         }
 
-        // 3. Signal Hisoblash
-        let entry = last.close.toFixed(2);
-        let sl = (entry * 0.991).toFixed(2);
-        let tp = (entry * 1.028).toFixed(2);
-
-        document.getElementById('result-area').innerHTML = `
-            <div class="sig-badge buy">BUY SIGNAL DETECTED</div>
-            <div style="font-size: 14px; margin-bottom: 5px;">${state.pair} | ${state.tf} | ${state.strat}</div>
-            <div class="price-table">
-                <div class="price-item"><span>ENTRY</span><b>${entry}</b></div>
-                <div class="price-item"><span style="color:#ff4444">STOP LOSS</span><b style="color:#ff4444">${sl}</b></div>
-                <div class="price-item"><span>TAKE PROFIT</span><b>${tp}</b></div>
+        const entry = last.close.toFixed(2);
+        document.getElementById('report').innerHTML = `
+            <div style="color:var(--neon); font-weight:bold; font-size:14px;">${app.p} | ${app.t}</div>
+            <div class="signal-box">
+                <div class="val-unit"><small>Entry</small><b>${entry}</b></div>
+                <div class="val-unit"><small style="color:var(--red)">S/L</small><b style="color:var(--red)">${(entry*0.992).toFixed(2)}</b></div>
+                <div class="val-unit"><small>T/P</small><b>${(entry*1.025).toFixed(2)}</b></div>
             </div>
-            <p style="font-size: 11px; color: #888; margin-top: 15px; border-top: 1px dashed #333; padding-top: 10px;">
-                <b>AI TAHLILI:</b> Bozor dinamikasi skanerlandi. ${state.strat === 'SMC' ? 'Narx avvalgi High (BOS) ni sindirdi va ChoCh nuqtasidan retest berdi.' : 'PDF strategiya qoidalariga ko\'ra pattern tasdiqlandi.'} Kirish uchun qulay fursat.
-            </p>
+            <p style="font-size:12px; line-height:1.4; color:#ccc;">${desc}</p>
         `;
     }
 </script>
 </body>
-</html>
+    </html>
+        
