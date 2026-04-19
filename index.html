@@ -3,78 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SC_MALIKOV | WIZARD TERMINAL</title>
+    <title>WIZARD TERMINAL</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-deep: #030303; --main-neon: #00ff88; --ai-glow: #00c2ff; --glass: rgba(255, 255, 255, 0.05);
-        }
-        body { margin: 0; background: var(--bg-deep); color: #fff; font-family: 'Montserrat', sans-serif; overflow: hidden; }
-        .terminal { width: 100%; height: 100vh; display: flex; flex-direction: column; align-items: center; padding-top: 20px; }
+        :root { --bg: #030303; --neon: #00ff88; --blue: #00c2ff; --glass: rgba(255, 255, 255, 0.05); }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Montserrat', sans-serif; height: 100vh; overflow-y: auto; -webkit-tap-highlight-color: transparent; }
+        .terminal { width: 100%; padding: 15px; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
+        .box { width: 100%; background: var(--glass); border: 1px solid var(--neon); border-radius: 12px; padding: 15px; text-align: center; margin-top: 15px; box-sizing: border-box; }
         .hidden { display: none !important; }
-        .step-box { width: 90%; background: var(--glass); border: 1px solid var(--main-neon); border-radius: 15px; padding: 20px; text-align: center; }
-        .btn { background: none; border: 1px solid var(--ai-glow); color: white; padding: 15px; margin: 10px; width: 80%; border-radius: 8px; cursor: pointer; transition: 0.3s; }
-        .btn:active { background: var(--ai-glow); color: black; }
-        .status-msg { color: var(--main-neon); font-size: 0.9em; margin-bottom: 15px; line-height: 1.5; }
-        .analysis-img { width: 100%; border-radius: 10px; border: 1px solid #444; margin-bottom: 15px; }
+        .btn { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--blue); background: none; color: white; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn:active { background: var(--blue); color: black; transform: scale(0.98); }
+        .grid-tf { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .status-text { color: var(--neon); font-size: 14px; margin: 15px 0; line-height: 1.4; text-align: left; }
+        #analysis-plot { width: 100%; border-radius: 8px; margin-top: 10px; display: block; }
+        .loader { border: 3px solid #333; border-top: 3px solid var(--neon); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
 <div class="terminal">
-    <h2 style="color: var(--main-neon); letter-spacing: 2px;">WIZARD TERMINAL</h2>
+    <h2 style="color: var(--neon); text-shadow: 0 0 10px rgba(0,255,136,0.3);">WIZARD TERMINAL</h2>
 
-    <div id="step-1" class="step-box">
-        <p>VALYUTA JUFTLIGINI TANLANG</p>
-        <button class="btn" onclick="selectPair('BINANCE:BTCUSDT')">BTC / USD</button>
-        <button class="btn" onclick="selectPair('FX:XAUUSD')">GOLD (XAUUSD)</button>
+    <div id="step-1" class="box">
+        <p style="font-weight: 700;">VALYUTA JUFTLIGINI TANLANG</p>
+        <button class="btn" onclick="selectPair('BTCUSDT')">BTC / USDT</button>
+        <button class="btn" onclick="selectPair('ETHUSDT')">ETH / USDT</button>
+        <button class="btn" onclick="selectPair('XAUUSD')">XAU / USD (GOLD)</button>
     </div>
 
-    <div id="step-2" class="step-box hidden">
-        <p id="selected-pair-text"></p>
-        <p>TAYMFREYMNI TANLANG</p>
-        <button class="btn" onclick="runAnalysis('15')">15 MINUT</button>
-        <button class="btn" onclick="runAnalysis('60')">1 SOAT</button>
-        <button class="btn" onclick="runAnalysis('240')">4 SOAT</button>
+    <div id="step-2" class="box hidden">
+        <p style="font-weight: 700;">TAYMFREYMNI TANLANG</p>
+        <div class="grid-tf">
+            <button class="btn" onclick="startBot('1m')">1M</button>
+            <button class="btn" onclick="startBot('5m')">5M</button>
+            <button class="btn" onclick="startBot('15m')">15M</button>
+            <button class="btn" onclick="startBot('1h')">1H</button>
+            <button class="btn" onclick="startBot('4h')">4H</button>
+            <button class="btn" onclick="startBot('1d')">1D</button>
+        </div>
+        <button class="btn" style="border-color: #ff007f; margin-top: 15px;" onclick="goBack()">ORQAGA</button>
     </div>
 
-    <div id="step-3" class="step-box hidden">
-        <div id="loader">Tahlil qilinmoqda...</div>
-        <div id="result-content" class="hidden">
-            <img src="" id="chart-img" class="analysis-img" alt="Analiz">
-            <div id="bot-msg" class="status-msg"></div>
-            <button class="btn" style="border-color: var(--main-neon);" onclick="subscribe()">HA</button>
-            <button class="btn" style="border-color: #ff007f;" onclick="location.reload()">YO'Q</button>
+    <div id="step-3" class="box hidden">
+        <div id="loading-ui">
+            <div class="loader"></div>
+            <p>BOZORNI TAHLIL QILISH...</p>
+        </div>
+        <div id="result-ui" class="hidden">
+            <img id="analysis-plot" src="" alt="Market Analysis">
+            <div id="bot-message" class="status-text"></div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn" style="border-color: var(--neon);" onclick="confirmTracking()">HA</button>
+                <button class="btn" style="border-color: #ff007f;" onclick="goBack()">YO'Q</button>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    let pair = ''; let tf = '';
+    const tg = window.Telegram.WebApp;
+    tg.expand(); // Ilovani to'liq ekranga yoyish
+
+    let selectedPair = '';
+    let selectedTF = '';
 
     function selectPair(p) {
-        pair = p;
-        document.getElementById('selected-pair-text').innerText = "Tanlandi: " + p;
+        selectedPair = p;
         document.getElementById('step-1').classList.add('hidden');
         document.getElementById('step-2').classList.remove('hidden');
     }
 
-    function runAnalysis(time) {
-        tf = time;
-        document.getElementById('step-2').classList.add('hidden');
-        document.getElementById('step-3').classList.remove('hidden');
-
-        // BOT TAHLILI (Simulyatsiya)
-        setTimeout(() => {
-            document.getElementById('loader').classList.add('hidden');
-            document.getElementById('result-content').classList.remove('hidden');
-            document.getElementById('chart-img').src = "https://via.placeholder.com/400x200/030303/00ff88?text=BTC+Trend+Line+Analysis";
-            document.getElementById('bot-msg').innerText = "Hozirda bozorda o'suvchi Trend mavjud va u Trend Line'da harakat qilyapti. Agar narx chiziqni tanasi bilan buzib yopilsa, xabar beraymi?";
-        }, 2000);
+    function goBack() {
+        document.querySelectorAll('.box').forEach(el => el.classList.add('hidden'));
+        document.getElementById('step-1').classList.remove('hidden');
     }
 
-    function subscribe() {
-        alert("Siz obuna bo'ldingiz! Chiziq buzilsa, TP: 1.618 va SL: 0 darajalari bilan xabar yuboramiz.");
+    async function startBot(tf) {
+        selectedTF = tf;
+        document.getElementById('step-2').classList.add('hidden');
+        document.getElementById('step-3').classList.remove('hidden');
+        document.getElementById('loading-ui').classList.remove('hidden');
+        document.getElementById('result-ui').classList.add('hidden');
+
+        try {
+            // BACKEND URL ni bu yerga qo'ying
+            const response = await fetch('https://SIZNING-SERVERINGIZ.com/analyze', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ pair: selectedPair, tf: selectedTF })
+            });
+            const data = await response.json();
+            
+            document.getElementById('loading-ui').classList.add('hidden');
+            document.getElementById('result-ui').classList.remove('hidden');
+            
+            document.getElementById('bot-message').innerText = data.message;
+            document.getElementById('analysis-plot').src = "data:image/png;base64," + data.image;
+        } catch (e) {
+            tg.showAlert("Backend bilan aloqa o'rnatib bo'lmadi!");
+            goBack();
+        }
+    }
+
+    function confirmTracking() {
+        tg.showConfirm("Bot ushbu modelni kuzatishni boshlasinmi?", (isConfirmed) => {
+            if (isConfirmed) {
+                tg.sendData(JSON.stringify({action: "subscribe", pair: selectedPair, tf: selectedTF}));
+                tg.close(); // Ma'lumotni botga yuborib yopadi
+            }
+        });
     }
 </script>
 </body>
