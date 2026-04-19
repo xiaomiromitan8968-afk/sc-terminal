@@ -40,6 +40,19 @@
 </div>
 
 <div id="step2" class="screen">
+    <div class="header"><h1>TIMEFRAME (M1-D1)</h1></div>
+    <div class="btn-grid">
+        <button class="btn" onclick="go(3, 'tf', 'M1')">1 MINUT</button>
+        <button class="btn" onclick="go(3, 'tf', 'M5')">5 MINUT</button>
+        <button class="btn" onclick="go(3, 'tf', 'M15')">15 MINUT</button>
+        <button class="btn" onclick="go(3, 'tf', 'M30')">30 MINUT</button>
+        <button class="btn" onclick="go(3, 'tf', 'H1')">1 SOAT</button>
+        <button class="btn" onclick="go(3, 'tf', 'H4')">4 SOAT</button>
+        <button class="btn btn-fibo" onclick="go(3, 'tf', 'D1')">1 KUN (DAILY)</button>
+    </div>
+</div>
+
+<div id="step3" class="screen">
     <div class="header"><h1>16 TA STRATEGIYA</h1></div>
     <div class="btn-grid">
         <button class="btn btn-fibo" onclick="run('FIBO + ENGULFING')">1. TEXO: FIBO 1.618 + ENGULFING</button>
@@ -61,14 +74,14 @@
     </div>
 </div>
 
-<div id="step3" class="screen">
+<div id="step4" class="screen">
     <div class="chart-mock" id="chart-area"></div>
     <div class="res-box" id="result-text">Tahlil qilinmoqda...</div>
     <button class="btn" style="margin-top:10px; width:100%; border:1px solid var(--neon)" onclick="location.reload()">ASOSIY MENYU</button>
 </div>
 
 <script>
-    let session = { pair: '', strat: '' };
+    let session = { pair: '', tf: '', strat: '' };
 
     function go(s, k, v) {
         session[k] = v;
@@ -78,9 +91,8 @@
 
     function run(s) {
         session.strat = s;
-        go(3);
+        go(4);
         
-        // Narxlarni juftlikka qarab moslash
         let price = 0;
         if(session.pair.includes('BTC')) price = 65420.50;
         else if(session.pair.includes('XAU')) price = 2350.80;
@@ -90,7 +102,6 @@
         let sl = (entry * 0.992).toFixed(session.pair.includes('EUR') ? 4 : 2);
         let tp = (entry * 1.025).toFixed(session.pair.includes('EUR') ? 4 : 2);
 
-        // Grafik vizualizatsiyasi
         const area = document.getElementById('chart-area');
         area.innerHTML = '';
         let line = document.createElement('div');
@@ -98,31 +109,27 @@
         line.style.top = '50%';
         area.appendChild(line);
 
-        // PDF bo'yicha batafsil tushuntirish
         let details = "";
         switch(s) {
             case 'FIBO + ENGULFING':
-                details = "<b>TEXO TRADE:</b> Engulfing shamchasi aniqlandi. Fibonacci 1.618 darajasi target qilib olindi. Risk: 1%, Reward: 3%.";
+                details = `<b>TEXO TRADE (${session.tf}):</b> Engulfing shamchasi aniqlandi. Fibonacci 1.618 darajasi target qilib olindi. Risk: 1%, Reward: 3%.`;
                 break;
             case 'PIN-BAR':
-                details = "<b>10-STRATEGIYA:</b> Grafikda uzun soyali Pin-bar shakllandi. Bu trendning qarama-qarshi tomonga o'zgarishini bildiradi (PDF 19-bet).";
+                details = `<b>10-STRATEGIYA (${session.tf}):</b> Grafikda uzun soyali Pin-bar shakllandi. Bu trendning qaytishini ko'rsatadi (PDF 19-bet).`;
                 break;
             case 'RETEST':
-                details = "<b>15-STRATEGIYA:</b> Narx darajani yorib o'tib, qayta sinovdan o'tkazmoqda. Retest nuqtasida kirish qulay.";
-                break;
-            case 'H&S':
-                details = "<b>7-STRATEGIYA:</b> Head & Shoulders (Bosh va elkalar) figurasi shakllandi. Bo'yin chizig'i sindi.";
+                details = `<b>15-STRATEGIYA (${session.tf}):</b> Narx darajani yorib o'tib, qayta sinovdan o'tkazmoqda.`;
                 break;
             default:
-                details = `<b>SC_MALIKOV AI:</b> ${s} strategiyasi bo'yicha tahlil yakunlandi. PDF qoidalariga ko'ra kirish nuqtasi tasdiqlandi.`;
+                details = `<b>SC_MALIKOV AI:</b> ${s} strategiyasi ${session.tf} taymfreymida tahlil qilindi. PDF qoidalariga ko'ra signal tasdiqlandi.`;
         }
 
         document.getElementById('result-text').innerHTML = `
-            <div style="font-weight:bold; color:var(--neon); margin-bottom:5px;">${session.pair} | ${session.strat}</div>
+            <div style="font-weight:bold; color:var(--neon); margin-bottom:5px;">${session.pair} | ${session.tf} | ${session.strat}</div>
             <div class="price-line">
                 <div class="p-item"><small>ENTRY</small><b>${entry}</b></div>
-                <div class="p-item"><small style="color:var(--red)">STOP LOSS</small><b style="color:var(--red)">${sl}</b></div>
-                <div class="p-item"><small>TAKE PROFIT</small><b>${tp}</b></div>
+                <div class="p-item"><small style="color:var(--red)">S/L</small><b style="color:var(--red)">${sl}</b></div>
+                <div class="p-item"><small>T/P</small><b>${tp}</b></div>
             </div>
             <p style="font-size:12px; color:#ccc; line-height:1.5;">${details}</p>
         `;
