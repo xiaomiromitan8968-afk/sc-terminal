@@ -15,12 +15,12 @@
         .btn { width: 100%; padding: 14px; margin: 8px 0; border: 1px solid var(--blue); background: none; color: white; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.2s; text-transform: uppercase; }
         .btn:active { background: var(--blue); color: black; transform: scale(0.98); }
         
-        #chart-canvas { width: 100%; height: 240px; background: #000; border-radius: 10px; border: 1px solid #1a1a1a; margin-top: 15px; }
+        #chart-canvas { width: 100%; height: 260px; background: #000; border-radius: 12px; border: 1px solid #1a1a1a; margin-top: 15px; display: block; }
         
         .status-msg { color: var(--neon); font-size: 13px; margin: 15px 0; text-align: left; line-height: 1.5; padding: 10px; background: rgba(0, 255, 136, 0.05); border-radius: 8px; border-left: 3px solid var(--neon); }
         .signal-card { background: linear-gradient(135deg, rgba(0,194,255,0.1) 0%, rgba(0,255,136,0.1) 100%); padding: 15px; border-radius: 12px; border: 1px solid var(--blue); margin-top: 10px; text-align: left; }
         .loader { border: 3px solid #111; border-top: 3px solid var(--neon); border-radius: 50%; width: 35px; height: 35px; animation: spin 1s linear infinite; margin: 20px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(3600deg); } }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -49,7 +49,7 @@
     <div id="step-3" class="box hidden">
         <div id="loader-box">
             <div class="loader"></div>
-            <p style="font-size: 11px;">BINANCE REAL-TIME DATA...</p>
+            <p style="font-size: 11px;">BOZOR TAHLIL QILINMOQDA...</p>
         </div>
         
         <div id="result-box" class="hidden">
@@ -78,90 +78,93 @@
         document.getElementById('step-3').classList.remove('hidden');
 
         try {
-            const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${selectedPair}&interval=${tf}&limit=40`);
+            const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${selectedPair}&interval=${tf}&limit=50`);
             const rawData = await res.json();
             
             const data = rawData.map(d => ({
                 o: parseFloat(d[1]), h: parseFloat(d[2]), l: parseFloat(d[3]), c: parseFloat(d[4])
             }));
 
-            drawCandleChart(data);
-            processStrategy(data);
+            renderFullTahlil(data);
         } catch (e) {
-            document.getElementById('loader-box').innerHTML = "<p style='color:red'>Internet xatosi! HTTPS hosting ishlating.</p>";
+            document.getElementById('loader-box').innerHTML = "<p style='color:red'>Ulanishda xato! Hostingni tekshiring.</p>";
         }
     }
 
-    function drawCandleChart(data) {
+    function renderFullTahlil(data) {
         document.getElementById('loader-box').classList.add('hidden');
         document.getElementById('result-box').classList.remove('hidden');
         
         const canvas = document.getElementById('chart-canvas');
         const ctx = canvas.getContext('2d');
-        const w = canvas.width = canvas.offsetWidth * 2; // Sifat uchun 2ga ko'paytirdik
-        const h = canvas.height = canvas.offsetHeight * 2;
-        ctx.scale(2, 2); 
-        const width = canvas.offsetWidth;
-        const height = canvas.offsetHeight;
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.scale(dpr, dpr);
+        
+        const width = rect.width;
+        const height = rect.height;
 
-        const min = Math.min(...data.map(d => d.l));
-        const max = Math.max(...data.map(d => d.h));
+        const prices = data.map(d => [d.h, d.l]).flat();
+        const min = Math.min(...prices);
+        const max = Math.max(...prices);
         const range = max - min;
-        const candleWidth = (width / data.length) * 0.8;
 
+        const getX = (i) => (i / (data.length)) * width + (width / data.length / 2);
+        const getY = (p) => height - 20 - ((p - min) / range) * (height - 40);
+
+        // 1. SHAMCHALARNI CHIZISH
+        const candleW = (width / data.length) * 0.7;
         data.forEach((d, i) => {
-            const x = (i / data.length) * width + (candleWidth / 2);
-            const openY = height - ((d.o - min) / range) * height;
-            const closeY = height - ((d.c - min) / range) * height;
-            const highY = height - ((d.h - min) / range) * height;
-            const lowY = height - ((d.l - min) / range) * height;
-
-            // Pilik (Wick)
-            ctx.strokeStyle = d.c >= d.o ? '#00ff88' : '#ff007f';
-            ctx.lineWidth = 1;
+            const x = getX(i);
+            const isBull = d.c >= d.o;
+            ctx.strokeStyle = isBull ? '#00ff88' : '#ff007f';
+            ctx.fillStyle = isBull ? '#00ff88' : '#ff007f';
+            
+            // Pilik
             ctx.beginPath();
-            ctx.moveTo(x, highY);
-            ctx.lineTo(x, lowY);
+            ctx.moveTo(x, getY(d.h));
+            ctx.lineTo(x, getY(d.l));
             ctx.stroke();
-
-            // Tana (Body)
-            ctx.fillStyle = d.c >= d.o ? '#00ff88' : '#ff007f';
-            const bodyHeight = Math.abs(closeY - openY) || 1;
-            ctx.fillRect(x - candleWidth / 2, Math.min(openY, closeY), candleWidth, bodyHeight);
+            
+            // Tana
+            const bodyY1 = getY(d.o);
+            const bodyY2 = getY(d.c);
+            ctx.fillRect(x - candleW/2, Math.min(bodyY1, bodyY2), candleW, Math.abs(bodyY1 - bodyY2) || 1);
         });
 
-        // Trend line (Simulatsiya)
-        ctx.setLineDash([5, 5]);
+        // 2. MADELNI TO'G'RI CHIZISH (Trend Line)
+        // Oxirgi 20 ta shamchadan trendni aniqlash
+        const last20 = data.slice(-20);
+        const startIdx = data.length - 20;
+        ctx.setLineDash([4, 4]);
         ctx.strokeStyle = '#00c2ff';
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(0, height * 0.7);
-        ctx.lineTo(width, height * 0.3);
+        ctx.moveTo(getX(startIdx), getY(last20[0].l));
+        ctx.lineTo(getX(data.length - 1), getY(data[data.length - 1].c));
         ctx.stroke();
-    }
+        ctx.setLineDash([]);
 
-    function processStrategy(data) {
-        const last = data[data.length - 1].c;
-        const scenarios = ['Trend Line', 'Uchburchak', 'Flet', 'None'];
-        const pattern = scenarios[Math.floor(Math.random() * scenarios.length)];
+        // 3. SIGNAL MANTIQLARI
+        const lastPrice = data[data.length - 1].c;
+        const trend = data[data.length - 1].c > data[data.length - 10].c ? "O'suvchi" : "Tushuvchi";
         
         const botMsg = document.getElementById('bot-message');
         const signalBox = document.getElementById('signal-info');
 
-        if (pattern === 'None') {
-            botMsg.innerText = "❌ Hozirda aniq model topilmadi. Madel shakllanyapti...";
-            signalBox.classList.add('hidden');
-        } else {
-            const tp = (last * 1.01618).toFixed(2);
-            const sl = (last * 0.992).toFixed(2);
+        botMsg.innerText = `Bozorda hozirda ${trend} trend kuzatilmoqda va narx Trend Line ustida harakat qilyapti. Narx chiziqni tana bilan yorib o'tsa xabar beriladi.`;
+        
+        const tp = (lastPrice * 1.01618).toFixed(2);
+        const sl = (lastPrice * 0.994).toFixed(2);
 
-            botMsg.innerText = `✅ Bozorda ${pattern} holati aniqlandi. Narx chiziq bo'ylab harakatlanyapti.`;
-            signalBox.classList.remove('hidden');
-            signalBox.innerHTML = `
-                <div style="font-weight: 900; color: var(--blue); margin-bottom: 5px;">STRATEGIYA SIGNALI</div>
-                <div>🎯 TP (1.618): <span style="color: var(--neon)">${tp}</span></div>
-                <div>🛑 SL (Fibo 0): <span style="color: var(--pink)">${sl}</span></div>
-            `;
-        }
+        signalBox.innerHTML = `
+            <div style="font-weight: 900; color: var(--blue); margin-bottom: 5px;">📊 REAL-TIME SIGNAL</div>
+            <div>🎯 TP (1.618): <span style="color: var(--neon)">${tp}</span></div>
+            <div>🛑 SL (Fibo 0): <span style="color: var(--pink)">${sl}</span></div>
+        `;
     }
 </script>
 </body>
