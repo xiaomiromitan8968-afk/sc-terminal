@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SC_MALIKOV | PRO V12</title>
+    <title>SC_MALIKOV | V13</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #020202; --neon: #00ff88; --blue: #00c2ff; --pink: #ff007f; --glass: rgba(255, 255, 255, 0.03); }
-        body { margin: 0; background: var(--bg); color: white; font-family: 'Montserrat', sans-serif; display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
+        :root { --bg: #010101; --neon: #00ff88; --blue: #00c2ff; --pink: #ff007f; --glass: rgba(255, 255, 255, 0.03); }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Montserrat', sans-serif; display: flex; justify-content: center; min-height: 100vh; overflow: hidden; }
         .terminal { width: 100%; max-width: 420px; padding: 15px; box-sizing: border-box; }
         .box { background: var(--glass); border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 15px; padding: 20px; text-align: center; margin-top: 15px; }
         .hidden { display: none !important; }
         .pair-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         .btn { width: 100%; padding: 12px; border: 1px solid var(--blue); background: none; color: white; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 11px; text-transform: uppercase; transition: 0.2s; }
         .btn:active { background: var(--blue); color: #000; transform: scale(0.96); }
-        #chart-canvas { width: 100%; height: 260px; background: #000; border-radius: 12px; border: 1px solid #1a1a1a; margin-top: 15px; }
-        .status-msg { color: var(--neon); font-size: 12px; margin: 15px 0; text-align: left; padding: 10px; border-left: 3px solid var(--neon); background: rgba(0, 255, 136, 0.05); line-height: 1.4; }
+        #chart-canvas { width: 100%; height: 250px; background: #000; border-radius: 12px; border: 1px solid #1a1a1a; margin-top: 15px; }
+        .status-msg { color: var(--neon); font-size: 12px; margin: 15px 0; text-align: left; padding: 10px; border-left: 3px solid var(--neon); background: rgba(0, 255, 136, 0.05); }
         .signal-card { background: rgba(0, 194, 255, 0.08); padding: 15px; border-radius: 12px; border: 1px solid var(--blue); margin-top: 10px; }
         .loader { border: 3px solid #111; border-top: 3px solid var(--neon); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 15px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -28,7 +28,6 @@
     <h2 style="color: var(--neon); text-align: center; font-weight: 900; letter-spacing: 2px;">SC_MALIKOV</h2>
 
     <div id="step-1" class="box">
-        <p style="font-size: 10px; opacity: 0.6; margin-bottom: 10px;">AKTIVNI TANLANG</p>
         <div class="pair-grid">
             <button class="btn" onclick="selectPair('EURUSDT')">EUR / USD</button>
             <button class="btn" onclick="selectPair('BTCUSDT')">BTC / USDT</button>
@@ -48,7 +47,7 @@
     </div>
 
     <div id="step-3" class="box hidden">
-        <div id="loader-box"><div class="loader"></div><p style="font-size: 10px;">STRATEGIYA SCANERLANMOQDA...</p></div>
+        <div id="loader-box"><div class="loader"></div><p style="font-size: 10px;">QIYA TREND TAHLIL QILINMOQDA...</p></div>
         <div id="result-box" class="hidden">
             <canvas id="chart-canvas"></canvas>
             <div id="bot-message" class="status-msg"></div>
@@ -74,40 +73,37 @@
         document.getElementById('step-2').classList.add('hidden');
         document.getElementById('step-3').classList.remove('hidden');
         try {
-            const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${selectedPair}&interval=${tf}&limit=120`);
+            const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${selectedPair}&interval=${tf}&limit=100`);
             const data = (await res.json()).map(d => ({ o: +d[1], h: +d[2], l: +d[3], c: +d[4] }));
-            runDojEmojiFibo(data);
+            processTrend(data);
         } catch (e) { alert("API Error!"); }
     }
 
-    function findPivots(data) {
-        let highs = [], lows = [];
-        // Oxirgi 15 shamni tekshirmaymiz, chunki ular Breakout zonasi
-        for (let i = 5; i < data.length - 15; i++) {
-            if (data[i].h > data[i-1].h && data[i].h > data[i-2].h && data[i].h > data[i+1].h && data[i].h > data[i+2].h) 
-                highs.push({y: data[i].h, x: i});
-            if (data[i].l < data[i-1].l && data[i].l < data[i-2].l && data[i].l < data[i+1].l && data[i].l < data[i+2].l) 
-                lows.push({y: data[i].l, x: i});
+    function calculateLinearRegression(data) {
+        const n = data.length;
+        let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+        for (let i = 0; i < n; i++) {
+            sumX += i;
+            sumY += data[i].c;
+            sumXY += i * data[i].c;
+            sumX2 += i * i;
         }
-        return { 
-            res: highs.length > 0 ? highs[highs.length - 1].y : Math.max(...data.slice(0, 100).map(d => d.h)),
-            sup: lows.length > 0 ? lows[lows.length - 1].y : Math.min(...data.slice(0, 100).map(d => d.l))
-        };
+        const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+        const intercept = (sumY - slope * sumX) / n;
+        return { slope, intercept };
     }
 
-    function runDojEmojiFibo(data) {
+    function processTrend(data) {
         document.getElementById('loader-box').classList.add('hidden');
         document.getElementById('result-box').classList.remove('hidden');
 
-        const pivots = findPivots(data);
-        const resLine = pivots.res;
-        const supLine = pivots.sup;
-        const last = data[data.length - 1];
-
+        // 1. Trendni hisoblash (qiya chiziq)
+        const lineData = data.slice(0, 85); // Chap tomondan trendni aniqlaymiz
+        const reg = calculateLinearRegression(lineData);
+        
         const canvas = document.getElementById('chart-canvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = canvas.offsetWidth * 2;
-        canvas.height = canvas.offsetHeight * 2;
+        canvas.width = canvas.offsetWidth * 2; canvas.height = canvas.offsetHeight * 2;
         ctx.scale(2, 2);
         const w = canvas.offsetWidth, h = canvas.offsetHeight;
 
@@ -115,33 +111,39 @@
         const getY = (p) => h - 40 - ((p - minP) / (maxP - minP)) * (h - 80);
         const getX = (i) => (i / data.length) * w;
 
-        // GRAFIK CHIZISH
+        // 2. Shamchalarni chizish
         data.forEach((d, i) => {
             const x = getX(i) + (w/data.length/2);
-            ctx.strokeStyle = d.c >= d.o ? '#00ff88' : '#ff007f';
+            ctx.strokeStyle = ctx.fillStyle = d.c >= d.o ? '#00ff88' : '#ff007f';
             ctx.beginPath(); ctx.moveTo(x, getY(d.h)); ctx.lineTo(x, getY(d.l)); ctx.stroke();
-            ctx.fillStyle = ctx.strokeStyle;
             ctx.fillRect(x - 1.5, Math.min(getY(d.o), getY(d.c)), 3, Math.max(Math.abs(getY(d.o) - getY(d.c)), 1));
         });
 
-        // LINIYALARNI QOTIRISH (Pivotlar bo'yicha)
-        ctx.setLineDash([5, 5]); ctx.lineWidth = 1;
-        ctx.strokeStyle = '#ff007f'; ctx.beginPath(); ctx.moveTo(0, getY(resLine)); ctx.lineTo(w, getY(resLine)); ctx.stroke();
-        ctx.strokeStyle = '#00ff88'; ctx.beginPath(); ctx.moveTo(0, getY(supLine)); ctx.lineTo(w, getY(supLine)); ctx.stroke();
+        // 3. QIYA TREND LINIYANI CHIZISH
+        const startY = reg.intercept;
+        const endY = reg.intercept + reg.slope * (data.length - 1);
+        ctx.setLineDash([5, 5]); ctx.lineWidth = 2;
+        ctx.strokeStyle = reg.slope > 0 ? '#00ff88' : '#ff007f';
+        ctx.beginPath(); ctx.moveTo(getX(0), getY(startY)); ctx.lineTo(getX(data.length-1), getY(endY)); ctx.stroke();
 
-        // SIGNAL MANTIQLARI
-        let msg = "Trend liniya buzilmagan. Keyinroq qayta tekshiring.";
-        let signalUI = `<div style="text-align:center; opacity:0.5;">WAITING BREAKOUT...</div>`;
+        // 4. BREAKOUT LOGIC
+        const last = data[data.length - 1];
+        const currentTrendVal = endY;
         const precision = selectedPair.includes('EUR') ? 5 : 2;
+        let msg = "Trend buzilmagan. Keyinroq xabar oling.";
+        let signalUI = `<div style="text-align:center; opacity:0.5;">Trend ichida...</div>`;
 
-        if (last.c > resLine) {
-            const tp = (last.c + (last.c - supLine) * 0.618).toFixed(precision);
-            msg = "🚀 TREND BUZILDI! BUY SIGNAL.";
-            signalUI = renderUI("BUY", last.c, tp, supLine.toFixed(precision));
-        } else if (last.c < supLine) {
-            const tp = (last.c - (resLine - last.c) * 0.618).toFixed(precision);
-            msg = "🔻 TREND BUZILDI! SELL SIGNAL.";
-            signalUI = renderUI("SELL", last.c, tp, resLine.toFixed(precision));
+        // Agar UpTrend bo'lsa va narx pastga buzsa -> SELL
+        if (reg.slope > 0 && last.c < currentTrendVal) {
+            const tp = (last.c - (maxP - last.c) * 0.618).toFixed(precision);
+            msg = "📉 UP-TREND PASTGA BUZILDI! SELL.";
+            signalUI = renderUI("SELL", last.c, tp, maxP.toFixed(precision));
+        } 
+        // Agar DownTrend bo'lsa va narx tepaga buzsa -> BUY
+        else if (reg.slope < 0 && last.c > currentTrendVal) {
+            const tp = (last.c + (last.c - minP) * 0.618).toFixed(precision);
+            msg = "🚀 DOWN-TREND TEPAGA BUZILDI! BUY.";
+            signalUI = renderUI("BUY", last.c, tp, minP.toFixed(precision));
         }
 
         document.getElementById('bot-message').innerText = msg;
@@ -150,14 +152,12 @@
 
     function renderUI(type, ent, tp, sl) {
         const c = type === "BUY" ? "var(--neon)" : "var(--pink)";
-        return `
-            <div style="font-weight:900; color:${c}; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px;">${type} SIGNAL</div>
+        return `<div style="font-weight:900; color:${c}; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px;">${type} SIGNAL</div>
             <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:13px;">
                 <span>ENTRY: <b>${ent}</b></span>
                 <span style="color:var(--neon)">TP: <b>${tp}</b></span>
             </div>
-            <div style="margin-top:5px; font-size:10px; opacity:0.7;">STOP LOSS (0): ${sl}</div>
-        `;
+            <div style="margin-top:5px; font-size:10px; opacity:0.7;">SL (0): ${sl}</div>`;
     }
 </script>
 </body>
