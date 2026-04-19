@@ -3,139 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tug'ilgan kuning bilan!</title>
+    <title>Sening kuning bilan, Azizam!</title>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --pink: #ff4d94;
             --dark: #1a000d;
-            --gold: #ffd700;
+            --soft-pink: #ffb3d1;
         }
         body {
-            margin: 0;
-            padding: 0;
-            background: var(--dark);
+            margin: 0; background: var(--dark);
             font-family: 'Montserrat', sans-serif;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            color: white;
+            color: white; overflow-x: hidden;
         }
-        canvas { position: absolute; top: 0; left: 0; }
         
-        .content {
-            z-index: 10;
-            text-align: center;
-            padding: 20px;
-            background: rgba(26, 0, 13, 0.6);
-            backdrop-filter: blur(10px);
-            border-radius: 30px;
-            border: 1px solid rgba(255, 77, 148, 0.3);
-            box-shadow: 0 0 50px rgba(255, 77, 148, 0.2);
-            animation: fadeIn 3s ease-in;
+        /* Bosh sahifa */
+        .hero {
+            height: 100vh;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            text-align: center; position: relative;
         }
-
         h1 {
             font-family: 'Dancing Script', cursive;
-            font-size: 4rem;
-            color: var(--pink);
+            font-size: 5rem; color: var(--pink);
             text-shadow: 0 0 20px var(--pink);
-            margin-bottom: 10px;
+            margin: 0;
         }
 
-        p {
-            font-size: 1.2rem;
-            letter-spacing: 2px;
-            color: #ffb3d1;
+        /* Timeline stili */
+        .timeline {
+            position: relative; max-width: 800px;
+            margin: 50px auto; padding: 20px;
         }
-
-        .btn-surprise {
-            margin-top: 30px;
-            padding: 15px 40px;
-            background: transparent;
-            border: 2px solid var(--pink);
-            color: var(--pink);
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
-            text-transform: uppercase;
-            font-family: 'Orbitron', sans-serif;
+        .timeline::after {
+            content: ''; position: absolute;
+            width: 2px; background: var(--pink);
+            top: 0; bottom: 0; left: 50%;
         }
-
-        .btn-surprise:hover {
-            background: var(--pink);
-            color: white;
-            box-shadow: 0 0 30px var(--pink);
+        .container {
+            padding: 10px 40px; position: relative;
+            width: 50%; box-sizing: border-box;
+            opacity: 0; transform: translateY(50px);
+            transition: 1s all ease;
         }
+        .container.show { opacity: 1; transform: translateY(0); }
+        .left { left: 0; text-align: right; }
+        .right { left: 50%; text-align: left; }
+        
+        .content {
+            padding: 20px; background: rgba(255, 77, 148, 0.1);
+            border: 1px solid var(--pink);
+            border-radius: 20px; position: relative;
+        }
+        .content img {
+            width: 100%; border-radius: 15px;
+            margin-bottom: 10px; border: 2px solid var(--pink);
+        }
+        .content h3 { color: var(--pink); margin: 0; }
+        .content p { font-size: 0.9rem; color: var(--soft-pink); }
 
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        @media screen and (max-width: 600px) {
+            .timeline::after { left: 31px; }
+            .container { width: 100%; padding-left: 70px; padding-right: 25px; text-align: left; }
+            .right { left: 0; }
+        }
     </style>
 </head>
 <body>
 
-    <canvas id="heartCanvas"></canvas>
+    <section class="hero">
+        <h1>Happy Birthday!</h1>
+        <p>Sening tabassuming - mening dunyoim...</p>
+        <div style="margin-top: 50px; font-size: 2rem; animation: bounce 2s infinite;">👇</div>
+    </section>
 
-    <div class="content">
-        <h1 id="title">Happy Birthday!</h1>
-        <p id="sub">Dunyo sen bilan chiroyli...</p>
-        <button class="btn-surprise" onclick="startSurprise()">Sovg'ani ochish 🎁</button>
+    <div class="timeline">
+        
+        <div class="container left animate-box">
+            <div class="content">
+                <img src="rasm1.jpg" alt="Xotira 1">
+                <h3>Ilk uchrashuv</h3>
+                <p>O'sha kundan boshlab hayotim butunlay o'zgardi...</p>
+            </div>
+        </div>
+
+        <div class="container right animate-box">
+            <div class="content">
+                <img src="rasm2.jpg" alt="Xotira 2">
+                <h3>Eng shirin lahzalar</h3>
+                <p>Sening kulgung - dunyodagi eng go'zal musiqa.</p>
+            </div>
+        </div>
+
+        <div class="container left animate-box">
+            <div class="content">
+                <img src="rasm3.jpg" alt="Xotira 3">
+                <h3>Har doim birga</h3>
+                <p>Qayerda bo'lmaylik, yuragim doim sen bilan.</p>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        const canvas = document.getElementById('heartCanvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        const hearts = [];
-
-        class Heart {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = canvas.height + 100;
-                this.size = Math.random() * 15 + 5;
-                this.speed = Math.random() * 2 + 1;
-                this.opacity = Math.random() * 0.5 + 0.5;
-            }
-            draw() {
-                ctx.fillStyle = `rgba(255, 77, 148, ${this.opacity})`;
-                ctx.beginPath();
-                ctx.moveTo(this.x, this.y);
-                ctx.bezierCurveTo(this.x - this.size, this.y - this.size, this.x - this.size * 1.5, this.y + this.size / 3, this.x, this.y + this.size);
-                ctx.bezierCurveTo(this.x + this.size * 1.5, this.y + this.size / 3, this.x + this.size, this.y - this.size, this.x, this.y);
-                ctx.fill();
-            }
-            update() {
-                this.y -= this.speed;
-                if (this.y < -50) {
-                    this.y = canvas.height + 100;
-                    this.x = Math.random() * canvas.width;
+        // Scroll animatsiyasi
+        window.addEventListener('scroll', checkBoxes);
+        function checkBoxes() {
+            const boxes = document.querySelectorAll('.animate-box');
+            const triggerBottom = window.innerHeight / 5 * 4;
+            boxes.forEach(box => {
+                const boxTop = box.getBoundingClientRect().top;
+                if(boxTop < triggerBottom) {
+                    box.classList.add('show');
                 }
-            }
+            });
         }
-
-        function init() {
-            for (let i = 0; i < 50; i++) hearts.push(new Heart());
-        }
-
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            hearts.forEach(h => { h.draw(); h.update(); });
-            requestAnimationFrame(animate);
-        }
-
-        function startSurprise() {
-            document.getElementById('title').innerText = "Seni Yaxshi Ko'raman!";
-            document.getElementById('sub').innerText = "Sen hayotimdagi eng go'zal mo'jizasan ❤️";
-            // Ovozli tabrik yoki musiqa qo'shish mumkin
-            alert("Har bir soniya sen bilan baxtli! 🎉");
-        }
-
-        init();
-        animate();
+        window.onload = checkBoxes;
     </script>
 </body>
 </html>
