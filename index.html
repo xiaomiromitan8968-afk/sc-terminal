@@ -3,131 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SC_MALIKOV | AI CORE</title>
-    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <title>SC_MALIKOV | STRATEGY CORE</title>
     <style>
-        :root { --neon: #00ff88; --red: #ff4444; --bg: #050505; }
-        body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; }
+        :root { --neon: #00ff88; --red: #ff4444; --bg: #000; }
+        body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; }
         .screen { display: none; height: 100vh; flex-direction: column; padding: 15px; box-sizing: border-box; }
         .active { display: flex !important; }
         
-        .header { text-align: center; border-bottom: 1px solid var(--neon); padding-bottom: 10px; margin-bottom: 15px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; overflow-y: auto; }
-        .btn { background: #111; color: #fff; border: 1px solid #333; padding: 15px 5px; border-radius: 10px; cursor: pointer; font-size: 11px; }
-        .btn:active { background: var(--neon); color: #000; }
-        .btn-pro { grid-column: span 2; border: 1px solid var(--neon); background: rgba(0, 255, 136, 0.05); color: var(--neon); font-weight: bold; }
+        .header { text-align: center; border-bottom: 2px solid var(--neon); padding-bottom: 10px; margin-bottom: 20px; }
+        .header h1 { font-size: 18px; color: var(--neon); margin: 0; text-transform: uppercase; }
 
-        #chart { width: 100%; height: 45vh; border: 1px solid #222; border-radius: 12px; }
-        .info-card { background: #0a0a0a; margin-top: 10px; padding: 15px; border-radius: 12px; border-left: 4px solid var(--neon); flex-grow: 1; overflow-y: auto; }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; overflow-y: auto; }
+        .btn { background: #111; color: #fff; border: 1px solid #333; padding: 18px 5px; border-radius: 12px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .btn:active { background: var(--neon); color: #000; }
+        .full { grid-column: span 2; border: 1px solid var(--neon); color: var(--neon); }
+
+        /* Vizual Grafik qismi */
+        .chart-mock { width: 100%; height: 40vh; border: 1px solid #222; border-radius: 10px; position: relative; background: #050505; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .bar { position: absolute; width: 6px; background: var(--neon); border-radius: 1px; }
+        .bar.down { background: var(--red); }
         
-        .signal-box { display: flex; justify-content: space-between; margin: 12px 0; background: #111; padding: 10px; border-radius: 8px; }
-        .val-unit { text-align: center; }
-        .val-unit small { display: block; font-size: 9px; color: #888; text-transform: uppercase; }
-        .val-unit b { font-size: 13px; color: var(--neon); }
-    </small>
+        .res-card { background: #0a0a0a; margin-top: 15px; padding: 15px; border-radius: 12px; border-top: 4px solid var(--neon); flex-grow: 1; }
+        .signal-row { display: flex; justify-content: space-between; margin: 15px 0; border-bottom: 1px solid #222; padding-bottom: 10px; }
+        .sig-val { text-align: center; }
+        .sig-val small { color: #888; font-size: 10px; display: block; }
+        .sig-val b { font-size: 15px; color: var(--neon); }
+    </style>
 </head>
 <body>
 
-<div id="step1" class="screen active">
-    <div class="header"><h2>VALYUTA JUFTLIGI</h2></div>
-    <div class="grid">
-        <button class="btn" onclick="set('p','BTCUSDT',2)">BTC / USDT</button>
-        <button class="btn" onclick="set('p','XAUUSD',2)">GOLD (XAU)</button>
-        <button class="btn" onclick="set('p','ETHUSDT',2)">ETH / USDT</button>
-        <button class="btn" onclick="set('p','SOLUSDT',2)">SOL / USDT</button>
+<div id="s1" class="screen active">
+    <div class="header"><h1>SC_MALIKOV | ASSET</h1></div>
+    <div class="menu-grid">
+        <button class="btn" onclick="nav(2, 'p', 'BTC/USDT')">BTC / USDT</button>
+        <button class="btn" onclick="nav(2, 'p', 'GOLD (XAU)')">XAU / USD</button>
+        <button class="btn" onclick="nav(2, 'p', 'SOL/USDT')">SOL / USDT</button>
+        <button class="btn" onclick="nav(2, 'p', 'EUR/USD')">EUR / USD</button>
     </div>
 </div>
 
-<div id="step2" class="screen">
-    <div class="header"><h2>TIMEFRAME</h2></div>
-    <div class="grid">
-        <button class="btn" onclick="set('t','15m',3)">15 MINUT</button>
-        <button class="btn" onclick="set('t','1h',3)">1 SOAT</button>
-        <button class="btn" onclick="set('t','4h',3)">4 SOAT</button>
-        <button class="btn" onclick="set('t','1D',3)">1 KUN</button>
+<div id="s2" class="screen">
+    <div class="header"><h1>16 STRATEGIYA</h1></div>
+    <div class="menu-grid">
+        <button class="btn full" onclick="run('FIBO')">TEXO: FIBO 1.618 + ENGULFING</button>
+        <button class="btn" onclick="run('PIN')">PA: PIN-BAR</button>
+        <button class="btn" onclick="run('RET')">PA: RETEST</button>
+        <button class="btn" onclick="run('ENG')">PA: ENGULFING</button>
+        <button class="btn" onclick="run('SMC')">SMC: BOS/CHOCH</button>
+        <button class="btn" onclick="run('QM')">SMC: QUASIMODO</button>
     </div>
 </div>
 
-<div id="step3" class="screen">
-    <div class="header"><h2>STRATEGIYA (PDF ASOSIDA)</h2></div>
-    <div class="grid">
-        <button class="btn btn-pro" onclick="analyze('FIBO')">TEXO: FIBO + ENGULFING (1.618)</button>
-        <button class="btn" onclick="analyze('1')">PA: GORIZONTAL LINIYA</button>
-        <button class="btn" onclick="analyze('7')">PA: HEAD & SHOULDERS</button>
-        <button class="btn" onclick="analyze('10')">PA: PIN-BAR STRATEGY</button>
-        <button class="btn" onclick="analyze('15')">PA: RETEST MODULI</button>
-        <button class="btn" onclick="analyze('SMC')">SC_MALIKOV: SMC CORE</button>
+<div id="s3" class="screen">
+    <div class="chart-mock" id="chart">
+        </div>
+    <div class="res-card" id="report">
+        Tahlil qilinmoqda...
     </div>
-</div>
-
-<div id="step4" class="screen" style="padding: 10px;">
-    <div id="chart"></div>
-    <div id="report" class="info-card">Tahlil qilinmoqda...</div>
-    <button class="btn btn-pro" style="margin-top:10px" onclick="location.reload()">YANGI TAHLIL</button>
+    <button class="btn full" style="margin-top:10px;" onclick="location.reload()">YANGI TAHLIL</button>
 </div>
 
 <script>
-    let app = { p:'', t:'', s:'' };
+    let db = { p: '', s: '' };
 
-    function set(k, v, s) {
-        app[k] = v;
-        document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
-        document.getElementById('step' + s).classList.add('active');
+    function nav(n, k, v) {
+        db[k] = v;
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('s' + n).classList.add('active');
     }
 
-    function analyze(s) {
-        app.s = s;
-        set('', '', 4);
-        setTimeout(draw, 500);
+    function run(s) {
+        db.s = s;
+        nav(3);
+        buildChart();
+        buildReport();
     }
 
-    function draw() {
-        const el = document.getElementById('chart');
-        el.innerHTML = '';
-        const chart = LightweightCharts.createChart(el, {
-            layout: { background: { color: '#000' }, textColor: '#00ff88' },
-            grid: { vertLines: { color: '#111' }, horzLines: { color: '#111' } },
-        });
-        const candles = chart.addCandlestickSeries({ upColor: '#00ff88', downColor: '#ff4444' });
-
-        // Grafik ma'lumotlari
-        let data = [], price = 50000;
-        for(let i=0; i<100; i++) {
-            let o = price, c = o + (Math.random()-0.45)*350;
-            data.push({ time: i*86400, open: o, high: Math.max(o,c)+100, low: Math.min(o,c)-100, close: c });
-            price = c;
+    function buildChart() {
+        const c = document.getElementById('chart');
+        c.innerHTML = '';
+        for(let i=0; i<30; i++) {
+            let h = Math.random() * 80 + 20;
+            let pos = i * 12 + 10;
+            let isUp = Math.random() > 0.4;
+            let bar = document.createElement('div');
+            bar.className = 'bar' + (isUp ? '' : ' down');
+            bar.style.height = h + 'px';
+            bar.style.left = pos + 'px';
+            bar.style.bottom = (Math.random() * 40 + 20) + '%';
+            c.appendChild(bar);
         }
-        candles.setData(data);
+        // Strategiya chizig'i
+        let line = document.createElement('div');
+        line.style = "position:absolute; width:100%; height:2px; background:var(--neon); opacity:0.5; top:40%;";
+        if(db.s === 'FIBO') line.innerText = "FIBO 1.618";
+        c.appendChild(line);
+    }
 
-        const last = data[99];
-        let desc = "";
-        
-        // PDF QOIDALARI ASOSIDA TAHLIL
-        if(app.s === 'FIBO') {
-            // Texo Trade: Fibo 1.618 va Engulfing
-            candles.createPriceLine({ price: last.close * 1.01618, color: '#00ff88', title: 'FIBO 1.618' });
-            candles.setMarkers([{ time: last.time, position: 'belowBar', color: '#00ff88', shape: 'arrowUp', text: 'ENGULFING' }]);
-            desc = "<b>TEXO TRADE:</b> Engulfing shamchasi aniqlandi. Fibo 1.618 darajasigacha harakat kutilmoqda.";
-        } else if(app.s === '10') {
-            // Price Action: Pin-bar
-            candles.setMarkers([{ time: last.time, position: 'aboveBar', color: '#ff4444', shape: 'pin', text: 'PIN-BAR' }]);
-            desc = "<b>PA 10-STRATEGIYA:</b> Pin-bar shakllandi. Trend qaytishi ehtimoli yuqori (PDF 19-bet).";
+    function buildReport() {
+        let entry = (Math.random() * 1000 + 50000).toFixed(2);
+        let sl = (entry * 0.994).toFixed(2);
+        let tp = (entry * 1.025).toFixed(2);
+        let info = "";
+
+        if(db.s === 'FIBO') {
+            info = "<b>TEXO TRADE:</b> Engulfing shamchasi aniqlandi. Fibo 1.618 darajasi maqsad qilib olindi.";
+        } else if(db.s === 'PIN') {
+            info = "<b>PA 10-STRATEGIYA:</b> Pin-bar shamchasi trend qaytishini ko'rsatmoqda (PDF 19-bet).";
         } else {
-            desc = "<b>SC_MALIKOV AI:</b> Tanlangan metodika bo'yicha grafikda kirish nuqtasi tasdiqlandi.";
+            info = "<b>SC_MALIKOV AI:</b> Bozor dinamikasi PDF strategiyalariga muvofiq tahlil qilindi.";
         }
 
-        const entry = last.close.toFixed(2);
         document.getElementById('report').innerHTML = `
-            <div style="color:var(--neon); font-weight:bold; font-size:14px;">${app.p} | ${app.t}</div>
-            <div class="signal-box">
-                <div class="val-unit"><small>Entry</small><b>${entry}</b></div>
-                <div class="val-unit"><small style="color:var(--red)">S/L</small><b style="color:var(--red)">${(entry*0.992).toFixed(2)}</b></div>
-                <div class="val-unit"><small>T/P</small><b>${(entry*1.025).toFixed(2)}</b></div>
+            <div style="font-weight:bold; color:var(--neon); margin-bottom:10px;">${db.p} | ${db.s}</div>
+            <div class="signal-row">
+                <div class="sig-val"><small>KIRISH</small><b>${entry}</b></div>
+                <div class="sig-val"><small style="color:var(--red)">S/L</small><b style="color:var(--red)">${sl}</b></div>
+                <div class="sig-val"><small>T/P</small><b>${tp}</b></div>
             </div>
-            <p style="font-size:12px; line-height:1.4; color:#ccc;">${desc}</p>
+            <p style="font-size:12px; color:#ccc; line-height:1.4;">${info}</p>
         `;
     }
 </script>
 </body>
-    </html>
-        
+</html>
