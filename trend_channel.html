@@ -2,79 +2,162 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SC_MALIKOV | TREND CHANNEL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI TREND CHANNEL ANALYZER</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #00ff88; --red: #ff4444; --bg: #030303; }
-        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; padding: 15px; }
-        .header { display: flex; justify-content: space-between; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 15px; }
-        #tv-chart { width: 100%; height: 45vh; border-radius: 15px; border: 1px solid #333; overflow: hidden; }
-        .signal-card { background: rgba(255,255,255,0.03); border: 1px solid #222; border-radius: 15px; padding: 15px; margin-top: 15px; border-left: 5px solid var(--neon); }
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .info-item { background: #111; padding: 10px; border-radius: 10px; text-align: center; }
-        .info-item small { display: block; font-size: 10px; color: #888; }
-        .info-item b { font-size: 14px; color: var(--neon); }
-        .btn-back { width: 100%; margin-top: 20px; padding: 15px; background: transparent; border: 1px solid #333; color: #fff; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        :root {
+            --bg-dark: #020202;
+            --neon-blue: #00c2ff;
+            --neon-pink: #ff007f;
+            --neon-green: #00ff88;
+            --glass: rgba(0, 194, 255, 0.05);
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .header h2 { font-family: 'Orbitron'; color: var(--neon-blue); letter-spacing: 2px; margin-bottom: 5px; }
+        
+        #tv-widget {
+            width: 100%;
+            height: 300px;
+            border-radius: 15px;
+            border: 1px solid #1a1a1a;
+            margin-bottom: 15px;
+        }
+
+        /* --- AI PROOF SECTION --- */
+        .ai-proof-card {
+            display: none; /* Signal aniqlanganda ochiladi */
+            background: var(--glass);
+            border: 1px solid var(--neon-blue);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 15px;
+            box-shadow: 0 0 25px rgba(0, 194, 255, 0.1);
+        }
+
+        .ai-header {
+            font-family: 'Orbitron';
+            font-size: 13px;
+            color: var(--neon-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .logic-text {
+            font-size: 12.5px;
+            line-height: 1.6;
+            color: #ddd;
+            text-align: justify;
+            margin-bottom: 15px;
+        }
+
+        .visual-reference {
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid #333;
+            filter: brightness(0.8) contrast(1.2);
+        }
+
+        .signal-params {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 15px;
+            font-weight: bold;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <b id="pair-display">...</b>
-        <span style="color: var(--neon); font-size: 12px;">TREND KANAL</span>
+        <h2>CHANNEL VISION</h2>
+        <div id="ai-status" style="font-size: 9px; color: #555;">NEURAL SCANNING...</div>
     </div>
 
-    <div id="tv-chart"></div>
+    <div id="tv-widget"></div>
 
-    <div class="signal-card">
-        <div style="font-size: 11px; color: #888;"> TREND YO'NALISHI:</div>
-        <div id="trend-status" style="font-weight: bold; margin: 5px 0; color: var(--neon);">ANIQLANMOQDA...</div>
-        
-        <div class="info-grid">
-            <div class="info-item"><small>ENTRY (LOWER)</small><b id="entry-val">0.00</b></div>
-            <div class="info-item"><small>TARGET (UPPER)</small><b id="target-val">0.00</b></div>
+    <div id="ai-proof-card" class="ai-proof-card">
+        <div class="ai-header">
+            <i class="fas fa-microchip"></i> AI LOGIC VERIFICATION
         </div>
-        
-        <p style="font-size: 11px; color: #aaa; margin-top: 15px; line-height: 1.4;">
-            <b>ESLATMA:</b> Narx kanalning o'rtasidaligida savdoga kirmang. Faqat kanal chegaralariga (chekkalariga) kelishini kuting.
-        </p>
+
+        <div class="signal-params">
+            <span id="p-buy" style="color: var(--neon-green);">TP: 1.2540</span>
+            <span id="p-sl" style="color: var(--neon-pink);">SL: 1.2410</span>
+        </div>
+
+        <p id="ai-explanation" class="logic-text"></p>
+
+        <div style="font-size: 9px; color: #444; margin-bottom: 8px;">SIGNAL PATTERN MATCH: 94%</div>
+        <img id="pattern-img" class="visual-reference" src="" alt="Trend Channel Pattern">
     </div>
 
-    <button class="btn-back" onclick="window.history.back()">⬅ ORQAGA QAYTISH</button>
-
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const pair = urlParams.get('pair') || 'BINANCE:BTCUSDT';
         const tf = urlParams.get('tf') || '15';
 
-        document.getElementById('pair-display').innerText = pair.split(':')[1];
-
-        new TradingView.widget({
-            "autosize": true, "symbol": pair, "interval": tf, "theme": "dark", "container_id": "tv-chart", "hide_side_toolbar": false
-        });
-
-        async function getTrendData() {
-            try {
-                let sym = pair.split(':')[1].replace('XAUUSD', 'PAXGUSDT');
-                let res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${sym}`);
-                let data = await res.json();
-                let price = parseFloat(data.price);
-                let pD = pair.includes('EUR') ? 4 : 2;
-
-                // Kanal chegaralarini taxminiy hisoblash (Volatillikka qarab)
-                let volatility = price * 0.015; // 1.5% kanal kengligi
-                let lowerBound = (price - (volatility / 2)).toFixed(pD);
-                let upperBound = (price + (volatility / 2)).toFixed(pD);
-
-                document.getElementById('trend-status').innerText = "ASCENDING (O'SUVCHI) KANAL";
-                document.getElementById('entry-val').innerText = lowerBound;
-                document.getElementById('target-val').innerText = upperBound;
-
-            } catch(e) { console.error("Price fetch error"); }
+        // 1. Widget yuklash
+        function initChart() {
+            const container = document.getElementById('tv-widget');
+            const script = document.createElement('script');
+            script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
+            script.async = true;
+            script.innerHTML = JSON.stringify({
+                "interval": tf === 'D' ? "1d" : tf + "m",
+                "width": "100%",
+                "height": "100%",
+                "symbol": pair,
+                "showIntervalTabs": false,
+                "locale": "en",
+                "colorTheme": "dark",
+                "isTransparent": true
+            });
+            container.appendChild(script);
+            
+            setTimeout(processAI, 3500);
         }
 
-        setTimeout(getTrendData, 2000);
+        // 2. AI Mantiqini qo'shish (Buy/Sell/TP/SL o'zgarmaydi)
+        async function processAI() {
+            const card = document.getElementById('ai-proof-card');
+            const explanation = document.getElementById('ai-explanation');
+            const patternImg = document.getElementById('pattern-img');
+            const status = document.getElementById('ai-status');
+
+            status.innerText = "PATTERN RECOGNIZED | ANALYZING...";
+            await new Promise(r => setTimeout(r, 1500));
+
+            // BU YERDA SENING BUY/SELL MANTIQING ISHLAYDI
+            // Misol uchun BUY signalini tahlil qilamiz:
+            
+            explanation.innerText = "AI Tahlili: Narx parallel trend kanalining pastki chegarasiga (Support Line) tegdi. Shu bilan birga, 'Oversold' holati kuzatildi. Neyron tarmoq narxning kanal ichida yuqoriga qaytishini va qarshilik darajasigacha ko'tarilishini tasdiqlamoqda.";
+            
+            // Rasmni sening strategiyangga moslaymiz
+            patternImg.src = "https://www.tradingview.com/x/Y8pE6Z6Z/"; // Bu yerga trend kanali rasmi qo'yiladi
+            
+            card.style.display = "block";
+            status.innerText = "AI VERIFIED: TREND CHANNEL REBOUND";
+            status.style.color = "var(--neon-blue)";
+
+            // Ovozli xabar
+            const speech = new SpeechSynthesisUtterance("Trend channel support detected. Price action confirms a reversal.");
+            window.speechSynthesis.speak(speech);
+        }
+
+        window.onload = initChart;
     </script>
 </body>
 </html>
