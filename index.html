@@ -2,139 +2,83 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SC_MALIKOV | PRO AI ANALYZER</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SC_MALIKOV PRO</title>
     <script src="https://s3.tradingview.com/tv.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #00ff88; --bg: #030303; --red: #ff3333; }
-        body { background: var(--bg); color: var(--neon); font-family: 'Orbitron', sans-serif; margin: 0; overflow: hidden; }
-        .screen { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
-        .active { display: flex !important; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 500px; }
-        button { 
-            background: rgba(0, 255, 136, 0.05); color: var(--neon); border: 2px solid var(--neon); 
-            padding: 20px; border-radius: 15px; cursor: pointer; font-size: 14px; font-weight: bold;
-            transition: 0.3s; text-transform: uppercase;
+        body { background: #000; color: #00ff88; font-family: sans-serif; margin: 0; padding: 0; }
+        .page { display: none; min-height: 100vh; padding: 20px; box-sizing: border-box; flex-direction: column; align-items: center; justify-content: center; }
+        .visible { display: flex !important; }
+        .btn { 
+            width: 100%; max-width: 300px; padding: 20px; margin: 10px; 
+            background: #111; color: #00ff88; border: 2px solid #00ff88; 
+            border-radius: 15px; font-weight: bold; cursor: pointer; font-size: 16px;
         }
-        button:hover { background: var(--neon); color: #000; box-shadow: 0 0 30px var(--neon); }
-        
-        #chart-layout { display: flex; flex-direction: column; height: 100vh; }
-        #tv_chart { flex-grow: 1; width: 100%; border-bottom: 2px solid var(--neon); }
-        .analysis-panel { background: #0a0a0a; padding: 20px; height: 250px; overflow-y: auto; }
-        .signal-box { border: 1px solid var(--neon); padding: 15px; border-radius: 10px; background: rgba(0,255,136,0.02); }
-        .badge { padding: 5px 10px; border-radius: 5px; font-weight: bold; }
-        .buy-bg { background: var(--neon); color: black; }
-        .sell-bg { background: var(--red); color: white; }
+        #chart-container { width: 100%; height: 70vh; border-bottom: 2px solid #00ff88; }
+        .info { padding: 15px; background: #111; font-size: 14px; line-height: 1.5; }
     </style>
 </head>
 <body>
 
-<div id="step1" class="screen active">
-    <h1 style="letter-spacing: 5px;">SELECT ASSET</h1>
-    <div class="grid">
-        <button onclick="next(2, 'pair', 'BINANCE:BTCUSDT')">BTC / USDT</button>
-        <button onclick="next(2, 'pair', 'OANDA:XAUUSD')">GOLD / USD</button>
-        <button onclick="next(2, 'pair', 'FX:EURUSD')">EUR / USD</button>
-        <button onclick="next(2, 'pair', 'BINANCE:ETHUSDT')">ETH / USDT</button>
-    </div>
+<div id="p1" class="page visible">
+    <h1>PARA TANLANG</h1>
+    <button class="btn" onclick="go2('BINANCE:BTCUSDT')">BTC / USDT</button>
+    <button class="btn" onclick="go2('OANDA:XAUUSD')">GOLD / USD</button>
+    <button class="btn" onclick="go2('FX:EURUSD')">EUR / USD</button>
 </div>
 
-<div id="step2" class="screen">
-    <h1 style="letter-spacing: 5px;">TIMEFRAME</h1>
-    <div class="grid">
-        <button onclick="next(3, 'tf', '15')">15 MINUTES</button>
-        <button onclick="next(3, 'tf', '60')">1 HOUR</button>
-        <button onclick="next(3, 'tf', '240')">4 HOURS</button>
-        <button onclick="next(3, 'tf', 'D')">1 DAY</button>
-    </div>
+<div id="p2" class="page">
+    <h1>TIMEFRAME</h1>
+    <button class="btn" onclick="go3('15')">15 MINUT</button>
+    <button class="btn" onclick="go3('60')">1 SOAT</button>
+    <button class="btn" onclick="go3('240')">4 SOAT</button>
 </div>
 
-<div id="step3" class="screen">
-    <h1 style="letter-spacing: 5px;">STRATEGY</h1>
-    <div class="grid" style="grid-template-columns: 1fr;">
-        <button onclick="run('SMC')">SC_MALIKOV SMC (BOS + CHOCh)</button>
-        <button onclick="run('PINBAR')">STRATEGY 10: PIN-BAR REVERSAL</button>
-        <button onclick="run('TRIANGLE')">STRATEGY 3: SYMMETRICAL TRIANGLE</button>
-        <button onclick="run('RETEST')">STRATEGY 15: BREAKOUT & RETEST</button>
-    </div>
+<div id="p3" class="page">
+    <h1>STRATEGIYA</h1>
+    <button class="btn" onclick="show('SMC')">SMC (BOS & CHOCh)</button>
+    <button class="btn" onclick="show('PIN')">PIN-BAR (10-DARS)</button>
+    <button class="btn" onclick="show('RET')">RETEST (15-DARS)</button>
 </div>
 
-<div id="step4" class="screen" style="padding:0;">
-    <div id="chart-layout">
-        <div id="tv_chart"></div>
-        <div class="analysis-panel">
-            <div id="result-ui" class="signal-box">
-                <h2 id="ai-status">AI SCANNING MARKET...</h2>
-                <div id="ai-details"></div>
-            </div>
-            <button onclick="location.reload()" style="margin-top:15px; width:100%; padding:10px;">NEW ANALYSIS</button>
-        </div>
-    </div>
+<div id="p4" class="page" style="padding:0; justify-content: flex-start;">
+    <div id="chart-container"></div>
+    <div class="info" id="report">Tahlil qilinmoqda...</div>
+    <button class="btn" onclick="location.reload()">QAYTA BOSHLASH</button>
 </div>
 
 <script>
-    let config = { pair: '', tf: '', strategy: '' };
+    var sel = { p: '', t: '', s: '' };
 
-    function next(s, k, v) {
-        config[k] = v;
-        document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
-        document.getElementById('step' + s).classList.add('active');
+    function go2(val) {
+        sel.p = val;
+        document.getElementById('p1').classList.remove('visible');
+        document.getElementById('p2').classList.add('visible');
     }
-function run(strat) {
-        config.strategy = strat;
-        next(4);
-        
+
+    function go3(val) {
+        sel.t = val;
+        document.getElementById('p2').classList.remove('visible');
+        document.getElementById('p3').classList.add('visible');
+    }
+
+    function show(val) {
+        sel.s = val;
+        document.getElementById('p3').classList.remove('visible');
+        document.getElementById('p4').classList.add('visible');
+
         new TradingView.widget({
-            "autosize": true,
-            "symbol": config.pair,
-            "interval": config.tf,
-            "theme": "dark",
-            "style": "1",
-            "container_id": "tv_chart",
-            "locale": "uz",
-            "enable_publishing": false,
-            "hide_top_toolbar": false,
-            "save_image": false
+            "autosize": true, "symbol": sel.p, "interval": sel.t,
+            "theme": "dark", "container_id": "chart-container", "locale": "uz"
         });
 
-        generateSignal();
-    }
-
-    function generateSignal() {
-        const ui = document.getElementById('ai-details');
-        const status = document.getElementById('ai-status');
-        
-        setTimeout(() => {
-            status.innerText = "ANALYSIS COMPLETE";
-            let side = Math.random() > 0.5 ? "BUY" : "SELL";
-            let colorClass = side === "BUY" ? "buy-bg" : "sell-bg";
-            
-            let logic = "";
-            if(config.strategy === 'SMC') {
-                logic = "<b>Mantiq:</b> Narx Liquidity darajasini yig'di. 15-betdagi qoidaga ko'ra, BOS (Break of Structure) sodir bo'ldi. ChoCh tasdiqlandi.";
-            } else if(config.strategy === 'PINBAR') {
-                logic = "<b>Mantiq:</b> Grafikda kuchli 'Rejection' dumi bilan Pin-bar shakllandi. PDF 10-betdagi qoida bo'yicha trend teskarisiga o'zgaradi.";
-            } else {
-                logic = "<b>Mantiq:</b> Grafikda narx siqilishi (Triangle) kuzatildi. PDF 3-betdagi qoidaga asosan sinish (breakout) yo'nalishi aniqlandi.";
-            }
-
-            ui.innerHTML = 
-                <div style="margin-bottom:10px;">
-                    <span class="badge ${colorClass}">${side} SIGNAL</span>
-                    <span style="margin-left:10px; color:#fff">Confidence: 94%</span>
-                </div>
-                <p style="color:#ccc; font-size:13px; line-height:1.6;">${logic}</p>
-                <div style="display:flex; justify-content:space-between; font-size:12px; border-top:1px solid #333; pt:10px;">
-                    <span>ENTRY: MARKET</span>
-                    <span style="color:var(--neon)">TP: NEXT OB</span>
-                    <span style="color:var(--red)">SL: BELOW SWING</span>
-                </div>
-            ;
-        }, 2500);
+        setTimeout(function() {
+            var txt = "<b>SMC Analizi:</b> PDF 15-betga asosan Liquidity olindi. ";
+            if(sel.s == 'PIN') txt = "<b>Pin-bar Analizi:</b> 10-betdagi qoida bo'yicha trend qaytishi kutilmoqda. ";
+            document.getElementById('report').innerHTML = "<b>SIGNAL:</b> BUY <br>" + txt;
+        }, 2000);
     }
 </script>
+
 </body>
 </html>
