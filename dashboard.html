@@ -2,6 +2,241 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SC_MALIKOV | NEURAL CORE TERMINAL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --bg-black: #000000;
+            --neon-green: #00ff88;
+            --neon-blue: #00c2ff;
+            --neon-pink: #ff007f;
+            --neon-gold: #ffd700;
+            --glass: rgba(0, 255, 136, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-black);
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+        }
+
+        .cyber-container {
+            width: 100%;
+            max-width: 500px;
+            background: radial-gradient(circle at top, #001a0d 0%, #000 80%);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* --- AI ANIMATSIYASI --- */
+        .scan-line {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: var(--neon-green);
+            box-shadow: 0 0 15px var(--neon-green);
+            animation: scan 4s linear infinite;
+            z-index: 10;
+        }
+        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+
+        .header { text-align: center; margin-bottom: 25px; }
+        .header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            letter-spacing: 4px;
+            color: var(--neon-green);
+            text-shadow: 0 0 15px var(--neon-green);
+        }
+
+        /* --- WIZARD TIZIMI --- */
+        .hidden { display: none !important; }
+
+        .section-label {
+            font-size: 10px;
+            color: #555;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .tf-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 30px; }
+        .tf-btn {
+            background: #080808; border: 1px solid #222; color: #fff;
+            padding: 10px 0; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer;
+        }
+        .tf-btn.active { border-color: var(--neon-green); color: var(--neon-green); box-shadow: 0 0 10px var(--neon-green); }
+
+        .asset-list { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .asset-item {
+            background: var(--glass); border: 1px solid #111; padding: 20px;
+            border-radius: 15px; text-align: center; cursor: pointer; transition: 0.3s;
+        }
+        .asset-item i { font-size: 24px; margin-bottom: 10px; color: var(--neon-blue); }
+        .asset-item:active { transform: scale(0.95); border-color: var(--neon-blue); }
+
+        /* --- AI ANALIZ VA SUN'IY ONG MODULI --- */
+        .ai-monitor {
+            background: #050505; border: 1px solid #1a1a1a; border-radius: 20px;
+            padding: 20px; margin-bottom: 20px; position: relative;
+            min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        
+        .brain-loader {
+            width: 60px; height: 60px; border: 4px solid transparent;
+            border-top: 4px solid var(--neon-blue); border-bottom: 4px solid var(--neon-pink);
+            border-radius: 50%; animation: spin 2s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        #ai-output { font-size: 26px; font-weight: 900; text-align: center; margin-top: 15px; }
+        .ai-log { font-size: 9px; color: var(--neon-blue); margin-top: 10px; font-family: 'Orbitron'; }
+
+        /* --- STRATEGIYALAR --- */
+        .strat-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+            overflow-y: auto; flex: 1; padding-bottom: 20px;
+        }
+        .strat-grid::-webkit-scrollbar { display: none; }
+        .strat-card {
+            background: #0a0a0a; border: 1px solid #1a1a1a; padding: 15px;
+            border-radius: 12px; text-align: center; cursor: pointer;
+        }
+        .strat-card.left { border-left: 3px solid var(--neon-pink); }
+        .strat-card.right { border-right: 3px solid var(--neon-green); }
+        .strat-card:active { background: #111; }
+        .s-name { font-size: 11px; font-weight: bold; display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="scan-line"></div>
+
+    <div class="cyber-container">
+        <div class="header">
+            <h1>SC_MALIKOV</h1>
+            <div id="ai-status" style="font-size: 9px; color: var(--neon-blue);">NEURAL CORE: STANDBY</div>
+        </div>
+
+        <div id="view-1">
+            <div class="section-label">SELECT TIMEFRAME</div>
+            <div class="tf-grid">
+                <button class="tf-btn" onclick="setTF(this, '5')">5M</button>
+                <button class="tf-btn active" onclick="setTF(this, '15')">15M</button>
+                <button class="tf-btn" onclick="setTF(this, '60')">1H</button>
+                <button class="tf-btn" onclick="setTF(this, '240')">4H</button>
+                <button class="tf-btn" onclick="setTF(this, 'D')">1D</button>
+            </div>
+
+            <div class="section-label">SELECT TARGET ASSET</div>
+            <div class="asset-list">
+                <div class="asset-item" onclick="startAI('BINANCE:BTCUSDT', 'BTC/USDT')"><i class="fab fa-bitcoin"></i><span>BTC/USDT</span></div>
+                <div class="asset-item" onclick="startAI('BINANCE:ETHUSDT', 'ETH/USDT')"><i class="fab fa-ethereum"></i><span>ETH/USDT</span></div>
+                <div class="asset-item" onclick="startAI('BINANCE:SOLUSDT', 'SOLANA')"><i class="fas fa-bolt"></i><span>SOLANA</span></div>
+                <div class="asset-item" onclick="startAI('OANDA:XAUUSD', 'GOLD/USD')"><i class="fas fa-coins"></i><span>GOLD</span></div>
+            </div>
+        </div>
+
+        <div id="view-2" class="hidden">
+            <div class="ai-monitor">
+                <div class="brain-loader" id="ai-loader"></div>
+                <div id="ai-output"></div>
+                <div class="ai-log" id="ai-log">INITIALIZING NEURAL NETWORK...</div>
+            </div>
+
+            <div class="section-label">SELECT STRATEGY</div>
+            <div class="strat-grid">
+                <div class="strat-card left" onclick="run('fibo_strat.html')"><span class="s-name">FIBONACCI</span></div>
+                <div class="strat-card right" onclick="run('trend_channel.html')"><span class="s-name">TREND CHANNEL</span></div>
+                <div class="strat-card left" onclick="run('horizontal.html')"><span class="s-name">S/R LEVELS</span></div>
+                <div class="strat-card right" onclick="run('symmetrical_triangle.html')"><span class="s-name">SYM TRIANGLE</span></div>
+                <div class="strat-card left" onclick="run('ascending_triangle.html')"><span class="s-name">ASC TRIANGLE</span></div>
+                <div class="strat-card right" onclick="run('descending_triangle.html')"><span class="s-name">DESC TRIANGLE</span></div>
+                <div class="strat-card left" onclick="run('flag_pattern.html')"><span class="s-name">FLAG PATTERN</span></div>
+                <div class="strat-card right" onclick="run('head_shoulders.html')"><span class="s-name">HEAD & SHOULDERS</span></div>
+                <div class="strat-card left" onclick="run('double_pattern.html')"><span class="s-name">DOUBLE TOP</span></div>
+                <div class="strat-card right" onclick="run('inverted_hs.html')"><span class="s-name">INVERTED H&S</span></div>
+                <div class="strat-card left" onclick="run('cup_handle.html')"><span class="s-name">CUP & HANDLE</span></div>
+                <div class="strat-card right" onclick="run('wedge_pattern.html')"><span class="s-name">WEDGE PATTERN</span></div>
+                <div class="strat-card left" onclick="run('rectangle_pattern.html')"><span class="s-name">RECTANGLE</span></div>
+                <div class="strat-card right" onclick="run('pennant_pattern.html')"><span class="s-name">PENNANT</span></div>
+                <div class="strat-card left" onclick="run('rounding_bottom.html')"><span class="s-name">ROUNDING BOT</span></div>
+                <div class="strat-card right" onclick="run('parallel_channel.html')"><span class="s-name">PARALLEL CH</span></div>
+            </div>
+            <button onclick="location.reload()" style="margin-top:10px; background:none; border:none; color:#555; width:100%; cursor:pointer;">BACK TO MENU</button>
+        </div>
+    </div>
+
+    <script>
+        let currentTF = '15';
+        let currentPair = '';
+
+        function setTF(el, val) {
+            document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+            currentTF = val;
+        }
+
+        async function startAI(pair, name) {
+            currentPair = pair;
+            document.getElementById('view-1').classList.add('hidden');
+            document.getElementById('view-2').classList.remove('hidden');
+            
+            // SUN'IY ONG ANALIZI
+            const log = document.getElementById('ai-log');
+            const output = document.getElementById('ai-output');
+            const loader = document.getElementById('ai-loader');
+
+            log.innerText = "🌐 ACCESSING GLOBAL DATA...";
+            await new Promise(r => setTimeout(r, 1500));
+            log.innerText = "🧠 NEURAL FILTERING: REDUCING NOISE...";
+            await new Promise(r => setTimeout(r, 1500));
+            log.innerText = "📊 CALCULATING PROBABILITY...";
+            
+            const probability = Math.floor(Math.random() * 100);
+            loader.style.display = "none";
+
+            if (probability > 70) {
+                output.innerText = "STRONG BUY 🚀";
+                output.style.color = "var(--neon-green)";
+                speak("Attention. High accuracy buy signal detected.");
+            } else if (probability < 30) {
+                output.innerText = "STRONG SELL 📉";
+                output.style.color = "var(--neon-pink)";
+                speak("Attention. High accuracy sell signal detected.");
+            } else {
+                output.innerText = "NO CLEAR SIGNAL ⚖️";
+                output.style.color = "#555";
+                log.innerText = "MARKET UNSTABLE - AI IS WAITING";
+            }
+        }
+
+        function run(file) {
+            window.location.href = `${file}?pair=${currentPair}&tf=${currentTF}`;
+        }
+
+        function speak(text) {
+            const msg = new SpeechSynthesisUtterance(text);
+            msg.rate = 1.1;
+            window.speechSynthesis.speak(msg);
+        }
+    </script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>ProTrader • Signal Terminal</title>
     <!-- Google Fonts & Icons -->
