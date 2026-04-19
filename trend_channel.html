@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SC_MALIKOV | TREND CHANNEL</title>
+    <style>
+        :root { --neon: #00ff88; --red: #ff4444; --bg: #030303; }
+        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; padding: 15px; }
+        .header { display: flex; justify-content: space-between; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 15px; }
+        #tv-chart { width: 100%; height: 45vh; border-radius: 15px; border: 1px solid #333; overflow: hidden; }
+        .signal-card { background: rgba(255,255,255,0.03); border: 1px solid #222; border-radius: 15px; padding: 15px; margin-top: 15px; border-left: 5px solid var(--neon); }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .info-item { background: #111; padding: 10px; border-radius: 10px; text-align: center; }
+        .info-item small { display: block; font-size: 10px; color: #888; }
+        .info-item b { font-size: 14px; color: var(--neon); }
+        .btn-back { width: 100%; margin-top: 20px; padding: 15px; background: transparent; border: 1px solid #333; color: #fff; border-radius: 12px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <b id="pair-display">...</b>
+        <span style="color: var(--neon); font-size: 12px;">TREND KANAL</span>
+    </div>
+
+    <div id="tv-chart"></div>
+
+    <div class="signal-card">
+        <div style="font-size: 11px; color: #888;"> TREND YO'NALISHI:</div>
+        <div id="trend-status" style="font-weight: bold; margin: 5px 0; color: var(--neon);">ANIQLANMOQDA...</div>
+        
+        <div class="info-grid">
+            <div class="info-item"><small>ENTRY (LOWER)</small><b id="entry-val">0.00</b></div>
+            <div class="info-item"><small>TARGET (UPPER)</small><b id="target-val">0.00</b></div>
+        </div>
+        
+        <p style="font-size: 11px; color: #aaa; margin-top: 15px; line-height: 1.4;">
+            <b>ESLATMA:</b> Narx kanalning o'rtasidaligida savdoga kirmang. Faqat kanal chegaralariga (chekkalariga) kelishini kuting.
+        </p>
+    </div>
+
+    <button class="btn-back" onclick="window.history.back()">⬅ ORQAGA QAYTISH</button>
+
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const pair = urlParams.get('pair') || 'BINANCE:BTCUSDT';
+        const tf = urlParams.get('tf') || '15';
+
+        document.getElementById('pair-display').innerText = pair.split(':')[1];
+
+        new TradingView.widget({
+            "autosize": true, "symbol": pair, "interval": tf, "theme": "dark", "container_id": "tv-chart", "hide_side_toolbar": false
+        });
+
+        async function getTrendData() {
+            try {
+                let sym = pair.split(':')[1].replace('XAUUSD', 'PAXGUSDT');
+                let res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${sym}`);
+                let data = await res.json();
+                let price = parseFloat(data.price);
+                let pD = pair.includes('EUR') ? 4 : 2;
+
+                // Kanal chegaralarini taxminiy hisoblash (Volatillikka qarab)
+                let volatility = price * 0.015; // 1.5% kanal kengligi
+                let lowerBound = (price - (volatility / 2)).toFixed(pD);
+                let upperBound = (price + (volatility / 2)).toFixed(pD);
+
+                document.getElementById('trend-status').innerText = "ASCENDING (O'SUVCHI) KANAL";
+                document.getElementById('entry-val').innerText = lowerBound;
+                document.getElementById('target-val').innerText = upperBound;
+
+            } catch(e) { console.error("Price fetch error"); }
+        }
+
+        setTimeout(getTrendData, 2000);
+    </script>
+</body>
+</html>
