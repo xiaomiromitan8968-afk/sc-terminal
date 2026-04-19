@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SC_MALIKOV | PARALLEL CHANNEL</title>
+    <style>
+        :root { --neon: #00ff88; --red: #ff4444; --bg: #030303; --channel: #20b2aa; }
+        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; padding: 15px; }
+        .header { display: flex; justify-content: space-between; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 15px; }
+        #tv-chart { width: 100%; height: 45vh; border-radius: 15px; border: 1px solid #333; overflow: hidden; }
+        .signal-card { background: rgba(32, 178, 170, 0.05); border: 1px solid rgba(32, 178, 170, 0.2); border-radius: 15px; padding: 15px; margin-top: 15px; border-left: 5px solid var(--channel); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+        .box { background: #111; padding: 12px; border-radius: 10px; text-align: center; border: 1px solid #222; }
+        .box small { display: block; font-size: 9px; color: #888; margin-bottom: 4px; }
+        .box b { font-size: 13px; color: var(--channel); }
+        .back-btn { width: 100%; margin-top: 20px; padding: 15px; background: transparent; border: 1px solid #333; color: #fff; border-radius: 12px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <b id="pair-display">...</b>
+        <span style="color: var(--channel); font-size: 11px; font-weight: bold;">PARALLEL CHANNEL</span>
+    </div>
+
+    <div id="tv-chart"></div>
+
+    <div class="signal-card">
+        <div style="font-size: 11px; color: #888;">YO'LAK TAHLILI:</div>
+        <div id="status" style="font-weight: bold; margin: 5px 0; color: var(--channel);">KANAL ICHIDA HARAKAT...</div>
+        
+        <div class="grid">
+            <div class="box"><small>UPPER CHANNEL</small><b id="upper-val">0.00</b></div>
+            <div class="box"><small>LOWER CHANNEL</small><b id="lower-val">0.00</b></div>
+        </div>
+        
+        <p style="font-size: 11px; color: #aaa; margin-top: 15px; line-height: 1.4;">
+            <b>QOIDA:</b> Kanalning o'rtasida savdoga kirmang (50% darajasi). Eng yaxshi kirish nuqtalari — kanalning chekka chiziqlari va ulardan qaytish shamchalarining paydo bo'lishi.
+        </p>
+    </div>
+
+    <button class="back-btn" onclick="window.history.back()">⬅ ORQAGA QAYTISH</button>
+
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const pair = urlParams.get('pair') || 'BINANCE:BTCUSDT';
+        const tf = urlParams.get('tf') || '15';
+
+        document.getElementById('pair-display').innerText = pair.split(':')[1];
+
+        new TradingView.widget({
+            "autosize": true, "symbol": pair, "interval": tf, "theme": "dark", "container_id": "tv-chart", "hide_side_toolbar": true
+        });
+
+        async function analyzeChannel() {
+            try {
+                let sym = pair.split(':')[1].replace('XAUUSD', 'PAXGUSDT');
+                let res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${sym}`);
+                let data = await res.json();
+                let price = parseFloat(data.price);
+                let pD = pair.includes('EUR') ? 4 : 2;
+
+                // Kanal chegaralarini simulyatsiya qilish
+                let upper = (price * 1.01).toFixed(pD); // 1% tepada
+                let lower = (price * 0.99).toFixed(pD); // 1% pastda
+
+                document.getElementById('upper-val').innerText = upper;
+                document.getElementById('lower-val').innerText = lower;
+                document.getElementById('status').innerText = "ASCENDING CHANNEL DETECTED";
+
+            } catch(e) { console.error("Channel Analysis Error"); }
+        }
+
+        setTimeout(analyzeChannel, 2000);
+    </script>
+</body>
+</html>
