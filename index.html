@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SC_MALIKOV | V15</title>
+    <title>SC_MALIKOV | V16</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -67,7 +67,7 @@
 
     function selectPair(p) {
         selectedPair = p;
-        storageKey = `sc_signal_${p}`; // Har bir para uchun alohida xotira
+        storageKey = `sc_signal_${p}`; 
         document.getElementById('pair-display').innerText = p;
         document.getElementById('step-1').classList.add('hidden');
         document.getElementById('step-2').classList.remove('hidden');
@@ -87,7 +87,6 @@
         document.getElementById('loader-box').classList.add('hidden');
         document.getElementById('result-box').classList.remove('hidden');
 
-        // 1. Pivotlarni topish
         let highs = [], lows = [];
         for (let i = 2; i < data.length - 5; i++) {
             if (data[i].h > data[i-1].h && data[i].h > data[i-2].h && data[i].h > data[i+1].h && data[i].h > data[i+2].h) highs.push({ idx: i, val: data[i].h });
@@ -104,7 +103,6 @@
         const getY = (p) => h - 40 - ((p - minP) / (maxP - minP)) * (h - 80);
         const getX = (i) => (i / data.length) * w;
 
-        // Shamchalarni chizish
         data.forEach((d, i) => {
             const x = getX(i) + (w/data.length/2);
             ctx.strokeStyle = ctx.fillStyle = d.c >= d.o ? '#00ff88' : '#ff007f';
@@ -112,13 +110,11 @@
             ctx.fillRect(x - 1.5, Math.min(getY(d.o), getY(d.c)), 3, Math.max(Math.abs(getY(d.o) - getY(d.c)), 1));
         });
 
-        // 2. PATTERN ANIQLASH (Flet, Uchburchak, Kanal)
         let getResY = () => maxP + 999; 
         let getSupY = () => minP - 999; 
         let patternName = "TREND KANALI";
 
         ctx.setLineDash([5, 5]); ctx.lineWidth = 2;
-
         let resSlope = 0, supSlope = 0;
 
         if (highs.length >= 2) {
@@ -135,7 +131,6 @@
             ctx.strokeStyle = '#00ff88'; ctx.beginPath(); ctx.moveTo(getX(l1.idx), getY(l1.val)); ctx.lineTo(w, getY(getSupY(data.length - 1))); ctx.stroke();
         }
 
-        // Shaklni logikasi
         if (resSlope < 0 && supSlope > 0) patternName = "UCHBURCHAK (TRIANGLE)";
         else if (Math.abs(resSlope) < (maxP-minP)*0.001 && Math.abs(supSlope) < (maxP-minP)*0.001) patternName = "FLET (KONSOLIDATSIYA)";
         else if (resSlope > 0 && supSlope > 0) patternName = "O'SUVCHI KANAL (UP-TREND)";
@@ -143,7 +138,6 @@
 
         document.getElementById('pattern-name').innerText = patternName;
 
-        // 3. SIGNAL QULFLASH VA TEKSHIRISH
         const last = data[data.length - 1];
         const currentRes = getResY(data.length - 1);
         const currentSup = getSupY(data.length - 1);
@@ -154,9 +148,7 @@
         let signalUI = `<div style="text-align:center; opacity:0.5;">WAITING BREAKOUT...</div>`;
 
         if (activeSignal) {
-            // Agar oldin signal berilgan bo'lsa, TP/SL ni tekshiramiz
             let hitTP = false, hitSL = false;
-            
             if (activeSignal.type === "BUY") {
                 if (last.h >= activeSignal.tp) hitTP = true;
                 if (last.l <= activeSignal.sl) hitSL = true;
@@ -168,36 +160,38 @@
             if (hitTP) {
                 msg = "✅ TAKE PROFIT OLINDI! Foyda muborak.";
                 signalUI = renderUI(activeSignal.type, activeSignal.entry, activeSignal.tp, activeSignal.sl, true);
-                localStorage.removeItem(storageKey); // Signalni xotiradan tozalaymiz
+                localStorage.removeItem(storageKey); 
             } else if (hitSL) {
                 msg = "❌ STOP LOSS URIB KETDI.";
                 signalUI = renderUI(activeSignal.type, activeSignal.entry, activeSignal.tp, activeSignal.sl, false, true);
-                localStorage.removeItem(storageKey); // Tozalash
+                localStorage.removeItem(storageKey); 
             } else {
                 msg = "🔒 SIGNAL FAOL! TP yoki SL ga borish kutilmoqda...";
                 signalUI = renderUI(activeSignal.type, activeSignal.entry, activeSignal.tp, activeSignal.sl);
             }
         } 
         else {
-            // Agar signal yo'q bo'lsa va yangi buzilish bo'lsa
-            if (last.c > currentRes && highs.length >= 2) {
-                const fiboZero = minP; 
-                const tp = (last.c + (last.c - fiboZero) * 0.618).toFixed(precision);
+            // YANGILANGAN TP VA SL MANTIQI (SWING HIGH / LOW)
+            if (last.c > currentRes && highs.length >= 2 && lows.length >= 1) {
+                const sl = lows[lows.length - 1].val; // Eng so'nggi Pivot Low
+                const risk = last.c - sl; // Xavf miqdori
+                const tp = (last.c + risk * 1.618).toFixed(precision); // 1.618 SMC Fibo Kengaytmasi
                 
-                activeSignal = { type: "BUY", entry: last.c, tp: parseFloat(tp), sl: parseFloat(fiboZero.toFixed(precision)) };
-                localStorage.setItem(storageKey, JSON.stringify(activeSignal)); // XOTIRAGA SAQLASH
+                activeSignal = { type: "BUY", entry: last.c, tp: parseFloat(tp), sl: parseFloat(sl.toFixed(precision)) };
+                localStorage.setItem(storageKey, JSON.stringify(activeSignal));
                 
-                msg = `🔥 ${patternName} BUZILDI! BUY SIGNAL SAQLANDI.`;
+                msg = `🔥 ${patternName} BUZILDI! BUY SIGNAL.`;
                 signalUI = renderUI("BUY", activeSignal.entry, activeSignal.tp, activeSignal.sl);
             } 
-            else if (last.c < currentSup && lows.length >= 2) {
-                const fiboZero = maxP; 
-                const tp = (last.c - (fiboZero - last.c) * 0.618).toFixed(precision);
+            else if (last.c < currentSup && lows.length >= 2 && highs.length >= 1) {
+                const sl = highs[highs.length - 1].val; // Eng so'nggi Pivot High
+                const risk = sl - last.c; // Xavf miqdori
+                const tp = (last.c - risk * 1.618).toFixed(precision); // 1.618 SMC Fibo Kengaytmasi
                 
-                activeSignal = { type: "SELL", entry: last.c, tp: parseFloat(tp), sl: parseFloat(fiboZero.toFixed(precision)) };
-                localStorage.setItem(storageKey, JSON.stringify(activeSignal)); // XOTIRAGA SAQLASH
+                activeSignal = { type: "SELL", entry: last.c, tp: parseFloat(tp), sl: parseFloat(sl.toFixed(precision)) };
+                localStorage.setItem(storageKey, JSON.stringify(activeSignal));
                 
-                msg = `📉 ${patternName} BUZILDI! SELL SIGNAL SAQLANDI.`;
+                msg = `📉 ${patternName} BUZILDI! SELL SIGNAL.`;
                 signalUI = renderUI("SELL", activeSignal.entry, activeSignal.tp, activeSignal.sl);
             }
         }
@@ -217,9 +211,9 @@
         return `<div style="font-weight:900; color:${titleColor}; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px;">${titleText}</div>
             <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:13px;">
                 <span>ENTRY: <b>${ent}</b></span>
-                <span style="color:${isTP ? '#00ff88' : 'var(--neon)'}">TP: <b>${tp}</b></span>
+                <span style="color:${isTP ? '#00ff88' : 'var(--neon)'}">TP (1.618): <b>${tp}</b></span>
             </div>
-            <div style="margin-top:5px; font-size:10px; opacity:0.7; color:${isSL ? '#ff007f' : 'white'}">STOP LOSS (0): ${sl}</div>`;
+            <div style="margin-top:5px; font-size:10px; opacity:0.7; color:${isSL ? '#ff007f' : 'white'}">STOP LOSS (Swing): ${sl}</div>`;
     }
 
     function cancelSignal() {
