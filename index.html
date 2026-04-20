@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SC_MALIKOV | V16</title>
+    <title>SC_MALIKOV | V18</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -33,7 +33,7 @@
             <button class="btn" onclick="selectPair('EURUSDT')">EUR / USD</button>
             <button class="btn" onclick="selectPair('BTCUSDT')">BTC / USDT</button>
             <button class="btn" onclick="selectPair('SOLUSDT')">SOL / USDT</button>
-            <button class="btn" onclick="selectPair('PAXGUSDT')">GOLD (XAU)</button>
+            <button class="btn" onclick="selectPair('XAUUSDT')">GOLD (XAU)</button>
         </div>
     </div>
 
@@ -48,13 +48,13 @@
     </div>
 
     <div id="step-3" class="box hidden">
-        <div id="loader-box"><div class="loader"></div><p style="font-size: 10px;">PATTERN VA TREND ANIQLANMOQDA...</p></div>
+        <div id="loader-box"><div class="loader"></div><p style="font-size: 10px;">MARKET STRUCTURE TAHLIL QILINMOQDA...</p></div>
         <div id="result-box" class="hidden">
             <div id="pattern-name" class="pattern-badge">TAHLIL...</div>
             <canvas id="chart-canvas"></canvas>
             <div id="bot-message" class="status-msg"></div>
             <div id="signal-info" class="signal-card"></div>
-            <button class="btn" style="margin-top: 15px; border-color: var(--pink);" onclick="cancelSignal()">YANGI TAHLIL (RESET)</button>
+            <button class="btn" style="margin-top: 15px; border-color: var(--pink);" onclick="cancelSignal()">RESET (YANGI ANALIZ)</button>
         </div>
     </div>
 </div>
@@ -67,7 +67,7 @@
 
     function selectPair(p) {
         selectedPair = p;
-        storageKey = `sc_signal_${p}`; 
+        storageKey = `sc_v18_${p}`;
         document.getElementById('pair-display').innerText = p;
         document.getElementById('step-1').classList.add('hidden');
         document.getElementById('step-2').classList.remove('hidden');
@@ -79,19 +79,13 @@
         try {
             const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${selectedPair}&interval=${tf}&limit=120`);
             const data = (await res.json()).map(d => ({ o: +d[1], h: +d[2], l: +d[3], c: +d[4] }));
-            processAdvancedTrendline(data);
-        } catch (e) { alert("Xatolik! Internetni tekshiring."); }
+            processAnalysis(data);
+        } catch (e) { alert("Tarmoq xatosi!"); }
     }
 
-    function processAdvancedTrendline(data) {
+    function processAnalysis(data) {
         document.getElementById('loader-box').classList.add('hidden');
         document.getElementById('result-box').classList.remove('hidden');
-
-        let highs = [], lows = [];
-        for (let i = 2; i < data.length - 5; i++) {
-            if (data[i].h > data[i-1].h && data[i].h > data[i-2].h && data[i].h > data[i+1].h && data[i].h > data[i+2].h) highs.push({ idx: i, val: data[i].h });
-            if (data[i].l < data[i-1].l && data[i].l < data[i-2].l && data[i].l < data[i+1].l && data[i].l < data[i+2].l) lows.push({ idx: i, val: data[i].l });
-        }
 
         const canvas = document.getElementById('chart-canvas');
         const ctx = canvas.getContext('2d');
@@ -103,6 +97,14 @@
         const getY = (p) => h - 40 - ((p - minP) / (maxP - minP)) * (h - 80);
         const getX = (i) => (i / data.length) * w;
 
+        // 1. Pivotlarni topish (Trend chiziqlari uchun)
+        let highs = [], lows = [];
+        for (let i = 5; i < data.length - 5; i++) {
+            if (data[i].h === Math.max(...data.slice(i-5, i+5).map(d => d.h))) highs.push({ idx: i, val: data[i].h });
+            if (data[i].l === Math.min(...data.slice(i-5, i+5).map(d => d.l))) lows.push({ idx: i, val: data[i].l });
+        }
+
+        // Shamchalar chizmasi
         data.forEach((d, i) => {
             const x = getX(i) + (w/data.length/2);
             ctx.strokeStyle = ctx.fillStyle = d.c >= d.o ? '#00ff88' : '#ff007f';
@@ -110,110 +112,84 @@
             ctx.fillRect(x - 1.5, Math.min(getY(d.o), getY(d.c)), 3, Math.max(Math.abs(getY(d.o) - getY(d.c)), 1));
         });
 
-        let getResY = () => maxP + 999; 
-        let getSupY = () => minP - 999; 
-        let patternName = "TREND KANALI";
-
-        ctx.setLineDash([5, 5]); ctx.lineWidth = 2;
-        let resSlope = 0, supSlope = 0;
-
+        // 2. Trend va Pattern tahlili
+        let resSlope = 0, supSlope = 0, finalResY = maxP, finalSupY = minP;
         if (highs.length >= 2) {
-            const h1 = highs[highs.length - 2], h2 = highs[highs.length - 1];
+            const h1 = highs[highs.length-2], h2 = highs[highs.length-1];
             resSlope = (h2.val - h1.val) / (h2.idx - h1.idx);
-            getResY = (idx) => h1.val + resSlope * (idx - h1.idx);
-            ctx.strokeStyle = '#ff007f'; ctx.beginPath(); ctx.moveTo(getX(h1.idx), getY(h1.val)); ctx.lineTo(w, getY(getResY(data.length - 1))); ctx.stroke();
+            finalResY = h1.val + resSlope * (data.length - 1 - h1.idx);
+            ctx.setLineDash([4,4]); ctx.strokeStyle = '#ff007f'; ctx.beginPath();
+            ctx.moveTo(getX(h1.idx), getY(h1.val)); ctx.lineTo(w, getY(finalResY)); ctx.stroke();
         }
-
         if (lows.length >= 2) {
-            const l1 = lows[lows.length - 2], l2 = lows[lows.length - 1];
+            const l1 = lows[lows.length-2], l2 = lows[lows.length-1];
             supSlope = (l2.val - l1.val) / (l2.idx - l1.idx);
-            getSupY = (idx) => l1.val + supSlope * (idx - l1.idx);
-            ctx.strokeStyle = '#00ff88'; ctx.beginPath(); ctx.moveTo(getX(l1.idx), getY(l1.val)); ctx.lineTo(w, getY(getSupY(data.length - 1))); ctx.stroke();
+            finalSupY = l1.val + supSlope * (data.length - 1 - l1.idx);
+            ctx.setLineDash([4,4]); ctx.strokeStyle = '#00ff88'; ctx.beginPath();
+            ctx.moveTo(getX(l1.idx), getY(l1.val)); ctx.lineTo(w, getY(finalSupY)); ctx.stroke();
         }
 
-        if (resSlope < 0 && supSlope > 0) patternName = "UCHBURCHAK (TRIANGLE)";
-        else if (Math.abs(resSlope) < (maxP-minP)*0.001 && Math.abs(supSlope) < (maxP-minP)*0.001) patternName = "FLET (KONSOLIDATSIYA)";
-        else if (resSlope > 0 && supSlope > 0) patternName = "O'SUVCHI KANAL (UP-TREND)";
-        else if (resSlope < 0 && supSlope < 0) patternName = "TUSHUVCHI KANAL (DOWN-TREND)";
+        // Pattern nomini aniqlash
+        let pName = "SIDEWAYS";
+        if (resSlope < 0 && supSlope > 0) pName = "TRIANGLE (UCHBURCHAK)";
+        else if (resSlope > 0 && supSlope > 0) pName = "ASCENDING CHANNEL";
+        else if (resSlope < 0 && supSlope < 0) pName = "DESCENDING CHANNEL";
+        document.getElementById('pattern-name').innerText = pName;
 
-        document.getElementById('pattern-name').innerText = patternName;
-
+        // 3. SMC ENTRY/TP/SL LOGIKASI
         const last = data[data.length - 1];
-        const currentRes = getResY(data.length - 1);
-        const currentSup = getSupY(data.length - 1);
         const precision = selectedPair.includes('EUR') ? 5 : 2;
-
         let activeSignal = JSON.parse(localStorage.getItem(storageKey));
-        let msg = "Kutilmoqda. Buzilish sodir bo'lmadi.";
-        let signalUI = `<div style="text-align:center; opacity:0.5;">WAITING BREAKOUT...</div>`;
 
-        if (activeSignal) {
-            let hitTP = false, hitSL = false;
-            if (activeSignal.type === "BUY") {
-                if (last.h >= activeSignal.tp) hitTP = true;
-                if (last.l <= activeSignal.sl) hitSL = true;
-            } else {
-                if (last.l <= activeSignal.tp) hitTP = true;
-                if (last.h >= activeSignal.sl) hitSL = true;
-            }
+        if (!activeSignal) {
+            // Local Swing (Oxirgi 20 sham ichidagi eng muhim nuqtalar)
+            const recent = data.slice(-20);
+            const localHigh = Math.max(...recent.map(d => d.h));
+            const localLow = Math.min(...recent.map(d => d.l));
 
-            if (hitTP) {
-                msg = "✅ TAKE PROFIT OLINDI! Foyda muborak.";
-                signalUI = renderUI(activeSignal.type, activeSignal.entry, activeSignal.tp, activeSignal.sl, true);
-                localStorage.removeItem(storageKey); 
-            } else if (hitSL) {
-                msg = "❌ STOP LOSS URIB KETDI.";
-                signalUI = renderUI(activeSignal.type, activeSignal.entry, activeSignal.tp, activeSignal.sl, false, true);
-                localStorage.removeItem(storageKey); 
-            } else {
-                msg = "🔒 SIGNAL FAOL! TP yoki SL ga borish kutilmoqda...";
-                signalUI = renderUI(activeSignal.type, activeSignal.entry, activeSignal.tp, activeSignal.sl);
-            }
-        } 
-        else {
-            // YANGILANGAN TP VA SL MANTIQI (SWING HIGH / LOW)
-            if (last.c > currentRes && highs.length >= 2 && lows.length >= 1) {
-                const sl = lows[lows.length - 1].val; // Eng so'nggi Pivot Low
-                const risk = last.c - sl; // Xavf miqdori
-                const tp = (last.c + risk * 1.618).toFixed(precision); // 1.618 SMC Fibo Kengaytmasi
-                
-                activeSignal = { type: "BUY", entry: last.c, tp: parseFloat(tp), sl: parseFloat(sl.toFixed(precision)) };
+            if (last.c > finalResY) { // Buy Breakout
+                const entry = last.c;
+                const sl = localLow; // SL oxirgi local minimumga
+                const risk = entry - sl;
+                const tp = entry + (risk * 2.1); // TP 1:2 RR dan balandroq
+
+                activeSignal = { type: "BUY", entry: entry, tp: +tp.toFixed(precision), sl: +sl.toFixed(precision) };
                 localStorage.setItem(storageKey, JSON.stringify(activeSignal));
-                
-                msg = `🔥 ${patternName} BUZILDI! BUY SIGNAL.`;
-                signalUI = renderUI("BUY", activeSignal.entry, activeSignal.tp, activeSignal.sl);
             } 
-            else if (last.c < currentSup && lows.length >= 2 && highs.length >= 1) {
-                const sl = highs[highs.length - 1].val; // Eng so'nggi Pivot High
-                const risk = sl - last.c; // Xavf miqdori
-                const tp = (last.c - risk * 1.618).toFixed(precision); // 1.618 SMC Fibo Kengaytmasi
-                
-                activeSignal = { type: "SELL", entry: last.c, tp: parseFloat(tp), sl: parseFloat(sl.toFixed(precision)) };
+            else if (last.c < finalSupY) { // Sell Breakout
+                const entry = last.c;
+                const sl = localHigh; // SL oxirgi local maximumga
+                const risk = sl - entry;
+                const tp = entry - (risk * 2.1);
+
+                activeSignal = { type: "SELL", entry: entry, tp: +tp.toFixed(precision), sl: +sl.toFixed(precision) };
                 localStorage.setItem(storageKey, JSON.stringify(activeSignal));
-                
-                msg = `📉 ${patternName} BUZILDI! SELL SIGNAL.`;
-                signalUI = renderUI("SELL", activeSignal.entry, activeSignal.tp, activeSignal.sl);
             }
         }
 
-        document.getElementById('bot-message').innerText = msg;
-        document.getElementById('signal-info').innerHTML = signalUI;
-    }
-
-    function renderUI(type, ent, tp, sl, isTP = false, isSL = false) {
-        let c = type === "BUY" ? "var(--neon)" : "var(--pink)";
-        let titleColor = c;
-        let titleText = `${type} SIGNAL FAOL`;
-
-        if (isTP) { c = "#00ff88"; titleColor = "#00ff88"; titleText = "🎉 TAKE PROFIT HIT"; }
-        if (isSL) { c = "#ff007f"; titleColor = "#ff007f"; titleText = "💔 STOP LOSS HIT"; }
-
-        return `<div style="font-weight:900; color:${titleColor}; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px;">${titleText}</div>
-            <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:13px;">
-                <span>ENTRY: <b>${ent}</b></span>
-                <span style="color:${isTP ? '#00ff88' : 'var(--neon)'}">TP (1.618): <b>${tp}</b></span>
-            </div>
-            <div style="margin-top:5px; font-size:10px; opacity:0.7; color:${isSL ? '#ff007f' : 'white'}">STOP LOSS (Swing): ${sl}</div>`;
+        // Monitoring & Rendering
+        if (activeSignal) {
+            let status = "🔒 SIGNAL LOCKED (TP/SL KUTILMOQDA)";
+            if (activeSignal.type === "BUY") {
+                if (last.h >= activeSignal.tp) { status = "✅ TP HIT!"; localStorage.removeItem(storageKey); }
+                else if (last.l <= activeSignal.sl) { status = "❌ SL HIT!"; localStorage.removeItem(storageKey); }
+            } else {
+                if (last.l <= activeSignal.tp) { status = "✅ TP HIT!"; localStorage.removeItem(storageKey); }
+                else if (last.h >= activeSignal.sl) { status = "❌ SL HIT!"; localStorage.removeItem(storageKey); }
+            }
+            document.getElementById('bot-message').innerText = status;
+            document.getElementById('signal-info').innerHTML = `
+                <div style="font-weight:900; color:var(--blue); margin-bottom:10px;">${activeSignal.type} POSITION</div>
+                <div style="display:flex; justify-content:space-between; font-size:12px;">
+                    <span>ENTRY: <b>${activeSignal.entry}</b></span>
+                    <span style="color:var(--neon)">TP: <b>${activeSignal.tp}</b></span>
+                </div>
+                <div style="margin-top:5px; color:var(--pink); font-size:11px;">STOP LOSS: ${activeSignal.sl}</div>
+            `;
+        } else {
+            document.getElementById('bot-message').innerText = "Bozor tahlil qilindi. Buzilish (Breakout) kutilmoqda...";
+            document.getElementById('signal-info').innerHTML = "<span style='opacity:0.5'>NO ACTIVE SIGNAL</span>";
+        }
     }
 
     function cancelSignal() {
