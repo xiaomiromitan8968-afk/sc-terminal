@@ -3,45 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SC_MALIKOV | V23</title>
+    <title>SC_MALIKOV | V24</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #010101; --gold: #FFD700; --neon: #00ff88; --pink: #ff007f; --blue: #00c2ff; --glass: rgba(255, 255, 255, 0.05); }
-        body { margin: 0; background: var(--bg); color: white; font-family: 'Montserrat', sans-serif; display: flex; justify-content: center; min-height: 100vh; }
-        .terminal { width: 100%; max-width: 420px; padding: 15px; box-sizing: border-box; }
-        .box { background: var(--glass); border: 1px solid rgba(0, 194, 255, 0.2); border-radius: 15px; padding: 20px; text-align: center; margin-top: 15px; backdrop-filter: blur(10px); }
+        :root { --bg: #000; --gold: #FFD700; --neon: #00ff88; --pink: #ff007f; --blue: #00c2ff; --glass: rgba(255, 255, 255, 0.05); }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Montserrat', sans-serif; padding-bottom: 20px; }
+        .terminal { width: 100%; max-width: 440px; margin: auto; padding: 10px; box-sizing: border-box; }
+        .box { background: var(--glass); border: 1px solid rgba(0, 194, 255, 0.15); border-radius: 12px; padding: 15px; margin-top: 10px; }
         .hidden { display: none !important; }
-        .pair-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-        .btn { width: 100%; padding: 12px; border: 1px solid var(--blue); background: none; color: white; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 10px; text-transform: uppercase; transition: 0.2s; }
-        .btn:active { background: var(--blue); color: #000; transform: scale(0.96); }
-        .btn-gold { border-color: var(--gold); color: var(--gold); font-weight: 900; }
-        #chart-canvas { width: 100%; height: 260px; background: #000; border-radius: 12px; border: 1px solid #222; margin-top: 15px; }
-        .signal-card { background: rgba(0, 255, 136, 0.05); padding: 15px; border-radius: 12px; border: 1px solid var(--neon); margin-top: 10px; text-align: left; }
-        .price-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 12px; }
-        .status-msg { color: var(--blue); font-size: 11px; margin: 10px 0; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; border-left: 3px solid var(--blue); padding-left: 10px; }
+        .pair-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
+        .btn { width: 100%; padding: 10px 5px; border: 1px solid var(--blue); background: none; color: white; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 9px; text-transform: uppercase; transition: 0.1s; }
+        .btn:active { background: var(--blue); color: #000; transform: scale(0.95); }
+        .btn-gold { border-color: var(--gold); color: var(--gold); }
+        #chart-canvas { width: 100%; height: 250px; background: #050505; border-radius: 8px; margin-top: 10px; border: 1px solid #1a1a1a; }
+        .signal-card { background: rgba(0, 255, 136, 0.08); padding: 15px; border-radius: 10px; border: 2px solid var(--neon); margin-top: 10px; }
+        .price-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; font-weight: 700; }
+        .loader { border: 2px solid #222; border-top: 2px solid var(--neon); border-radius: 50%; width: 25px; height: 25px; animation: spin 1s linear infinite; margin: 10px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
 <div class="terminal">
-    <h2 style="color: var(--neon); text-align: center; font-weight: 900; letter-spacing: 4px; text-shadow: 0 0 10px rgba(0,255,136,0.3);">SC_MALIKOV</h2>
+    <h2 style="color: var(--neon); text-align: center; font-weight: 900; letter-spacing: 2px; margin-bottom: 5px;">SC_MALIKOV</h2>
 
     <div id="step-1" class="box">
-        <p style="font-size: 9px; opacity: 0.6; margin-bottom: 10px;">INSTRUMENTNI TANLANG</p>
-        <button class="btn btn-gold" style="margin-bottom: 10px;" onclick="selectPair('XAUUSDT')">🏆 GOLD (XAU/USD)</button>
+        <button class="btn btn-gold" style="width:100%; margin-bottom:10px; font-size:12px;" onclick="selectPair('XAUUSDT')">🏆 GOLD (XAUUSD)</button>
         <div class="pair-grid">
-            <button class="btn" onclick="selectPair('EURUSDT')">EUR/USD</button>
-            <button class="btn" onclick="selectPair('GBPUSDT')">GBP/USD</button>
-            <button class="btn" onclick="selectPair('USDJPY')">USD/JPY</button>
-            <button class="btn" onclick="selectPair('AUDUSDT')">AUD/USD</button>
-            <button class="btn" onclick="selectPair('USDCAD')">USD/CAD</button>
-            <button class="btn" onclick="selectPair('BTCUSDT')">BTC/USDT</button>
+            <button class="btn" onclick="selectPair('EURUSDT')">EURUSD</button>
+            <button class="btn" onclick="selectPair('GBPUSDT')">GBPUSD</button>
+            <button class="btn" onclick="selectPair('USDJPY')">USDJPY</button>
+            <button class="btn" onclick="selectPair('AUDUSDT')">AUDUSD</button>
+            <button class="btn" onclick="selectPair('USDCAD')">USDCAD</button>
+            <button class="btn" onclick="selectPair('USDCHF')">USDCHF</button>
+            <button class="btn" onclick="selectPair('NZDUSDT')">NZDUSD</button>
+            <button class="btn" onclick="selectPair('EURJPY')">EURJPY</button>
+            <button class="btn" onclick="selectPair('GBPJPY')">GBPJPY</button>
+            <button class="btn" onclick="selectPair('EURGBP')">EURGBP</button>
+            <button class="btn" onclick="selectPair('BTCUSDT')">BTCUSD</button>
+            <button class="btn" onclick="selectPair('ETHUSDT')">ETHUSD</button>
         </div>
     </div>
 
     <div id="step-2" class="box hidden">
-        <p id="pair-display" style="color: var(--neon); font-weight: 900;"></p>
+        <h3 id="pair-display" style="color: var(--blue); margin: 0 0 15px 0; font-size: 14px;"></h3>
         <div class="pair-grid">
             <button class="btn" onclick="startAnalysis('5m')">M5</button>
             <button class="btn" onclick="startAnalysis('15m')">M15</button>
@@ -51,26 +57,23 @@
     </div>
 
     <div id="step-3" class="box hidden">
-        <div id="loader-box" class="status-msg">TAHLIL QILINMOQDA...</div>
+        <div id="loader-box"><div class="loader"></div><p style="font-size:10px; text-align:center;">TAHLIL KETMOQDA...</p></div>
         <div id="result-box" class="hidden">
             <canvas id="chart-canvas"></canvas>
-            <div id="bot-message" class="status-msg"></div>
-            <div id="signal-info" class="signal-card"></div>
-            <button class="btn" style="border-color: var(--pink); color: var(--pink); margin-top: 15px;" onclick="cancelSignal()">YANGI TAHLIL</button>
+            <div id="signal-info"></div>
+            <button class="btn" style="border-color: var(--pink); color: var(--pink); margin-top: 15px;" onclick="location.reload()">RESET</button>
         </div>
     </div>
 </div>
 
 <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
     let selectedPair = '';
     let storageKey = '';
 
     function selectPair(p) {
         selectedPair = p;
-        storageKey = `sc_v23_${p}`;
-        document.getElementById('pair-display').innerText = p;
+        storageKey = `sc_v24_${p}`;
+        document.getElementById('pair-display').innerText = p + " | TIMEFRAME TANLANG";
         document.getElementById('step-1').classList.add('hidden');
         document.getElementById('step-2').classList.remove('hidden');
     }
@@ -79,13 +82,13 @@
         document.getElementById('step-2').classList.add('hidden');
         document.getElementById('step-3').classList.remove('hidden');
         try {
-            const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${selectedPair}&interval=${tf}&limit=120`);
+            const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${selectedPair}&interval=${tf}&limit=80`);
             const data = (await res.json()).map(d => ({ o: +d[1], h: +d[2], l: +d[3], c: +d[4] }));
-            processAdvancedLogic(data);
-        } catch (e) { alert("API Error! Juftlik nomi yoki internetni tekshiring."); }
+            runLogic(data);
+        } catch (e) { alert("Xatolik! Internetni tekshiring."); }
     }
 
-    function processAdvancedLogic(data) {
+    function runLogic(data) {
         document.getElementById('loader-box').classList.add('hidden');
         document.getElementById('result-box').classList.remove('hidden');
 
@@ -96,76 +99,59 @@
         const w = canvas.offsetWidth, h = canvas.offsetHeight;
 
         const maxP = Math.max(...data.map(d => d.h)), minP = Math.min(...data.map(d => d.l));
-        const getY = (p) => h - 40 - ((p - minP) / (maxP - minP)) * (h - 80);
+        const getY = (p) => h - 30 - ((p - minP) / (maxP - minP)) * (h - 60);
         const getX = (i) => (i / data.length) * w;
 
-        // 1. Pivotlar (Pattern topish uchun)
-        let highs = [], lows = [];
-        for (let i = 5; i < data.length - 2; i++) {
-            if (data[i].h === Math.max(...data.slice(i-4, i+4).map(d => d.h))) highs.push({ idx: i, val: data[i].h });
-            if (data[i].l === Math.min(...data.slice(i-4, i+4).map(d => d.l))) lows.push({ idx: i, val: data[i].l });
-        }
-
-        // Shamchalar
+        // Chizish
         data.forEach((d, i) => {
-            ctx.strokeStyle = ctx.fillStyle = d.c >= d.o ? '#00ff88' : '#ff007f';
+            ctx.strokeStyle = d.c >= d.o ? '#00ff88' : '#ff007f';
             const x = getX(i) + (w/data.length/2);
             ctx.beginPath(); ctx.moveTo(x, getY(d.h)); ctx.lineTo(x, getY(d.l)); ctx.stroke();
+            ctx.fillStyle = ctx.strokeStyle;
             ctx.fillRect(x - 1, Math.min(getY(d.o), getY(d.c)), 2, Math.max(Math.abs(getY(d.o) - getY(d.c)), 1));
         });
 
-        // 2. IMAGE-BASED H-TARGET LOGIC
-        let patternH = (maxP - minP) * 0.4; 
-        if (highs.length > 0 && lows.length > 0) patternH = highs[highs.length-1].val - lows[lows.length-1].val;
+        // Pivotlar va Trendline
+        let highIdx = 0, lowIdx = 0;
+        data.forEach((d, i) => {
+            if(d.h === maxP) highIdx = i;
+            if(d.l === minP) lowIdx = i;
+        });
 
-        let resY = maxP, supY = minP;
-        if (highs.length >= 2) {
-            const h1 = highs[highs.length-2], h2 = highs[highs.length-1];
-            resY = h1.val + ((h2.val - h1.val)/(h2.idx - h1.idx)) * (data.length - 1 - h1.idx);
-            ctx.setLineDash([3,3]); ctx.strokeStyle = '#ff007f'; ctx.beginPath();
-            ctx.moveTo(getX(h1.idx), getY(h1.val)); ctx.lineTo(w, getY(resY)); ctx.stroke();
-        }
-        if (lows.length >= 2) {
-            const l1 = lows[lows.length-2], l2 = lows[lows.length-1];
-            supY = l1.val + ((l2.val - l1.val)/(l2.idx - l1.idx)) * (data.length - 1 - l1.idx);
-            ctx.setLineDash([3,3]); ctx.strokeStyle = '#00ff88'; ctx.beginPath();
-            ctx.moveTo(getX(l1.idx), getY(l1.val)); ctx.lineTo(w, getY(supY)); ctx.stroke();
-        }
-
-        // 3. SIGNAL MATEMATIKASI (Barcha juftliklar uchun moslashuvchan)
+        // IMAGE LOGIC: Pattern Height (H)
+        const patternH = maxP - minP;
         const last = data[data.length - 1];
-        const precision = selectedPair.includes('JPY') || selectedPair.includes('XAU') ? 2 : 5;
+        const precision = (selectedPair.includes('JPY') || selectedPair.includes('XAU')) ? 2 : 5;
+
+        // AGRESSIVE BREAKOUT (Narx max yoki min ga yaqinlashsa darhol signal)
         let activeSignal = JSON.parse(localStorage.getItem(storageKey));
 
         if (!activeSignal) {
-            if (last.c > resY) {
-                const entry = last.c;
-                activeSignal = { type: "BUY", entry: entry, tp: +(entry + (patternH * 0.9)).toFixed(precision), sl: +(entry - (patternH * 0.4)).toFixed(precision) };
-            } else if (last.c < supY) {
-                const entry = last.c;
-                activeSignal = { type: "SELL", entry: entry, tp: +(entry - (patternH * 0.9)).toFixed(precision), sl: +(entry + (patternH * 0.4)).toFixed(precision) };
+            // Agar narx 80% dan tepada bo'lsa BUY, 20% dan pastda bo'lsa SELL (Breakout mantiqi)
+            const threshold = (maxP - minP) * 0.1; 
+            if (last.c >= maxP - threshold) {
+                activeSignal = { type: "BUY", entry: last.c, tp: +(last.c + (patternH * 0.8)).toFixed(precision), sl: +(last.c - (patternH * 0.4)).toFixed(precision) };
+            } else if (last.c <= minP + threshold) {
+                activeSignal = { type: "SELL", entry: last.c, tp: +(last.c - (patternH * 0.8)).toFixed(precision), sl: +(last.c + (patternH * 0.4)).toFixed(precision) };
             }
             if(activeSignal) localStorage.setItem(storageKey, JSON.stringify(activeSignal));
         }
 
-        // Result Render
+        const info = document.getElementById('signal-info');
         if (activeSignal) {
-            document.getElementById('bot-message').innerText = "SIGNAL DETECTED";
-            document.getElementById('signal-info').innerHTML = `
-                <div style="font-weight:900; color:var(--neon); margin-bottom:10px;">${activeSignal.type} POSITION</div>
-                <div class="price-row"><span>ENTRY:</span> <b style="color:#fff;">${activeSignal.entry}</b></div>
-                <div class="price-row"><span>TARGET (TP):</span> <b style="color:var(--neon);">${activeSignal.tp}</b></div>
-                <div class="price-row" style="border:none;"><span>STOP LOSS:</span> <b style="color:var(--pink);">${activeSignal.sl}</b></div>
-            `;
+            info.innerHTML = `
+                <div class="signal-card">
+                    <div style="color:var(--neon); font-size:16px; font-weight:900; margin-bottom:10px;">${activeSignal.type} SIGNAL</div>
+                    <div class="price-row"><span>ENTRY:</span> <b style="color:white;">${activeSignal.entry}</b></div>
+                    <div class="price-row"><span>TP (H):</span> <b style="color:var(--neon);">${activeSignal.tp}</b></div>
+                    <div class="price-row" style="border:none;"><span>SL:</span> <b style="color:var(--pink);">${activeSignal.sl}</b></div>
+                </div>`;
         } else {
-            document.getElementById('bot-message').innerText = "CONSOLIDATION: WAITING...";
-            document.getElementById('signal-info').innerHTML = "<center style='opacity:0.3; font-size:10px;'>BREAKOUT SODIR BO'LISHINI KUTING...</center>";
+            info.innerHTML = `
+                <div class="box" style="border-color:#333; color:#666; font-size:11px;">
+                    CONSOLIDATION DETECTED.<br>NARX ZONADAN CHIQISHINI KUTING.
+                </div>`;
         }
-    }
-
-    function cancelSignal() {
-        localStorage.removeItem(storageKey);
-        location.reload();
     }
 </script>
 </body>
