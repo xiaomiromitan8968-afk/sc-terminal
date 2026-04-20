@@ -3,41 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SC_MALIKOV | GOLD V21</title>
+    <title>SC_MALIKOV | GOLD V22</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #010101; --gold: #FFD700; --neon: #00ff88; --pink: #ff007f; --glass: rgba(255, 255, 255, 0.05); }
-        body { margin: 0; background: var(--bg); color: white; font-family: 'Montserrat', sans-serif; display: flex; justify-content: center; min-height: 100vh; }
-        .terminal { width: 100%; max-width: 420px; padding: 15px; box-sizing: border-box; }
-        .box { background: var(--glass); border: 1px solid rgba(255, 215, 0, 0.2); border-radius: 15px; padding: 20px; text-align: center; margin-top: 15px; backdrop-filter: blur(10px); }
+        :root { --bg: #050505; --gold: #FFD700; --neon: #00ff88; --pink: #ff007f; --glass: rgba(255, 255, 255, 0.03); }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Montserrat', sans-serif; }
+        .terminal { width: 100%; max-width: 420px; margin: auto; padding: 15px; }
+        .box { background: var(--glass); border: 1px solid rgba(255, 215, 0, 0.15); border-radius: 12px; padding: 20px; text-align: center; margin-top: 10px; backdrop-filter: blur(10px); }
         .hidden { display: none !important; }
-        .btn { width: 100%; padding: 14px; border: 1px solid var(--gold); background: none; color: white; border-radius: 10px; cursor: pointer; font-weight: 900; font-size: 11px; text-transform: uppercase; transition: 0.2s; margin: 5px 0; }
-        .btn:active { background: var(--gold); color: #000; transform: scale(0.95); }
-        #chart-canvas { width: 100%; height: 260px; background: #000; border-radius: 12px; border: 1px solid #1a1a1a; margin-top: 15px; }
-        .signal-card { background: rgba(255, 215, 0, 0.05); padding: 15px; border-radius: 12px; border: 1px solid var(--gold); margin-top: 10px; text-align: left; }
-        .price-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .status-msg { color: var(--gold); font-size: 11px; margin: 10px 0; font-weight: bold; letter-spacing: 1px; text-align: left; border-left: 2px solid var(--gold); padding-left: 10px; }
+        .btn { width: 100%; padding: 14px; border: 1px solid var(--gold); background: none; color: var(--gold); border-radius: 8px; cursor: pointer; font-weight: 900; font-size: 11px; text-transform: uppercase; margin: 4px 0; }
+        #chart-canvas { width: 100%; height: 260px; background: #000; border-radius: 10px; border: 1px solid #222; margin-top: 15px; }
+        .signal-card { background: linear-gradient(145deg, rgba(255,215,0,0.1), rgba(0,0,0,0.5)); padding: 15px; border-radius: 10px; border: 1px solid var(--gold); margin-top: 10px; text-align: left; }
+        .price-line { display: flex; justify-content: space-between; font-size: 12px; padding: 6px 0; border-bottom: 1px solid rgba(255,215,0,0.1); }
+        .status { font-size: 10px; color: var(--gold); letter-spacing: 2px; margin-top: 10px; font-weight: 700; }
     </style>
 </head>
 <body>
 
 <div class="terminal">
-    <h2 style="color: var(--gold); text-align: center; font-weight: 900; letter-spacing: 4px; text-shadow: 0 0 10px rgba(255,215,0,0.3);">SC_MALIKOV</h2>
+    <h2 style="color: var(--gold); text-align: center; font-weight: 900; letter-spacing: 3px;">SC_MALIKOV</h2>
 
     <div id="step-1" class="box">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <button class="btn" onclick="selectPair('XAUUSDT')">GOLD (XAU)</button>
-            <button class="btn" onclick="selectPair('BTCUSDT')">BTC / USDT</button>
-            <button class="btn" onclick="selectPair('EURUSDT')">EUR / USD</button>
-            <button class="btn" onclick="selectPair('SOLUSDT')">SOL / USDT</button>
-        </div>
+        <button class="btn" onclick="selectPair('XAUUSDT')">GOLD (XAU/USD)</button>
+        <button class="btn" style="border-color: #666; color: #666;" onclick="selectPair('BTCUSDT')">BTC / USDT</button>
     </div>
 
     <div id="step-2" class="box hidden">
         <p id="pair-display" style="color: var(--gold); font-weight: 900;"></p>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <button class="btn" onclick="startAnalysis('15m')">M15 (RECOM)</button>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <button class="btn" onclick="startAnalysis('15m')">M15</button>
             <button class="btn" onclick="startAnalysis('1h')">H1</button>
             <button class="btn" onclick="startAnalysis('4h')">H4</button>
             <button class="btn" onclick="startAnalysis('5m')">M5</button>
@@ -45,25 +40,22 @@
     </div>
 
     <div id="step-3" class="box hidden">
-        <div id="loader-box"><p style="font-size: 10px; color: var(--gold);">GOLD MARKET STRUCTURE TAHLILI...</p></div>
+        <div id="loader-box" class="status">GOLD SCANNING...</div>
         <div id="result-box" class="hidden">
             <canvas id="chart-canvas"></canvas>
-            <div id="bot-message" class="status-msg"></div>
             <div id="signal-info" class="signal-card"></div>
-            <button class="btn" style="border-color: var(--pink); color: var(--pink); margin-top: 15px;" onclick="cancelSignal()">RESET ANALYSIS</button>
+            <button class="btn" style="border-color: var(--pink); color: var(--pink); margin-top: 15px;" onclick="location.reload()">RESET</button>
         </div>
     </div>
 </div>
 
 <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
     let selectedPair = '';
     let storageKey = '';
 
     function selectPair(p) {
         selectedPair = p;
-        storageKey = `sc_gold_v21_${p}`;
+        storageKey = `sc_v22_${p}`;
         document.getElementById('pair-display').innerText = p;
         document.getElementById('step-1').classList.add('hidden');
         document.getElementById('step-2').classList.remove('hidden');
@@ -73,13 +65,13 @@
         document.getElementById('step-2').classList.add('hidden');
         document.getElementById('step-3').classList.remove('hidden');
         try {
-            const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${selectedPair}&interval=${tf}&limit=120`);
+            const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${selectedPair}&interval=${tf}&limit=100`);
             const data = (await res.json()).map(d => ({ o: +d[1], h: +d[2], l: +d[3], c: +d[4] }));
-            processGoldSMC(data);
-        } catch (e) { alert("Data fetch error!"); }
+            drawAndAnalyze(data);
+        } catch (e) { alert("API Error!"); }
     }
 
-    function processGoldSMC(data) {
+    function drawAndAnalyze(data) {
         document.getElementById('loader-box').classList.add('hidden');
         document.getElementById('result-box').classList.remove('hidden');
 
@@ -93,85 +85,65 @@
         const getY = (p) => h - 40 - ((p - minP) / (maxP - minP)) * (h - 80);
         const getX = (i) => (i / data.length) * w;
 
-        // 1. Gold uchun Pivotlar (Ko'proq oraliq bilan)
+        // 1. Pivot Pointlar (Sezgirlik oshirildi)
         let highs = [], lows = [];
-        for (let i = 10; i < data.length - 2; i++) {
-            if (data[i].h === Math.max(...data.slice(i-8, i+8).map(d => d.h))) highs.push({ idx: i, val: data[i].h });
-            if (data[i].l === Math.min(...data.slice(i-8, i+8).map(d => d.l))) lows.push({ idx: i, val: data[i].l });
+        for (let i = 3; i < data.length - 2; i++) {
+            if (data[i].h > data[i-1].h && data[i].h > data[i+1].h) highs.push({ idx: i, val: data[i].h });
+            if (data[i].l < data[i-1].l && data[i].l < data[i+1].l) lows.push({ idx: i, val: data[i].l });
         }
 
-        // Chizish (Candlesticks)
+        // Shamchalar
         data.forEach((d, i) => {
-            ctx.strokeStyle = ctx.fillStyle = d.c >= d.o ? '#00ff88' : '#ff007f';
+            ctx.strokeStyle = d.c >= d.o ? '#00ff88' : '#ff007f';
             const x = getX(i) + (w/data.length/2);
             ctx.beginPath(); ctx.moveTo(x, getY(d.h)); ctx.lineTo(x, getY(d.l)); ctx.stroke();
+            ctx.fillStyle = ctx.strokeStyle;
             ctx.fillRect(x - 1, Math.min(getY(d.o), getY(d.c)), 2, Math.max(Math.abs(getY(d.o) - getY(d.c)), 1));
         });
 
-        // 2. Pattern Height Logic (Rasmlardagi vizual o'lcham)
-        let patternHeight = 0;
-        if (highs.length > 0 && lows.length > 0) {
-            patternHeight = highs[0].val - lows[0].val; // Shaklning boshidagi kenglik (H)
-        } else {
-            patternHeight = (maxP - minP) * 0.4; // Default range
-        }
-
+        // 2. Trendline Logic (Goldga xos agressiv chiziqlar)
         let resY = maxP, supY = minP;
-        if (highs.length >= 2) {
+        if (highs.length >= 2 && lows.length >= 2) {
             const h1 = highs[highs.length-2], h2 = highs[highs.length-1];
-            resY = h1.val + ((h2.val - h1.val)/(h2.idx - h1.idx)) * (data.length - 1 - h1.idx);
-            ctx.setLineDash([3,3]); ctx.strokeStyle = '#ff007f'; ctx.beginPath();
-            ctx.moveTo(getX(h1.idx), getY(h1.val)); ctx.lineTo(w, getY(resY)); ctx.stroke();
-        }
-        if (lows.length >= 2) {
             const l1 = lows[lows.length-2], l2 = lows[lows.length-1];
+            
+            resY = h1.val + ((h2.val - h1.val)/(h2.idx - h1.idx)) * (data.length - 1 - h1.idx);
             supY = l1.val + ((l2.val - l1.val)/(l2.idx - l1.idx)) * (data.length - 1 - l1.idx);
-            ctx.setLineDash([3,3]); ctx.strokeStyle = '#00ff88'; ctx.beginPath();
-            ctx.moveTo(getX(l1.idx), getY(l1.val)); ctx.lineTo(w, getY(supY)); ctx.stroke();
+
+            ctx.setLineDash([2, 2]);
+            ctx.strokeStyle = '#ff007f'; ctx.beginPath(); ctx.moveTo(getX(h1.idx), getY(h1.val)); ctx.lineTo(w, getY(resY)); ctx.stroke();
+            ctx.strokeStyle = '#00ff88'; ctx.beginPath(); ctx.moveTo(getX(l1.idx), getY(l1.val)); ctx.lineTo(w, getY(supY)); ctx.stroke();
         }
 
-        // 3. SIGNAL MATEMATIKASI (GOLD SPECIFIC)
+        // 3. SIGNAL MATEMATIKASI (Goldning pip o'lchami bilan)
         const last = data[data.length - 1];
-        const precision = 2; // GOLD uchun har doim 2 xona
+        const patternH = highs.length > 0 && lows.length > 0 ? (highs[0].val - lows[0].val) : (maxP - minP) * 0.5;
+        
         let activeSignal = JSON.parse(localStorage.getItem(storageKey));
 
         if (!activeSignal) {
-            if (last.c > resY + (patternHeight * 0.05)) { // Breakout tasdiqlanganda
+            // Gold uchun sezgir breakout (minimal 0.10$ farq bo'lsa ham signal beradi)
+            if (last.c > resY) {
                 const entry = last.c;
-                const tp = entry + (patternHeight * 0.9); // Rasmdagi H balandligi (TP)
-                const sl = entry - (patternHeight * 0.4); // Mantiqiy SL (shakl ichiga qaytish)
-
-                activeSignal = { type: "BUY", entry: entry, tp: +tp.toFixed(precision), sl: +sl.toFixed(precision) };
-                localStorage.setItem(storageKey, JSON.stringify(activeSignal));
-            } 
-            else if (last.c < supY - (patternHeight * 0.05)) {
+                activeSignal = { type: "BUY", entry: entry, tp: +(entry + (patternH * 0.85)).toFixed(2), sl: +(entry - (patternH * 0.35)).toFixed(2) };
+            } else if (last.c < supY) {
                 const entry = last.c;
-                const tp = entry - (patternHeight * 0.9);
-                const sl = entry + (patternHeight * 0.4);
-
-                activeSignal = { type: "SELL", entry: entry, tp: +tp.toFixed(precision), sl: +sl.toFixed(precision) };
-                localStorage.setItem(storageKey, JSON.stringify(activeSignal));
+                activeSignal = { type: "SELL", entry: entry, tp: +(entry - (patternH * 0.85)).toFixed(2), sl: +(entry + (patternH * 0.35)).toFixed(2) };
             }
+            if(activeSignal) localStorage.setItem(storageKey, JSON.stringify(activeSignal));
         }
 
-        // Output
+        // Output UI
         if (activeSignal) {
-            document.getElementById('bot-message').innerText = `GOLD ${activeSignal.type} SIGNAL DETECTED`;
             document.getElementById('signal-info').innerHTML = `
-                <div style="color:var(--gold); font-weight:900; font-size:14px; margin-bottom:10px;">${activeSignal.type} SETUP</div>
-                <div class="price-row"><span>ENTRY:</span> <b style="color:#fff;">${activeSignal.entry}</b></div>
-                <div class="price-row"><span>TARGET (TP):</span> <b style="color:var(--neon);">${activeSignal.tp}</b></div>
-                <div class="price-row" style="border:none;"><span>STOP LOSS:</span> <b style="color:var(--pink);">${activeSignal.sl}</b></div>
+                <div style="font-weight:900; color:var(--neon); margin-bottom:10px; border-bottom:1px solid #333;">GOLD ${activeSignal.type} POSITION</div>
+                <div class="price-line"><span>ENTRY:</span> <b>${activeSignal.entry}</b></div>
+                <div class="price-line"><span>TARGET:</span> <b style="color:var(--neon);">${activeSignal.tp}</b></div>
+                <div class="price-line" style="border:none;"><span>STOP LOSS:</span> <b style="color:var(--pink);">${activeSignal.sl}</b></div>
             `;
         } else {
-            document.getElementById('bot-message').innerText = "GOLD: SCANNING BREAKOUT...";
-            document.getElementById('signal-info').innerHTML = "<center style='opacity:0.3; font-size:10px;'>CHIZIQLAR BUZILISHINI KUTING...</center>";
+            document.getElementById('signal-info').innerHTML = "<div style='text-align:center; font-size:11px; opacity:0.5;'>GOLD: BREAKOUT KUTILMOQDA...</div>";
         }
-    }
-
-    function cancelSignal() {
-        localStorage.removeItem(storageKey);
-        location.reload();
     }
 </script>
 </body>
