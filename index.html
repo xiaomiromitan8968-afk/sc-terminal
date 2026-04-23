@@ -3,154 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SATS Signal Paneli</title>
+    <title>SATS Strategiya Tanlovi</title>
     <style>
         :root {
-            --bg-color: #0d1117;
-            --card-bg: #161b22;
-            --text-main: #c9d1d9;
+            --bg: #0d1117;
+            --card: #161b22;
+            --text: #c9d1d9;
+            --accent: #2196f3;
             --bull: #00e676;
             --bear: #ff5252;
-            --accent: #2196f3;
         }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: var(--card); padding: 30px; border-radius: 15px; border: 1px solid #30363d; }
         
-        /* Filter qismi */
-        .filter-panel {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            border: 1px solid #30363d;
-            flex-wrap: wrap;
-            align-items: flex-end;
-        }
-        .filter-group { display: flex; flex-direction: column; gap: 5px; }
-        select, input {
+        h2 { text-align: center; color: var(--accent); margin-bottom: 25px; }
+        
+        .selection-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 0.9em; color: #8b949e; }
+        
+        select {
+            width: 100%;
+            padding: 12px;
             background: #0d1117;
             color: white;
             border: 1px solid #30363d;
-            padding: 8px 12px;
-            border-radius: 6px;
+            border-radius: 8px;
+            font-size: 1em;
             outline: none;
+            cursor: pointer;
         }
 
-        /* Signal kartochkalari */
-        .signal-card { 
-            background-color: var(--card-bg);
-            border-radius: 10px;
+        #signal-result {
+            margin-top: 30px;
             padding: 20px;
-            margin-bottom: 15px;
-            border-left: 6px solid #444;
-            transition: 0.3s;
-            animation: fadeIn 0.5s ease;
+            border-radius: 10px;
+            display: none; /* Faqat tanlovdan keyin ko'rinadi */
+            border: 1px dashed #444;
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .buy { border-left-color: var(--bull); }
-        .sell { border-left-color: var(--bear); }
 
-        .header { display: flex; justify-content: space-between; font-size: 1.2em; font-weight: bold; margin-bottom: 10px; }
-        .grid-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; font-size: 0.9em; opacity: 0.9; }
-        .badge { background: #30363d; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; }
-        .score-val { color: var(--accent); font-weight: bold; }
+        .signal-header { font-size: 1.4em; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #30363d; padding-bottom: 10px; }
+        .data-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 1.1em; }
+        .val { font-weight: bold; color: white; }
+        .score-box { text-align: center; margin-top: 15px; padding: 10px; background: rgba(33, 150, 243, 0.1); border-radius: 5px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>SATS | Strategiya Signallari</h2>
+    <h2>SATS SIGNAL ANALIZATORI</h2>
 
-    <div class="filter-panel">
-        <div class="filter-group">
-            <label>Valyuta juftligi (Symbol):</label>
-            <input type="text" id="symbolInput" placeholder="Masalan: BTCUSDT" onkeyup="filterSignals()">
-        </div>
-        <div class="filter-group">
-            <label>Taymfreym (TF):</label>
-            <select id="tfInput" onchange="filterSignals()">
-                <option value="all">Hammasi</option>
-                <option value="5m">5 minut</option>
-                <option value="15m">15 minut</option>
-                <option value="1h">1 soat</option>
-                <option value="4h">4 soat</option>
-                <option value="D">Kunlik</option>
-            </select>
-        </div>
-        <div class="filter-group">
-            <button onclick="resetFilters()" style="background: var(--accent); color: white; border: none; padding: 9px 15px; border-radius: 6px; cursor: pointer;">Tozalash</button>
-        </div>
+    <div class="selection-group">
+        <label>1. Aktivni tanlang (Symbol):</label>
+        <select id="pairSelect" onchange="updateView()">
+            <option value="">-- Tanlang --</option>
+            <option value="XAUUSD">GOLD (XAUUSD)</option>
+            <option value="BTCUSDT">Bitcoin (BTCUSDT)</option>
+            <option value="ETHUSDT">Ethereum (ETHUSDT)</option>
+            <option value="EURUSD">EURUSD</option>
+        </select>
     </div>
 
-    <div id="signals-container">
-        </div>
+    <div class="selection-group">
+        <label>2. Taymfreymni tanlang (TF):</label>
+        <select id="tfSelect" onchange="updateView()">
+            <option value="">-- Tanlang --</option>
+            <option value="5m">5 minut</option>
+            <option value="15m">15 minut</option>
+            <option value="1h">1 soat</option>
+            <option value="4h">4 soat</option>
+            <option value="D">Kunlik</option>
+        </select>
+    </div>
+
+    <div id="signal-result">
+        <div id="signalContent"></div>
+    </div>
 </div>
 
 <script>
-    // Namunaviy ma'lumotlar (Bular TradingView Webhook-dan keladi deb tasavvur qiling)
-    const allSignals = [
-        { action: "buy", ticker: "BTCUSDT", tf: "1h", price: 67200.50, sl: 66000, tp1: 68500, tp2: 69500, score: 92, tqi: 0.85 },
-        { action: "sell", ticker: "ETHUSDT", tf: "15m", price: 3450.20, sl: 3520, tp1: 3380, tp2: 3300, score: 78, tqi: 0.65 },
-        { action: "buy", ticker: "SOLUSDT", tf: "1h", price: 145.10, sl: 140, tp1: 155, tp2: 165, score: 88, tqi: 0.77 },
-        { action: "sell", ticker: "BTCUSDT", tf: "5m", price: 67100.00, sl: 67500, tp1: 66500, tp2: 66000, score: 45, tqi: 0.40 }
+    // Strategiyadan olingan namunaviy ma'lumotlar bazasi
+    const signalsDB = [
+        { pair: "XAUUSD", tf: "1h", action: "buy", price: 2350.40, sl: 2340.00, tp1: 2365.00, tp2: 2380.00, score: 95, tqi: 0.88 },
+        { pair: "XAUUSD", tf: "15m", action: "sell", price: 2355.10, sl: 2362.00, tp1: 2345.00, tp2: 2330.00, score: 82, tqi: 0.70 },
+        { pair: "BTCUSDT", tf: "4h", action: "buy", price: 68100, sl: 66500, tp1: 70000, tp2: 72000, score: 88, tqi: 0.75 },
+        { pair: "EURUSD", tf: "D", action: "sell", price: 1.0850, sl: 1.0920, tp1: 1.0750, tp2: 1.0600, score: 76, tqi: 0.65 }
     ];
 
-    function renderSignals(data) {
-        const container = document.getElementById('signals-container');
-        container.innerHTML = '';
+    function updateView() {
+        const pair = document.getElementById('pairSelect').value;
+        const tf = document.getElementById('tfSelect').value;
+        const resultDiv = document.getElementById('signal-result');
+        const content = document.getElementById('signalContent');
 
-        if (data.length === 0) {
-            container.innerHTML = '<p style="text-align:center; opacity:0.5;">Mos signallar topilmadi.</p>';
-            return;
+        if (pair && tf) {
+            // Ma'lumotlar bazasidan qidirish
+            const signal = signalsDB.find(s => s.pair === pair && s.tf === tf);
+
+            if (signal) {
+                resultDiv.style.display = 'block';
+                resultDiv.style.borderColor = signal.action === 'buy' ? 'var(--bull)' : 'var(--bear)';
+                
+                content.innerHTML = `
+                    <div class="signal-header" style="color: ${signal.action === 'buy' ? 'var(--bull)' : 'var(--bear)'}">
+                        ${signal.action.toUpperCase()} SIGNAL ANIQLANDI
+                    </div>
+                    <div class="data-row"><span>Kirish narxi:</span> <span class="val">${signal.price}</span></div>
+                    <div class="data-row"><span>Stop Loss:</span> <span class="val" style="color:var(--bear)">${signal.sl}</span></div>
+                    <div class="data-row"><span>Take Profit 1:</span> <span class="val" style="color:var(--bull)">${signal.tp1}</span></div>
+                    <div class="data-row"><span>Take Profit 2:</span> <span class="val" style="color:var(--bull)">${signal.tp2}</span></div>
+                    <div class="data-row"><span>TQI Index:</span> <span class="val">${signal.tqi}</span></div>
+                    <div class="score-box">
+                        SATS SCORE: <span style="font-size:1.5em; color:var(--accent)">${signal.score}/102</span>
+                    </div>
+                `;
+            } else {
+                resultDiv.style.display = 'block';
+                resultDiv.style.borderColor = '#444';
+                content.innerHTML = `<p style="text-align:center; color:#8b949e;">Hozircha ushbu taymfreymda signal yo'q.</p>`;
+            }
+        } else {
+            resultDiv.style.display = 'none';
         }
-
-        data.forEach(sig => {
-            const card = document.createElement('div');
-            card.className = `signal-card ${sig.action}`;
-            card.innerHTML = `
-                <div class="header">
-                    <span style="color: ${sig.action === 'buy' ? 'var(--bull)' : 'var(--bear)'}">
-                        ${sig.action.toUpperCase()} ${sig.ticker}
-                    </span>
-                    <span class="badge">TF: ${sig.tf}</span>
-                </div>
-                <div class="grid-info">
-                    <div>Narx: <b>${sig.price}</b></div>
-                    <div>Score: <span class="score-val">${sig.score}/102</span></div>
-                    <div>TQI: <b>${sig.tqi}</b></div>
-                    <div style="color: #ff8a80">SL: ${sig.sl}</div>
-                    <div style="color: #b9f6ca">TP1: ${sig.tp1}</div>
-                    <div style="color: #b9f6ca">TP2: ${sig.tp2}</div>
-                </div>
-            `;
-            container.appendChild(card);
-        });
     }
-
-    function filterSignals() {
-        const symbolValue = document.getElementById('symbolInput').value.toUpperCase();
-        const tfValue = document.getElementById('tfInput').value;
-
-        const filtered = allSignals.filter(sig => {
-            const matchSymbol = sig.ticker.includes(symbolValue);
-            const matchTF = tfValue === 'all' || sig.tf === tfValue;
-            return matchSymbol && matchTF;
-        });
-
-        renderSignals(filtered);
-    }
-
-    function resetFilters() {
-        document.getElementById('symbolInput').value = '';
-        document.getElementById('tfInput').value = 'all';
-        renderSignals(allSignals);
-    }
-
-    // Birinchi marta yuklanganda hammasini ko'rsatish
-    renderSignals(allSignals);
 </script>
 
 </body>
