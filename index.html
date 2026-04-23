@@ -3,129 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SATS Strategiya Tanlovi</title>
+    <title>SC_ MALIKOV - Slayd App</title>
     <style>
-        :root {
-            --bg: #0d1117;
-            --card: #161b22;
-            --text: #c9d1d9;
-            --accent: #2196f3;
-            --bull: #00e676;
-            --bear: #ff5252;
-        }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; background: var(--card); padding: 30px; border-radius: 15px; border: 1px solid #30363d; }
-        
-        h2 { text-align: center; color: var(--accent); margin-bottom: 25px; }
-        
-        .selection-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 0.9em; color: #8b949e; }
-        
-        select {
-            width: 100%;
-            padding: 12px;
-            background: #0d1117;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
             color: white;
-            border: 1px solid #30363d;
-            border-radius: 8px;
-            font-size: 1em;
-            outline: none;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .slide-container {
+            width: 80%;
+            height: 70%;
+            background: #1e1e1e;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .active {
+            display: block;
+        }
+
+        h1 { color: #00d4ff; font-size: 3rem; }
+        p { font-size: 1.5rem; color: #ccc; }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        button {
+            background: #00d4ff;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 5px;
+            color: black;
+            font-weight: bold;
             cursor: pointer;
+            transition: 0.3s;
         }
 
-        #signal-result {
-            margin-top: 30px;
-            padding: 20px;
-            border-radius: 10px;
-            display: none; /* Faqat tanlovdan keyin ko'rinadi */
-            border: 1px dashed #444;
+        button:hover {
+            background: #008fb3;
+            transform: scale(1.1);
         }
 
-        .signal-header { font-size: 1.4em; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #30363d; padding-bottom: 10px; }
-        .data-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 1.1em; }
-        .val { font-weight: bold; color: white; }
-        .score-box { text-align: center; margin-top: 15px; padding: 10px; background: rgba(33, 150, 243, 0.1); border-radius: 5px; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>SATS SIGNAL ANALIZATORI</h2>
+    <div class="slide-container">
+        <div class="slide active">
+            <h1>Xush kelibsiz!</h1>
+            <p>Bu sizning shaxsiy HTML mini slayd-shou ilovangiz.</p>
+        </div>
 
-    <div class="selection-group">
-        <label>1. Aktivni tanlang (Symbol):</label>
-        <select id="pairSelect" onchange="updateView()">
-            <option value="">-- Tanlang --</option>
-            <option value="XAUUSD">GOLD (XAUUSD)</option>
-            <option value="BTCUSDT">Bitcoin (BTCUSDT)</option>
-            <option value="ETHUSDT">Ethereum (ETHUSDT)</option>
-            <option value="EURUSD">EURUSD</option>
-        </select>
+        <div class="slide">
+            <h1>Texnologiyalar</h1>
+            <p>HTML, CSS va JavaScript yordamida yaratilgan.</p>
+        </div>
+
+        <div class="slide">
+            <h1>Loyihalar</h1>
+            <p>Bu yerga o'z ishlaringiz yoki ilmiy ishingiz haqida yozishingiz mumkin.</p>
+        </div>
+
+        <div class="controls">
+            <button onclick="prevSlide()">Oldingi</button>
+            <button onclick="nextSlide()">Keyingi</button>
+        </div>
     </div>
 
-    <div class="selection-group">
-        <label>2. Taymfreymni tanlang (TF):</label>
-        <select id="tfSelect" onchange="updateView()">
-            <option value="">-- Tanlang --</option>
-            <option value="5m">5 minut</option>
-            <option value="15m">15 minut</option>
-            <option value="1h">1 soat</option>
-            <option value="4h">4 soat</option>
-            <option value="D">Kunlik</option>
-        </select>
-    </div>
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll(".slide");
 
-    <div id="signal-result">
-        <div id="signalContent"></div>
-    </div>
-</div>
-
-<script>
-    // Strategiyadan olingan namunaviy ma'lumotlar bazasi
-    const signalsDB = [
-        { pair: "XAUUSD", tf: "1h", action: "buy", price: 2350.40, sl: 2340.00, tp1: 2365.00, tp2: 2380.00, score: 95, tqi: 0.88 },
-        { pair: "XAUUSD", tf: "15m", action: "sell", price: 2355.10, sl: 2362.00, tp1: 2345.00, tp2: 2330.00, score: 82, tqi: 0.70 },
-        { pair: "BTCUSDT", tf: "4h", action: "buy", price: 68100, sl: 66500, tp1: 70000, tp2: 72000, score: 88, tqi: 0.75 },
-        { pair: "EURUSD", tf: "D", action: "sell", price: 1.0850, sl: 1.0920, tp1: 1.0750, tp2: 1.0600, score: 76, tqi: 0.65 }
-    ];
-
-    function updateView() {
-        const pair = document.getElementById('pairSelect').value;
-        const tf = document.getElementById('tfSelect').value;
-        const resultDiv = document.getElementById('signal-result');
-        const content = document.getElementById('signalContent');
-
-        if (pair && tf) {
-            // Ma'lumotlar bazasidan qidirish
-            const signal = signalsDB.find(s => s.pair === pair && s.tf === tf);
-
-            if (signal) {
-                resultDiv.style.display = 'block';
-                resultDiv.style.borderColor = signal.action === 'buy' ? 'var(--bull)' : 'var(--bear)';
-                
-                content.innerHTML = `
-                    <div class="signal-header" style="color: ${signal.action === 'buy' ? 'var(--bull)' : 'var(--bear)'}">
-                        ${signal.action.toUpperCase()} SIGNAL ANIQLANDI
-                    </div>
-                    <div class="data-row"><span>Kirish narxi:</span> <span class="val">${signal.price}</span></div>
-                    <div class="data-row"><span>Stop Loss:</span> <span class="val" style="color:var(--bear)">${signal.sl}</span></div>
-                    <div class="data-row"><span>Take Profit 1:</span> <span class="val" style="color:var(--bull)">${signal.tp1}</span></div>
-                    <div class="data-row"><span>Take Profit 2:</span> <span class="val" style="color:var(--bull)">${signal.tp2}</span></div>
-                    <div class="data-row"><span>TQI Index:</span> <span class="val">${signal.tqi}</span></div>
-                    <div class="score-box">
-                        SATS SCORE: <span style="font-size:1.5em; color:var(--accent)">${signal.score}/102</span>
-                    </div>
-                `;
-            } else {
-                resultDiv.style.display = 'block';
-                resultDiv.style.borderColor = '#444';
-                content.innerHTML = `<p style="text-align:center; color:#8b949e;">Hozircha ushbu taymfreymda signal yo'q.</p>`;
-            }
-        } else {
-            resultDiv.style.display = 'none';
+        function showSlide(index) {
+            slides.forEach(s => s.classList.remove("active"));
+            if (index >= slides.length) currentSlide = 0;
+            if (index < 0) currentSlide = slides.length - 1;
+            slides[currentSlide].classList.add("active");
         }
-    }
-</script>
 
+        function nextSlide() {
+            currentSlide++;
+            showSlide(currentSlide);
+        }
+
+        function prevSlide() {
+            currentSlide--;
+            showSlide(currentSlide);
+        }
+
+        // Klaviaturada boshqarish (chap/o'ng tugmalari)
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowRight") nextSlide();
+            if (e.key === "ArrowLeft") prevSlide();
+        });
+    </script>
 </body>
 </html>
