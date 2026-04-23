@@ -2,157 +2,71 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SC_MALIKOV | V24</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>SATS Strategiya Signallari</title>
     <style>
-        :root { --bg: #000; --gold: #FFD700; --neon: #00ff88; --pink: #ff007f; --blue: #00c2ff; --glass: rgba(255, 255, 255, 0.05); }
-        body { margin: 0; background: var(--bg); color: white; font-family: 'Montserrat', sans-serif; padding-bottom: 20px; }
-        .terminal { width: 100%; max-width: 440px; margin: auto; padding: 10px; box-sizing: border-box; }
-        .box { background: var(--glass); border: 1px solid rgba(0, 194, 255, 0.15); border-radius: 12px; padding: 15px; margin-top: 10px; }
-        .hidden { display: none !important; }
-        .pair-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
-        .btn { width: 100%; padding: 10px 5px; border: 1px solid var(--blue); background: none; color: white; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 9px; text-transform: uppercase; transition: 0.1s; }
-        .btn:active { background: var(--blue); color: #000; transform: scale(0.95); }
-        .btn-gold { border-color: var(--gold); color: var(--gold); }
-        #chart-canvas { width: 100%; height: 250px; background: #050505; border-radius: 8px; margin-top: 10px; border: 1px solid #1a1a1a; }
-        .signal-card { background: rgba(0, 255, 136, 0.08); padding: 15px; border-radius: 10px; border: 2px solid var(--neon); margin-top: 10px; }
-        .price-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; font-weight: 700; }
-        .loader { border: 2px solid #222; border-top: 2px solid var(--neon); border-radius: 50%; width: 25px; height: 25px; animation: spin 1s linear infinite; margin: 10px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        body { font-family: sans-serif; background-color: #131722; color: #d1d4dc; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .signal-card { 
+            border-radius: 8px; padding: 15px; margin-bottom: 15px; 
+            border-left: 5px solid #ccc; background-color: #1c2030;
+        }
+        .buy { border-color: #00e676; } /* Bull Color */
+        .sell { border-color: #ff5252; } /* Bear Color */
+        .header { display: flex; justify-content: space-between; align-items: center; }
+        .score { font-weight: bold; color: #2962ff; }
+        .details { font-size: 0.9em; margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
     </style>
 </head>
 <body>
 
-<div class="terminal">
-    <h2 style="color: var(--neon); text-align: center; font-weight: 900; letter-spacing: 2px; margin-bottom: 5px;">SC_MALIKOV</h2>
-
-    <div id="step-1" class="box">
-        <button class="btn btn-gold" style="width:100%; margin-bottom:10px; font-size:12px;" onclick="selectPair('XAUUSDT')">🏆 GOLD (XAUUSD)</button>
-        <div class="pair-grid">
-            <button class="btn" onclick="selectPair('EURUSDT')">EURUSD</button>
-            <button class="btn" onclick="selectPair('GBPUSDT')">GBPUSD</button>
-            <button class="btn" onclick="selectPair('USDJPY')">USDJPY</button>
-            <button class="btn" onclick="selectPair('AUDUSDT')">AUDUSD</button>
-            <button class="btn" onclick="selectPair('USDCAD')">USDCAD</button>
-            <button class="btn" onclick="selectPair('USDCHF')">USDCHF</button>
-            <button class="btn" onclick="selectPair('NZDUSDT')">NZDUSD</button>
-            <button class="btn" onclick="selectPair('EURJPY')">EURJPY</button>
-            <button class="btn" onclick="selectPair('GBPJPY')">GBPJPY</button>
-            <button class="btn" onclick="selectPair('EURGBP')">EURGBP</button>
-            <button class="btn" onclick="selectPair('BTCUSDT')">BTCUSD</button>
-            <button class="btn" onclick="selectPair('ETHUSDT')">ETHUSD</button>
+<div class="container">
+    <h1>Self-Aware Trend System (SATS) Signallari</h1>
+    <div id="signals-list">
         </div>
-    </div>
-
-    <div id="step-2" class="box hidden">
-        <h3 id="pair-display" style="color: var(--blue); margin: 0 0 15px 0; font-size: 14px;"></h3>
-        <div class="pair-grid">
-            <button class="btn" onclick="startAnalysis('5m')">M5</button>
-            <button class="btn" onclick="startAnalysis('15m')">M15</button>
-            <button class="btn" onclick="startAnalysis('1h')">H1</button>
-            <button class="btn" onclick="startAnalysis('4h')">H4</button>
-        </div>
-    </div>
-
-    <div id="step-3" class="box hidden">
-        <div id="loader-box"><div class="loader"></div><p style="font-size:10px; text-align:center;">TAHLIL KETMOQDA...</p></div>
-        <div id="result-box" class="hidden">
-            <canvas id="chart-canvas"></canvas>
-            <div id="signal-info"></div>
-            <button class="btn" style="border-color: var(--pink); color: var(--pink); margin-top: 15px;" onclick="location.reload()">RESET</button>
-        </div>
-    </div>
 </div>
 
 <script>
-    let selectedPair = '';
-    let storageKey = '';
-
-    function selectPair(p) {
-        selectedPair = p;
-        storageKey = `sc_v24_${p}`;
-        document.getElementById('pair-display').innerText = p + " | TIMEFRAME TANLANG";
-        document.getElementById('step-1').classList.add('hidden');
-        document.getElementById('step-2').classList.remove('hidden');
+    // Pine Script-dagi JSON formatiga mos struktura
+    function createSignalElement(data) {
+        const div = document.createElement('div');
+        div.className = `signal-card ${data.action}`;
+        
+        div.innerHTML = `
+            <div class="header">
+                <strong style="color: ${data.action === 'buy' ? '#00e676' : '#ff5252'}">
+                    ${data.action.toUpperCase()} | ${data.ticker} | TF: ${data.tf}
+                </strong>
+                <span>Narx: ${data.price}</span>
+            </div>
+            <div class="details">
+                <div>Score: <span class="score">${data.score}/102</span></div>
+                <div>TQI: ${data.tqi}</div>
+                <div>SL: ${data.sl}</div>
+                <div>TP1: ${data.tp1}</div>
+                <div>TP2: ${data.tp2}</div>
+                <div>TP3: ${data.tp3}</div>
+            </div>
+        `;
+        return div;
     }
 
-    async function startAnalysis(tf) {
-        document.getElementById('step-2').classList.add('hidden');
-        document.getElementById('step-3').classList.remove('hidden');
-        try {
-            const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${selectedPair}&interval=${tf}&limit=80`);
-            const data = (await res.json()).map(d => ({ o: +d[1], h: +d[2], l: +d[3], c: +d[4] }));
-            runLogic(data);
-        } catch (e) { alert("Xatolik! Internetni tekshiring."); }
-    }
+    // TradingView-dan kelishi mumkin bo'lgan namunaviy ma'lumot
+    const mockSignal = {
+        action: "buy",
+        ticker: "BTCUSDT",
+        tf: "1H",
+        price: 65432.10,
+        sl: 64200.00,
+        tp1: 66500.00,
+        tp2: 67800.00,
+        tp3: 69000.00,
+        score: 85,
+        tqi: 0.75
+    };
 
-    function runLogic(data) {
-        document.getElementById('loader-box').classList.add('hidden');
-        document.getElementById('result-box').classList.remove('hidden');
-
-        const canvas = document.getElementById('chart-canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = canvas.offsetWidth * 2; canvas.height = canvas.offsetHeight * 2;
-        ctx.scale(2, 2);
-        const w = canvas.offsetWidth, h = canvas.offsetHeight;
-
-        const maxP = Math.max(...data.map(d => d.h)), minP = Math.min(...data.map(d => d.l));
-        const getY = (p) => h - 30 - ((p - minP) / (maxP - minP)) * (h - 60);
-        const getX = (i) => (i / data.length) * w;
-
-        // Chizish
-        data.forEach((d, i) => {
-            ctx.strokeStyle = d.c >= d.o ? '#00ff88' : '#ff007f';
-            const x = getX(i) + (w/data.length/2);
-            ctx.beginPath(); ctx.moveTo(x, getY(d.h)); ctx.lineTo(x, getY(d.l)); ctx.stroke();
-            ctx.fillStyle = ctx.strokeStyle;
-            ctx.fillRect(x - 1, Math.min(getY(d.o), getY(d.c)), 2, Math.max(Math.abs(getY(d.o) - getY(d.c)), 1));
-        });
-
-        // Pivotlar va Trendline
-        let highIdx = 0, lowIdx = 0;
-        data.forEach((d, i) => {
-            if(d.h === maxP) highIdx = i;
-            if(d.l === minP) lowIdx = i;
-        });
-
-        // IMAGE LOGIC: Pattern Height (H)
-        const patternH = maxP - minP;
-        const last = data[data.length - 1];
-        const precision = (selectedPair.includes('JPY') || selectedPair.includes('XAU')) ? 2 : 5;
-
-        // AGRESSIVE BREAKOUT (Narx max yoki min ga yaqinlashsa darhol signal)
-        let activeSignal = JSON.parse(localStorage.getItem(storageKey));
-
-        if (!activeSignal) {
-            // Agar narx 80% dan tepada bo'lsa BUY, 20% dan pastda bo'lsa SELL (Breakout mantiqi)
-            const threshold = (maxP - minP) * 0.1; 
-            if (last.c >= maxP - threshold) {
-                activeSignal = { type: "BUY", entry: last.c, tp: +(last.c + (patternH * 0.8)).toFixed(precision), sl: +(last.c - (patternH * 0.4)).toFixed(precision) };
-            } else if (last.c <= minP + threshold) {
-                activeSignal = { type: "SELL", entry: last.c, tp: +(last.c - (patternH * 0.8)).toFixed(precision), sl: +(last.c + (patternH * 0.4)).toFixed(precision) };
-            }
-            if(activeSignal) localStorage.setItem(storageKey, JSON.stringify(activeSignal));
-        }
-
-        const info = document.getElementById('signal-info');
-        if (activeSignal) {
-            info.innerHTML = `
-                <div class="signal-card">
-                    <div style="color:var(--neon); font-size:16px; font-weight:900; margin-bottom:10px;">${activeSignal.type} SIGNAL</div>
-                    <div class="price-row"><span>ENTRY:</span> <b style="color:white;">${activeSignal.entry}</b></div>
-                    <div class="price-row"><span>TP (H):</span> <b style="color:var(--neon);">${activeSignal.tp}</b></div>
-                    <div class="price-row" style="border:none;"><span>SL:</span> <b style="color:var(--pink);">${activeSignal.sl}</b></div>
-                </div>`;
-        } else {
-            info.innerHTML = `
-                <div class="box" style="border-color:#333; color:#666; font-size:11px;">
-                    CONSOLIDATION DETECTED.<br>NARX ZONADAN CHIQISHINI KUTING.
-                </div>`;
-        }
-    }
+    // Sahifaga signalni qo'shish
+    document.getElementById('signals-list').appendChild(createSignalElement(mockSignal));
 </script>
+
 </body>
 </html>
