@@ -166,45 +166,53 @@
         <button id="mode-grid" class="btn-mode active" onclick="switchMode('grid')">🧪 JADVAL</button>
     </div>
 
-    <div class="sky-molar-container">
-    <button class="btn-molar-sky" onclick="openMolarCalc()">M<sub>r</sub></button>
+ <div class="molar-btn-container">
+    <button class="btn-molar" onclick="openMolarCalc()">M<sub>r</sub></button>
 </div>
 
 <style>
-    .sky-molar-container {
+    .molar-btn-container {
         position: fixed;
-        /* Ekranning eng yuqori burchagi */
-        top: 10px; 
-        right: 15px;
-        z-index: 10000; /* Hammasidan tepada turishi shart */
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
     }
 
-    .btn-molar-sky {
-        width: 42px; /* Biroz kichikroq, o'sha burchakka mos tushishi uchun */
-        height: 42px;
-        border-radius: 12px; /* Dumaloq emas, biroz kvadratroq qilsak chiroyli chiqadi */
-        background: rgba(0, 255, 0, 0.1); /* Shaffofroq fon */
-        border: 1.5px solid #00ff00;
+    .btn-molar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #0f172a;
+        border: 2px solid #00ff00;
         color: #00ff00;
         font-weight: bold;
-        font-size: 16px;
+        font-size: 20px;
         cursor: pointer;
-        backdrop-filter: blur(5px); /* Orqa fonni xiralashtirish */
-        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
         transition: 0.3s;
-        animation: skyGlow 3s infinite alternate;
+        /* Animatsiya: ohista nafas olish effekti */
+        animation: pulseNeon 2s infinite;
     }
 
-    @keyframes skyGlow {
-        from { box-shadow: 0 0 5px rgba(0, 255, 0, 0.3); border-color: rgba(0, 255, 0, 0.5); }
-        to { box-shadow: 0 0 20px rgba(0, 255, 0, 0.8); border-color: rgba(0, 255, 0, 1); }
+    @keyframes pulseNeon {
+        0% { box-shadow: 0 0 10px rgba(0, 255, 0, 0.4); transform: scale(1); }
+        50% { box-shadow: 0 0 25px rgba(0, 255, 0, 0.8); transform: scale(1.1); }
+        100% { box-shadow: 0 0 10px rgba(0, 255, 0, 0.4); transform: scale(1); }
     }
 
-    .btn-molar-sky:hover {
+    .btn-molar:hover {
         background: #00ff00;
-        color: #000;
+        color: #0f172a;
     }
 </style>
+
+<script>
+    function openMolarCalc() {
+        // Yangi oynada 'molar.html' faylini ochish
+        window.open('molar.html', '_blank', 'width=450,height=600');
+    }
+</script>
+
 
     
     
