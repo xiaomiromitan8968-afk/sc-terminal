@@ -166,6 +166,54 @@
         <button id="mode-grid" class="btn-mode active" onclick="switchMode('grid')">🧪 JADVAL</button>
     </div>
 
+    <div class="molar-btn-container">
+    <button class="btn-molar" onclick="openMolarCalc()">M<sub>r</sub></button>
+</div>
+
+<style>
+    .molar-btn-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+    }
+
+    .btn-molar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #0f172a;
+        border: 2px solid #00ff00;
+        color: #00ff00;
+        font-weight: bold;
+        font-size: 20px;
+        cursor: pointer;
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+        transition: 0.3s;
+        /* Animatsiya: ohista nafas olish effekti */
+        animation: pulseNeon 2s infinite;
+    }
+
+    @keyframes pulseNeon {
+        0% { box-shadow: 0 0 10px rgba(0, 255, 0, 0.4); transform: scale(1); }
+        50% { box-shadow: 0 0 25px rgba(0, 255, 0, 0.8); transform: scale(1.1); }
+        100% { box-shadow: 0 0 10px rgba(0, 255, 0, 0.4); transform: scale(1); }
+    }
+
+    .btn-molar:hover {
+        background: #00ff00;
+        color: #0f172a;
+    }
+</style>
+
+<script>
+    function openMolarCalc() {
+        // Yangi oynada 'molar.html' faylini ochish
+        window.open('molar.html', '_blank', 'width=450,height=600');
+    }
+</script>
+    
+    
     <div class="screen">
         <div id="display">...</div>
         <div id="status" style="font-size: 10px; color: var(--a); margin-top: 10px;">TAYYOR</div>
