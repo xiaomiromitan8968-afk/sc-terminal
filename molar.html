@@ -2,26 +2,159 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <title>Molar Massa Kalkulyatori</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Molar Massa (Mr) - Malikov Lab</title>
     <style>
-        body { background: #0a0f1e; color: white; font-family: sans-serif; display: flex; justify-content: center; padding: 20px; }
-        .calc-card { background: #1e293b; padding: 25px; border-radius: 25px; width: 100%; border: 1px solid #00ff00; text-align: center; box-shadow: 0 0 20px rgba(0,255,0,0.2); }
-        input { width: 90%; padding: 15px; border-radius: 10px; border: 1px solid #22d3ee; background: #000; color: #00ff00; font-size: 18px; margin-bottom: 15px; text-align: center; }
-        button { background: #22d3ee; color: #000; border: none; padding: 15px 30px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; }
-        #res { margin-top: 20px; text-align: left; line-height: 1.6; border-top: 1px solid #334155; padding-top: 15px; display: none; }
-        .mass-val { color: #00ff00; font-size: 24px; font-weight: bold; display: block; margin: 10px 0; text-align: center; }
+        :root {
+            --p: #0a0f1e; 
+            --a: #22d3ee; 
+            --s: #00ff00; 
+            --bg: #1e293b;
+        }
+
+        body { 
+            background: var(--p); 
+            color: white; 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px; 
+            box-sizing: border-box;
+        }
+
+        .calc-card { 
+            background: rgba(30, 41, 59, 0.95); 
+            backdrop-filter: blur(15px);
+            padding: 35px 25px; 
+            border-radius: 30px; 
+            width: 100%; 
+            max-width: 450px; /* Panel kattalashtirildi */
+            border: 2px solid var(--s); 
+            text-align: center; 
+            box-shadow: 0 0 40px rgba(0, 255, 0, 0.2); 
+            position: relative;
+        }
+
+        /* Orqaga qaytish tugmasi */
+        .btn-back {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: transparent;
+            border: 1px solid var(--a);
+            color: var(--a);
+            padding: 8px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.3s;
+            box-shadow: 0 0 10px rgba(34, 211, 238, 0.2);
+        }
+
+        .btn-back:hover {
+            background: var(--a);
+            color: var(--p);
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.6);
+        }
+
+        h2 { color: var(--s); text-shadow: 0 0 10px rgba(0,255,0,0.5); margin-top: 30px; margin-bottom: 20px; }
+
+        input { 
+            width: 100%; 
+            padding: 18px; 
+            border-radius: 15px; 
+            border: 1px solid var(--a); 
+            background: #000; 
+            color: var(--s); 
+            font-size: 20px; 
+            margin-bottom: 15px; 
+            text-align: center; 
+            box-sizing: border-box;
+            outline: none;
+            box-shadow: inset 0 0 10px rgba(34, 211, 238, 0.2);
+        }
+
+        .btn-calc { 
+            background: var(--a); 
+            color: var(--p); 
+            border: none; 
+            padding: 18px 30px; 
+            border-radius: 15px; 
+            font-weight: bold; 
+            font-size: 16px;
+            cursor: pointer; 
+            width: 100%; 
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.4);
+            transition: 0.2s;
+        }
+
+        .btn-calc:active { transform: scale(0.98); }
+
+        #res { 
+            margin-top: 25px; 
+            text-align: left; 
+            background: rgba(0,0,0,0.5);
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(0,255,0,0.3);
+            display: none; 
+        }
+
+        #formula-name {
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            display: block;
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed #475569;
+            padding-bottom: 10px;
+        }
+
+        /* Elementlar ro'yxati */
+        .element-list {
+            font-family: monospace;
+            font-size: 16px;
+            color: #cbd5e1;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .element-list span {
+            color: var(--a);
+            font-weight: bold;
+        }
+
+        /* Umumiy Molyar Massa */
+        .total-mass { 
+            color: var(--s); 
+            font-size: 32px; 
+            font-weight: bold; 
+            display: block; 
+            text-align: center; 
+            text-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
+            border-top: 1px dashed #475569;
+            padding-top: 15px;
+        }
     </style>
 </head>
 <body>
+
     <div class="calc-card">
-        <h3>Molar Massa (M<sub>r</sub>)</h3>
+        <button class="btn-back" onclick="window.close()">⬅ ORTGA</button>
+
+        <h2>M<sub>r</sub> KALKULYATOR</h2>
         <input type="text" id="formula" placeholder="Masalan: H2SO4 yoki Glyukoza">
-        <button onclick="calculate()">HISOBLASH</button>
+        <button class="btn-calc" onclick="calculate()">AI HISOBLASH</button>
         
         <div id="res">
-            <span id="formula-name" style="color: #22d3ee; display: block; text-align: center;"></span>
-            <span class="mass-val" id="total-mass">0 g/mol</span>
-            <div id="details" style="font-size: 13px; opacity: 0.8;"></div>
+            <span id="formula-name"></span>
+            <div class="element-list" id="details"></div>
+            <span class="total-mass" id="total-mass"></span>
         </div>
     </div>
 
@@ -32,8 +165,9 @@
             const input = document.getElementById('formula').value;
             if(!input) return;
             
-            const btn = document.querySelector('button');
-            btn.innerText = "HISOBLANMOQDA...";
+            const btn = document.querySelector('.btn-calc');
+            btn.innerText = "TAHLIL KETMOQDA...";
+            btn.style.opacity = "0.7";
             
             try {
                 const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -43,24 +177,44 @@
                         model: "llama-3.3-70b-versatile",
                         messages: [{
                             role: "user", 
-                            content: `Modda: ${input}. FAQAT JSON qaytar: {"name": "nomi", "total": "umumiy massa", "details": "elementlar massasi haqida qisqa ma'lumot"}`
+                            content: `Modda: "${input}". 
+                            Kimyoviy formulani tahlil qil va uning molyar massasini hisobla. 
+                            FAQAT JSON formatda qaytar. Hech qanday izoh qo'shma.
+                            Format shunday bo'lsin:
+                            {
+                                "name": "Sulfat kislota (H2SO4)",
+                                "elements": [
+                                    "H: 2 * 1 = 2",
+                                    "S: 1 * 32 = 32",
+                                    "O: 4 * 16 = 64"
+                                ],
+                                "total": 98
+                            }`
                         }],
                         response_format: { type: "json_object" }
                     })
                 });
 
                 const data = await r.json();
+                if(data.error) throw new Error(data.error.message);
+
                 const res = JSON.parse(data.choices[0].message.content);
+
+                // Elementlar massasini chiroyli ro'yxat qilish
+                let detailsHtml = res.elements.map(item => `<div>• <span>${item.split(':')[0]}</span>: ${item.split(':')[1]}</div>`).join('');
 
                 document.getElementById('res').style.display = "block";
                 document.getElementById('formula-name').innerText = res.name;
-                document.getElementById('total-mass').innerText = res.total + " g/mol";
-                document.getElementById('details').innerHTML = res.details;
-                btn.innerText = "HISOBLASH";
+                document.getElementById('details').innerHTML = detailsHtml;
+                document.getElementById('total-mass').innerText = `Mr = ${res.total} g/mol`;
+                
+                btn.innerText = "AI HISOBLASH";
+                btn.style.opacity = "1";
 
             } catch (e) {
-                alert("Xatolik: " + e.message);
-                btn.innerText = "HISOBLASH";
+                alert("Xato: Noto'g'ri formula yoki tarmoq muammosi.");
+                btn.innerText = "AI HISOBLASH";
+                btn.style.opacity = "1";
             }
         }
     </script>
