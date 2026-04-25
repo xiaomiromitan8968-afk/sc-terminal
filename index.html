@@ -3,30 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Chem AI - Final</title>
+    <title>Smart Chem AI Lab</title>
     <style>
         :root { --p: #0f172a; --a: #38bdf8; --s: #4ade80; --d: #f87171; }
-        body { background: var(--p); color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); width: 90%; max-width: 400px; border-radius: 25px; padding: 20px; text-align: center; }
-        .screen { background: #000; border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid #334155; min-height: 80px; display: flex; flex-direction: column; justify-content: center; }
-        #display { font-size: 24px; color: var(--s); margin-bottom: 5px; }
-        #status { font-size: 10px; color: var(--a); font-weight: bold; }
-        .grid { display: grid; grid-template-columns: 3fr 1fr; gap: 10px; }
-        .elements { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .controls { display: flex; flex-direction: column; gap: 8px; }
-        button { border: none; border-radius: 12px; padding: 15px 5px; cursor: pointer; color: #fff; font-weight: bold; transition: 0.2s; }
-        .btn-el { background: #334155; }
-        .btn-ai { background: var(--a); color: var(--p); height: 60px; }
-        .btn-res { background: var(--d); }
+        body { background: var(--p); color: #fff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); width: 90%; max-width: 400px; border-radius: 30px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .screen { background: #000; border-radius: 20px; padding: 25px; margin-bottom: 20px; border: 2px solid #1e293b; min-height: 90px; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+        #display { font-size: 28px; color: var(--s); text-shadow: 0 0 10px rgba(74, 222, 128, 0.3); }
+        #status { font-size: 11px; color: var(--a); font-weight: bold; margin-top: 10px; text-transform: uppercase; }
+        .grid { display: grid; grid-template-columns: 3fr 1.2fr; gap: 12px; }
+        .elements { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .controls { display: flex; flex-direction: column; gap: 10px; }
+        button { border: none; border-radius: 15px; padding: 15px 5px; cursor: pointer; color: #fff; font-weight: bold; transition: 0.2s; font-size: 14px; }
+        button:active { transform: scale(0.95); }
+        .btn-el { background: #334155; border-bottom: 3px solid #1e293b; }
+        .btn-ai { background: var(--a); color: var(--p); height: 70px; font-size: 16px; box-shadow: 0 4px 0 #0284c7; }
+        .btn-res { background: var(--d); box-shadow: 0 4px 0 #b91c1c; }
         .btn-op { background: #475569; }
-        #res-box { margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; font-size: 13px; display: none; text-align: left; border-left: 4px solid var(--a); }
+        #res-box { margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 15px; font-size: 13px; display: none; border-left: 4px solid var(--a); line-height: 1.5; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2 style="margin:0 0 5px 0; font-size: 20px; color: var(--a);">SMART CHEM AI</h2>
-    <p style="font-size: 10px; opacity: 0.5; margin-bottom: 15px;">National University of Uzbekistan</p>
+    <h2 style="margin:0 0 5px 0; color: var(--a); text-align:center;">SMART CHEM AI</h2>
+    <p style="font-size: 10px; opacity: 0.5; text-align:center; margin-bottom: 20px;">Malikov Lab • O'zMU Edition</p>
 
     <div class="screen">
         <div id="display">...</div>
@@ -48,8 +49,8 @@
 
 <script>
     const KEY = "AIzaSyDR7TGZxIZLm-odXszDoaqZXiNwYp2w3VA";
-    // DIQQAT: Endpointni eng aniq versiyaga o'zgartirdik
-    const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${KEY}`;
+    // DIQQAT: Endpoint eng yangi gemini-1.5-flash versiyasiga o'zgartirildi
+    const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`;
 
     let input = "";
     const els = ['H', 'O', 'Na', 'Cl', 'C', 'N', 'S', 'Fe', 'Cu', 'Al', 'Mg', 'K'];
@@ -67,6 +68,7 @@
         if(input === "" || document.getElementById('display').innerText.includes("→")) input = "";
         input += v;
         document.getElementById('display').innerText = input;
+        document.getElementById('status').innerText = "TAYYOR";
     }
 
     function reset() {
@@ -81,24 +83,35 @@
         const st = document.getElementById('status');
         const box = document.getElementById('res-box');
         
-        st.innerText = "ALOKA O'RNATILMOQDA...";
+        st.innerText = "BOG'LANISH O'RNATILMOQDA...";
         
         try {
             const r = await fetch(URL, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ contents: [{ parts: [{ text: `Sen kimyogarsan. Reaksiyani tugalla va muvozanatla: ${input}. FAQAT JSON qaytar: {"t": "tenglama", "i": "izoh"}` }] }] })
+                body: JSON.stringify({ 
+                    contents: [{ parts: [{ text: `Kimyoviy reaksiyani tugalla va muvozanatla: ${input}. FAQAT JSON qaytar: {"t": "tenglama", "i": "izoh"}` }] }] 
+                })
             });
 
             const d = await r.json();
-            if(d.error) throw new Error(d.error.message);
+            
+            if(d.error) {
+                // Agar region xatosi bo'lsa, foydalanuvchiga bildirish
+                if(d.error.message.includes("location")) {
+                    throw new Error("Google bu xizmatni hududingizda cheklagan. VPN yoqing.");
+                }
+                throw new Error(d.error.message);
+            }
 
             const txt = d.candidates[0].content.parts[0].text;
-            const res = JSON.parse(txt.match(/\{.*\}/s)[0]);
+            // Matn ichidan JSONni ajratib olish (xavfsizroq usul)
+            const jsonStr = txt.match(/\{[\s\S]*\}/)[0];
+            const res = JSON.parse(jsonStr);
 
             document.getElementById('display').innerText = res.t;
             st.innerText = "MUVAFFAQIYATLI!";
-            box.innerHTML = `<b>Izoh:</b> ${res.i}`;
+            box.innerHTML = `<b>Tahlil:</b> ${res.i}`;
             box.style.display = "block";
         } catch (e) {
             st.innerText = "XATO: " + e.message;
