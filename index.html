@@ -3,127 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SC_ MALIKOV - Slayd App</title>
+    <title>Kimyoviy Reaksiya Kalkulyatori</title>
     <style>
-        body {
+        * {
+            box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212;
-            color: white;
-            margin: 0;
+        }
+        body {
+            background-color: #f4f7f6;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            overflow: hidden;
+            margin: 0;
         }
-
-        .slide-container {
-            width: 80%;
-            height: 70%;
-            background: #1e1e1e;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 40px;
-        }
-
-        .slide {
-            display: none;
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        .active {
-            display: block;
-        }
-
-        h1 { color: #00d4ff; font-size: 3rem; }
-        p { font-size: 1.5rem; color: #ccc; }
-
-        .controls {
-            position: absolute;
-            bottom: 20px;
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
             width: 100%;
+            max-width: 500px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #7f8c8d;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        .input-group {
             display: flex;
-            justify-content: center;
-            gap: 20px;
+            flex-direction: column;
+            gap: 15px;
         }
-
+        input {
+            padding: 12px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
         button {
-            background: #00d4ff;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
             border: none;
-            padding: 10px 25px;
-            border-radius: 5px;
-            color: black;
-            font-weight: bold;
+            border-radius: 8px;
+            font-size: 16px;
             cursor: pointer;
-            transition: 0.3s;
+            font-weight: bold;
+            transition: background-color 0.3s;
         }
-
         button:hover {
-            background: #008fb3;
-            transform: scale(1.1);
+            background-color: #2980b9;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .result-box {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #ecf0f1;
+            border-left: 5px solid #27ae60;
+            border-radius: 4px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            font-size: 18px;
+            color: #2c3e50;
         }
     </style>
 </head>
 <body>
 
-    <div class="slide-container">
-        <div class="slide active">
-            <h1>Xush kelibsiz!</h1>
-            <p>Bu sizning shaxsiy HTML mini slayd-shou ilovangiz.</p>
+    <div class="container">
+        <h1>Kimyo yordamchisi</h1>
+        <p>Reaksiyaga kirishuvchi moddalarni kiriting</p>
+        
+        <div class="input-group">
+            <input type="text" id="reactionInput" placeholder="Masalan: Zn + H2SO4">
+            <button onclick="calculateReaction()">Reaksiyani yozish</button>
         </div>
 
-        <div class="slide">
-            <h1>Texnologiyalar</h1>
-            <p>HTML, CSS va JavaScript yordamida yaratilgan.</p>
-        </div>
-
-        <div class="slide">
-            <h1>Loyihalar</h1>
-            <p>Bu yerga o'z ishlaringiz yoki ilmiy ishingiz haqida yozishingiz mumkin.</p>
-        </div>
-
-        <div class="controls">
-            <button onclick="prevSlide()">Oldingi</button>
-            <button onclick="nextSlide()">Keyingi</button>
+        <div id="resultBox" class="result-box">
+            Natija bu yerda ko'rsatiladi...
         </div>
     </div>
 
     <script>
-        let currentSlide = 0;
-        const slides = document.querySelectorAll(".slide");
+        function calculateReaction() {
+            // Foydalanuvchi kiritgan ma'lumotni olish
+            const input = document.getElementById('reactionInput').value.trim().toUpperCase();
+            const resultBox = document.getElementById('resultBox');
 
-        function showSlide(index) {
-            slides.forEach(s => s.classList.remove("active"));
-            if (index >= slides.length) currentSlide = 0;
-            if (index < 0) currentSlide = slides.length - 1;
-            slides[currentSlide].classList.add("active");
+            // Agar hech narsa kiritilmagan bo'lsa
+            if (!input) {
+                resultBox.innerHTML = "<span style='color: #e74c3c; font-size: 14px;'>Iltimos, avval moddalarni kiriting!</span>";
+                return;
+            }
+
+            let output = "";
+
+            // Hozircha sinov uchun bir nechta tayyor reaksiyalar (Keyin bu yerga haqiqiy algoritm ulaymiz)
+            if (input === "H2 + O2" || input === "O2 + H2") {
+                output = "2H<sub>2</sub> + O<sub>2</sub> &rarr; 2H<sub>2</sub>O";
+            } 
+            else if (input === "ZN + H2SO4") {
+                output = "Zn + H<sub>2</sub>SO<sub>4</sub> &rarr; ZnSO<sub>4</sub> + H<sub>2</sub>&uarr;";
+            } 
+            else if (input === "NA + H2O") {
+                output = "2Na + 2H<sub>2</sub>O &rarr; 2NaOH + H<sub>2</sub>&uarr;";
+            }
+            else {
+                output = `${input} &rarr; <em>[Kutilayotgan mahsulotlarni topish uchun algoritm kiritilmagan]</em>`;
+            }
+
+            // Natijani ekranga chiqarish
+            resultBox.innerHTML = `<strong>Tenglama:</strong> <br><br> ${output}`;
         }
-
-        function nextSlide() {
-            currentSlide++;
-            showSlide(currentSlide);
-        }
-
-        function prevSlide() {
-            currentSlide--;
-            showSlide(currentSlide);
-        }
-
-        // Klaviaturada boshqarish (chap/o'ng tugmalari)
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "ArrowRight") nextSlide();
-            if (e.key === "ArrowLeft") prevSlide();
-        });
     </script>
+
 </body>
 </html>
