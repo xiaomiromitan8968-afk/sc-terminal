@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Chem AI Lab - Malikov</title>
+    <title>Smart Chem AI - Malikov</title>
     <style>
         :root {
             --primary: #0f172a;
@@ -16,58 +16,58 @@
         body {
             background-color: var(--bg);
             color: #f8fafc;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 10px;
+            padding: 15px;
         }
 
         .app-container {
-            background: rgba(30, 41, 59, 0.8);
+            background: rgba(30, 41, 59, 0.7);
             backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             width: 100%;
-            max-width: 450px;
-            border-radius: 25px;
-            padding: 20px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            max-width: 420px;
+            border-radius: 28px;
+            padding: 25px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
-        .header { text-align: center; margin-bottom: 15px; }
-        .header h1 { color: var(--accent); margin: 0; font-size: 22px; text-transform: uppercase; letter-spacing: 2px; }
-        .header p { font-size: 11px; opacity: 0.6; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { color: var(--accent); margin: 0; font-size: 24px; letter-spacing: 1.5px; }
+        .header p { font-size: 11px; opacity: 0.6; margin-top: 4px; }
 
         .screen {
             background: #000;
-            border-radius: 18px;
-            padding: 20px;
+            border-radius: 20px;
+            padding: 25px;
             text-align: center;
-            min-height: 90px;
+            min-height: 100px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             border: 2px solid #1e293b;
-            margin-bottom: 20px;
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+            margin-bottom: 25px;
+            box-shadow: inset 0 2px 15px rgba(0,0,0,0.6);
         }
 
         #display {
-            font-size: 26px;
+            font-size: 30px;
             color: var(--success);
-            text-shadow: 0 0 12px rgba(74, 222, 128, 0.4);
+            text-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
             word-break: break-all;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
 
         #status {
             font-size: 10px;
             color: var(--accent);
-            letter-spacing: 1px;
-            font-weight: bold;
+            font-weight: 800;
             text-transform: uppercase;
+            letter-spacing: 1.5px;
         }
 
         .keyboard {
@@ -79,62 +79,64 @@
         .elements-zone {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
+            gap: 10px;
         }
 
         .controls-zone {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
 
         button {
             border: none;
-            border-radius: 12px;
-            padding: 14px 5px;
+            border-radius: 14px;
+            padding: 15px 5px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 14px;
             color: white;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+            box-shadow: 0 4px 0 rgba(0,0,0,0.3);
         }
 
         button:active { transform: translateY(3px); box-shadow: none; }
 
         .btn-el { background: #334155; }
-        .btn-el:hover { background: #475569; }
-        .btn-el span { display: block; font-size: 8px; opacity: 0.5; font-weight: normal; }
+        .btn-el:hover { background: #475569; border: 1px solid var(--accent); }
+        .btn-el span { display: block; font-size: 9px; opacity: 0.5; font-weight: 400; }
 
         .btn-op { background: #475569; }
         .btn-ai { 
             background: var(--accent); 
             color: var(--primary); 
-            font-size: 15px; 
-            height: 60px;
-            box-shadow: 0 4px 0 #0284c7;
+            font-size: 16px; 
+            height: 70px;
+            box-shadow: 0 5px 0 #0284c7;
         }
         .btn-del { background: #64748b; }
-        .btn-reset { background: var(--danger); box-shadow: 0 4px 0 #b91c1c; }
+        .btn-reset { background: var(--danger); box-shadow: 0 5px 0 #b91c1c; }
 
         .result-box {
-            margin-top: 15px;
-            padding: 15px;
-            background: rgba(15, 23, 42, 0.6);
-            border-radius: 15px;
+            margin-top: 20px;
+            padding: 18px;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 18px;
             font-size: 13px;
             display: none;
-            border-left: 4px solid var(--accent);
-            line-height: 1.4;
+            border-left: 5px solid var(--accent);
+            animation: fadeIn 0.4s ease;
         }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <div class="header">
-        <h1>Smart Chem AI</h1>
-        <p>National University of Uzbekistan Edition</p>
+        <h1>SMART CHEM AI</h1>
+        <p>National University of Uzbekistan | Malikov</p>
     </div>
 
     <div class="screen">
@@ -143,8 +145,7 @@
     </div>
 
     <div class="keyboard">
-        <div class="elements-zone" id="el-keys">
-            </div>
+        <div class="elements-zone" id="el-keys"></div>
         <div class="controls-zone">
             <button class="btn-ai" onclick="askAI()">AI TAHLIL</button>
             <button class="btn-op" onclick="add(' + ')">+</button>
@@ -159,9 +160,9 @@
 </div>
 
 <script>
-    // Maxfiy kalit (O'rtamizda sir 🤫)
     const API_KEY = "AIzaSyDR7TGZxIZLm-odXszDoaqZXiNwYp2w3VA"; 
-    const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+    // Barqaror v1 versiyasi ishlatilmoqda
+    const URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
     let input = "";
     const elDisplay = document.getElementById('display');
@@ -212,11 +213,11 @@
     async function askAI() {
         if(!input) return;
         
-        elStatus.innerText = "ALOKA O'RNATILMOQDA...";
+        elStatus.innerText = "BOG'LANISH O'RNATILMOQDA...";
         elStatus.style.color = "#fbbf24";
-        elDisplay.style.opacity = "0.5";
+        elDisplay.style.opacity = "0.4";
 
-        const prompt = `Sen kimyoviy reaksiyalar bo'yicha ekspertsan. Ushbu reaksiyani tugalla va muvozanatla: ${input}. Javobni FAQAT ushbu JSON formatida qaytar: {"t": "to'liq_tenglama", "info": "qisqa_izoh"}. Boshqa hech nima yozma.`;
+        const prompt = `Sen kimyogarsan. Ushbu reaksiyani tugalla va muvozanatla: ${input}. Javobni FAQAT JSON formatida ber: {"t": "tenglama", "info": "izoh"}. Boshqa matn yozma.`;
 
         try {
             const resp = await fetch(URL, {
@@ -225,17 +226,20 @@
                 body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
             });
 
-            if (!resp.ok) {
-                const errData = await resp.json();
-                throw new Error(`Xato: ${errData.error.message}`);
+            const data = await resp.json();
+
+            if (data.error) {
+                throw new Error(data.error.message);
             }
 
-            const data = await resp.json();
+            if (!data.candidates || !data.candidates[0]) {
+                throw new Error("AI javob bera olmadi. Qayta urinib ko'ring.");
+            }
+
             const text = data.candidates[0].content.parts[0].text;
-            
-            // JSONni topish
             const jsonMatch = text.match(/\{[\s\S]*\}/);
-            if (!jsonMatch) throw new Error("AI noto'g'ri javob qaytardi");
+            
+            if (!jsonMatch) throw new Error("Format xatosi yuz berdi");
 
             const res = JSON.parse(jsonMatch[0]);
 
@@ -250,7 +254,8 @@
         } catch (e) {
             console.error(e);
             elDisplay.style.opacity = "1";
-            elStatus.innerText = e.message.includes("API key") ? "API KALIT XATO!" : "XATO: " + e.message;
+            // Aniq xatolikni ekranga chiqarish
+            elStatus.innerText = "XATO: " + e.message;
             elStatus.style.color = "var(--danger)";
         }
     }
