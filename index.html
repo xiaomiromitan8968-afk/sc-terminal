@@ -22,7 +22,7 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 10px;
+            padding: 0; /* To'liq ekran uchun chekka bo'shliqlari olib tashlandi */
         }
 
         .card {
@@ -30,10 +30,12 @@
             backdrop-filter: blur(20px);
             border: 2px solid rgba(0, 255, 0, 0.2);
             width: 100%;
-            max-width: 500px;
-            border-radius: 35px;
+            max-width: 100%; /* 500px cheklovi olib tashlandi */
+            min-height: 100vh; /* Ekran balandligini to'liq egallaydi */
+            border-radius: 0; /* Burchaklar to'g'rilandi */
             padding: 25px;
             box-shadow: 0 0 40px rgba(0, 255, 0, 0.15);
+            box-sizing: border-box; /* Padding ekrandan chiqib ketmasligi uchun */
         }
 
         /* Mode Switcher Styles */
@@ -156,6 +158,34 @@
             border-left: 4px solid var(--s);
             font-size: 13px;
         }
+
+        /* Suzib yuruvchi tugma CSS */
+        .molar-btn-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            touch-action: none; /* Telefonda tirtishayotganda ekran qimirlamasligi uchun */
+            cursor: grab;
+        }
+
+        .molar-btn-container:active {
+            cursor: grabbing;
+        }
+
+        .btn-molar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #0f172a;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            font-weight: bold;
+            font-size: 20px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+            /* Animatsiya o'chirib qo'yildi, chunki sudrashga xalaqit berishi mumkin */
+            pointer-events: none; /* Faqat konteyner bosilishini ushlaydi */
+        }
     </style>
 </head>
 <body>
@@ -166,56 +196,10 @@
         <button id="mode-grid" class="btn-mode active" onclick="switchMode('grid')">🧪 JADVAL</button>
     </div>
 
- <div class="molar-btn-container">
-    <button class="btn-molar" onclick="openMolarCalc()">M<sub>r</sub></button>
-</div>
+    <div class="molar-btn-container" id="draggable-mr">
+        <button class="btn-molar">M<sub>r</sub></button>
+    </div>
 
-<style>
-    .molar-btn-container {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 1000;
-    }
-
-    .btn-molar {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: #0f172a;
-        border: 2px solid #00ff00;
-        color: #00ff00;
-        font-weight: bold;
-        font-size: 20px;
-        cursor: pointer;
-        box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
-        transition: 0.3s;
-        /* Animatsiya: ohista nafas olish effekti */
-        animation: pulseNeon 2s infinite;
-    }
-
-    @keyframes pulseNeon {
-        0% { box-shadow: 0 0 10px rgba(0, 255, 0, 0.4); transform: scale(1); }
-        50% { box-shadow: 0 0 25px rgba(0, 255, 0, 0.8); transform: scale(1.1); }
-        100% { box-shadow: 0 0 10px rgba(0, 255, 0, 0.4); transform: scale(1); }
-    }
-
-    .btn-molar:hover {
-        background: #00ff00;
-        color: #0f172a;
-    }
-</style>
-
-<script>
-    function openMolarCalc() {
-        // Yangi oynada 'molar.html' faylini ochish
-        window.open('molar.html', '_blank', 'width=450,height=600');
-    }
-</script>
-
-
-    
-    
     <div class="screen">
         <div id="display">...</div>
         <div id="status" style="font-size: 10px; color: var(--a); margin-top: 10px;">TAYYOR</div>
@@ -242,6 +226,50 @@
 </div>
 
 <script>
+    // --- SUZIB YURUVCHI TUGMA LOGIKASI ---
+    const dragEl = document.getElementById('draggable-mr');
+    let isDragging = false;
+    let startX, startY;
+
+    dragEl.addEventListener('pointerdown', (e) => {
+        isDragging = false;
+        startX = e.clientX;
+        startY = e.clientY;
+        
+        const rect = dragEl.getBoundingClientRect();
+        dragEl.dataset.offsetX = e.clientX - rect.left;
+        dragEl.dataset.offsetY = e.clientY - rect.top;
+        
+        dragEl.setPointerCapture(e.pointerId);
+        dragEl.addEventListener('pointermove', onDragMove);
+    });
+
+    function onDragMove(e) {
+        if (Math.abs(e.clientX - startX) > 5 || Math.abs(e.clientY - startY) > 5) {
+            isDragging = true;
+        }
+        if (isDragging) {
+            const offX = parseFloat(dragEl.dataset.offsetX);
+            const offY = parseFloat(dragEl.dataset.offsetY);
+            dragEl.style.left = (e.clientX - offX) + 'px';
+            dragEl.style.top = (e.clientY - offY) + 'px';
+            dragEl.style.right = 'auto'; // O'ng tomon bog'lamini uzish
+        }
+    }
+
+    dragEl.addEventListener('pointerup', (e) => {
+        dragEl.removeEventListener('pointermove', onDragMove);
+        dragEl.releasePointerCapture(e.pointerId);
+        
+        // Agar sudrab olib kelinmagan bo'lsa, uni "click" deb qabul qilamiz
+        if (!isDragging) {
+            window.open('molar.html', '_blank');
+        }
+        setTimeout(() => { isDragging = false; }, 10);
+    });
+
+
+    // --- ASOSIY KOD ---
     const KEY = "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";
     const URL = "https://api.groq.com/openai/v1/chat/completions";
 
