@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Chem AI Lab</title>
+    <title>Smart Chem AI Lab - Malikov</title>
     <style>
         :root {
             --primary: #0f172a;
@@ -16,65 +16,67 @@
         body {
             background-color: var(--bg);
             color: #f8fafc;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
+            padding: 10px;
         }
 
         .app-container {
             background: rgba(30, 41, 59, 0.8);
             backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 95%;
-            max-width: 500px;
-            border-radius: 30px;
-            padding: 25px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            width: 100%;
+            max-width: 450px;
+            border-radius: 25px;
+            padding: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        .header { text-align: center; margin-bottom: 20px; }
-        .header h1 { color: var(--accent); margin: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 2px; }
-        .header p { font-size: 12px; opacity: 0.6; margin-top: 5px; }
+        .header { text-align: center; margin-bottom: 15px; }
+        .header h1 { color: var(--accent); margin: 0; font-size: 22px; text-transform: uppercase; letter-spacing: 2px; }
+        .header p { font-size: 11px; opacity: 0.6; }
 
         .screen {
             background: #000;
-            border-radius: 20px;
-            padding: 25px;
+            border-radius: 18px;
+            padding: 20px;
             text-align: center;
-            min-height: 100px;
+            min-height: 90px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            border: 1px solid #334155;
+            border: 2px solid #1e293b;
             margin-bottom: 20px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
         }
 
         #display {
-            font-size: 28px;
+            font-size: 26px;
             color: var(--success);
-            text-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
+            text-shadow: 0 0 12px rgba(74, 222, 128, 0.4);
             word-break: break-all;
+            margin-bottom: 5px;
         }
 
         #status {
             font-size: 10px;
-            margin-top: 10px;
             color: var(--accent);
             letter-spacing: 1px;
             font-weight: bold;
+            text-transform: uppercase;
         }
 
         .keyboard {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            grid-template-columns: 3fr 1.2fr;
+            gap: 12px;
         }
 
         .elements-zone {
-            grid-column: span 2;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 8px;
@@ -89,30 +91,41 @@
         button {
             border: none;
             border-radius: 12px;
-            padding: 15px 5px;
+            padding: 14px 5px;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.2s;
             font-size: 14px;
             color: white;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
         }
 
+        button:active { transform: translateY(3px); box-shadow: none; }
+
         .btn-el { background: #334155; }
-        .btn-el:hover { background: var(--accent); color: var(--primary); }
-        .btn-el span { display: block; font-size: 8px; opacity: 0.5; }
+        .btn-el:hover { background: #475569; }
+        .btn-el span { display: block; font-size: 8px; opacity: 0.5; font-weight: normal; }
 
         .btn-op { background: #475569; }
-        .btn-ai { background: var(--accent); color: var(--primary); font-size: 16px; }
-        .btn-del { background: var(--danger); }
+        .btn-ai { 
+            background: var(--accent); 
+            color: var(--primary); 
+            font-size: 15px; 
+            height: 60px;
+            box-shadow: 0 4px 0 #0284c7;
+        }
+        .btn-del { background: #64748b; }
+        .btn-reset { background: var(--danger); box-shadow: 0 4px 0 #b91c1c; }
 
         .result-box {
             margin-top: 15px;
             padding: 15px;
-            background: rgba(255,255,255,0.05);
+            background: rgba(15, 23, 42, 0.6);
             border-radius: 15px;
             font-size: 13px;
             display: none;
             border-left: 4px solid var(--accent);
+            line-height: 1.4;
         }
     </style>
 </head>
@@ -121,7 +134,7 @@
 <div class="app-container">
     <div class="header">
         <h1>Smart Chem AI</h1>
-        <p>Malikov Laboratory Edition</p>
+        <p>National University of Uzbekistan Edition</p>
     </div>
 
     <div class="screen">
@@ -130,14 +143,15 @@
     </div>
 
     <div class="keyboard">
-        <div class="elements-zone" id="el-keys"></div>
+        <div class="elements-zone" id="el-keys">
+            </div>
         <div class="controls-zone">
             <button class="btn-ai" onclick="askAI()">AI TAHLIL</button>
-            <button class="btn-op" onclick="add('+')">+</button>
+            <button class="btn-op" onclick="add(' + ')">+</button>
             <button class="btn-op" onclick="add('2')">2</button>
             <button class="btn-op" onclick="add('3')">3</button>
             <button class="btn-del" onclick="back()">⌫</button>
-            <button class="btn-del" style="background:#dc2626" onclick="reset()">TOZALASH</button>
+            <button class="btn-reset" onclick="reset()">TOZALASH</button>
         </div>
     </div>
 
@@ -145,7 +159,7 @@
 </div>
 
 <script>
-    // Maxfiy kalit integratsiyasi
+    // Maxfiy kalit (O'rtamizda sir 🤫)
     const API_KEY = "AIzaSyDR7TGZxIZLm-odXszDoaqZXiNwYp2w3VA"; 
     const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
@@ -157,10 +171,10 @@
     const elements = [
         {s:'H', n:'Vodorod'}, {s:'O', n:'Kislorod'}, {s:'Na', n:'Natriy'},
         {s:'Cl', n:'Xlor'}, {s:'C', n:'Uglerod'}, {s:'N', n:'Azot'},
-        {s:'S', n:'Oltingugurt'}, {s:'Fe', n:'Temir'}, {s:'Cu', n:'Mis'}
+        {s:'S', n:'Oltingugurt'}, {s:'Fe', n:'Temir'}, {s:'Cu', n:'Mis'},
+        {s:'Al', n:'Alyuminiy'}, {s:'Mg', n:'Magniy'}, {s:'K', n:'Kaliy'}
     ];
 
-    // Klaviaturani yaratish
     const keysDiv = document.getElementById('el-keys');
     elements.forEach(el => {
         const b = document.createElement('button');
@@ -171,56 +185,73 @@
     });
 
     function add(v) {
-        if(input === "") elDisplay.innerText = "";
+        if(input === "" || elDisplay.innerText.includes("→")) {
+            input = "";
+            elDisplay.innerText = "";
+        }
         input += v;
         elDisplay.innerText = input;
         elResult.style.display = "none";
+        elStatus.innerText = "TAYYOR";
+        elStatus.style.color = "var(--accent)";
     }
 
     function reset() {
         input = "";
         elDisplay.innerText = "Reaksiyani kiriting...";
         elStatus.innerText = "TAYYOR";
+        elStatus.style.color = "var(--accent)";
         elResult.style.display = "none";
     }
 
     function back() {
-        input = input.slice(0, -1);
+        input = input.trim().slice(0, -1);
         elDisplay.innerText = input || "Reaksiyani kiriting...";
     }
 
     async function askAI() {
         if(!input) return;
         
-        elStatus.innerText = "AI TAHLIL QILMOQDA...";
+        elStatus.innerText = "ALOKA O'RNATILMOQDA...";
         elStatus.style.color = "#fbbf24";
+        elDisplay.style.opacity = "0.5";
 
-        const prompt = `Sen kimyogarsan. Ushbu reaksiyani tugalla va muvozanatla: ${input}. Javobni FAQAT ushbu formatda qaytar: {"t": "tenglama", "info": "izoh"}`;
+        const prompt = `Sen kimyoviy reaksiyalar bo'yicha ekspertsan. Ushbu reaksiyani tugalla va muvozanatla: ${input}. Javobni FAQAT ushbu JSON formatida qaytar: {"t": "to'liq_tenglama", "info": "qisqa_izoh"}. Boshqa hech nima yozma.`;
 
         try {
             const resp = await fetch(URL, {
                 method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
             });
+
+            if (!resp.ok) {
+                const errData = await resp.json();
+                throw new Error(`Xato: ${errData.error.message}`);
+            }
 
             const data = await resp.json();
             const text = data.candidates[0].content.parts[0].text;
             
-            // JSONni matn ichidan ajratib olish (Xavfsiz usul)
-            const jsonStr = text.match(/\{.*?\}/s)[0];
-            const res = JSON.parse(jsonStr);
+            // JSONni topish
+            const jsonMatch = text.match(/\{[\s\S]*\}/);
+            if (!jsonMatch) throw new Error("AI noto'g'ri javob qaytardi");
+
+            const res = JSON.parse(jsonMatch[0]);
 
             elDisplay.innerText = res.t;
-            elStatus.innerText = "MUVAFFARIYATLI!";
+            elDisplay.style.opacity = "1";
+            elStatus.innerText = "MUVAFFAQIYATLI!";
             elStatus.style.color = "#4ade80";
             
-            elResult.innerHTML = `<b>Ma'lumot:</b> ${res.info}`;
+            elResult.innerHTML = `<b>Tahlil:</b> ${res.info}`;
             elResult.style.display = "block";
 
         } catch (e) {
             console.error(e);
-            elStatus.innerText = "XATOLIK YUZ BERDI!";
-            elStatus.style.color = "#f87171";
+            elDisplay.style.opacity = "1";
+            elStatus.innerText = e.message.includes("API key") ? "API KALIT XATO!" : "XATO: " + e.message;
+            elStatus.style.color = "var(--danger)";
         }
     }
 
