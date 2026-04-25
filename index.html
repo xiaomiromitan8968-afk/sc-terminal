@@ -3,143 +3,253 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Chem - Kimyo Laboratoriyasi</title>
+    <title>Smart Chem Pro - Kimyoviy Reaksiyalar</title>
     <style>
         :root {
-            --primary: #2c3e50;
-            --accent: #3498db;
-            --success: #27ae60;
-            --bg: #f0f3f5;
-        }
-        body {
-            background-color: var(--bg);
-            font-family: 'Segoe UI', sans-serif;
-            display: flex;
-            justify-content: center;
-            padding: 20px;
-            margin: 0;
-        }
-        .app-card {
-            background: white;
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 600px;
-        }
-        .header { text-align: center; margin-bottom: 20px; }
-        .header h1 { color: var(--primary); margin: 0; font-size: 24px; }
-        
-        .display-area {
-            background: #1a1a1a;
-            color: #00ff00;
-            padding: 20px;
-            border-radius: 12px;
-            min-height: 80px;
-            margin-bottom: 20px;
-            font-family: 'Courier New', monospace;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 3px solid #333;
+            --primary: #1a2a6c;
+            --secondary: #b21f1f;
+            --accent: #fdbb2d;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
         }
 
-        .keyboard {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .app-container {
+            background: rgba(255, 255, 255, 0.95);
+            width: 100%;
+            max-width: 900px;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        .screen {
+            background: #222;
+            color: #00ff41;
+            padding: 25px;
+            border-radius: 15px;
+            font-family: 'Consolas', monospace;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 25px;
+            min-height: 60px;
+            box-shadow: inset 0 0 10px #000;
+            word-wrap: break-word;
+        }
+
+        .controls {
+            display: flex;
             gap: 10px;
             margin-bottom: 20px;
         }
-        .key {
-            padding: 15px 5px;
+
+        .btn-main {
+            flex: 1;
+            padding: 15px;
             border: none;
-            background: #ecf0f1;
-            border-radius: 8px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+
+        .btn-calc { background: var(--primary); color: white; }
+        .btn-clear { background: var(--secondary); color: white; }
+
+        .keyboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            gap: 5px;
+            background: #ddd;
+            padding: 10px;
+            border-radius: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .key {
+            padding: 12px 5px;
+            border: 1px solid #ccc;
+            background: white;
+            border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-            transition: 0.2s;
-        }
-        .key:hover { background: var(--accent); color: white; }
-        .key.special { background: #dcdde1; }
-        .key.action { background: var(--success); color: white; grid-column: span 2; }
-
-        .history {
-            border-top: 1px solid #eee;
-            padding-top: 15px;
             font-size: 14px;
-            color: #7f8c8d;
+            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .key:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .key span { font-size: 9px; color: #666; font-weight: normal; }
+
+        /* Guruhlar ranglari */
+        .non-metal { border-bottom: 3px solid #2ecc71; }
+        .noble-gas { border-bottom: 3px solid #9b59b6; }
+        .alkali { border-bottom: 3px solid #e67e22; }
+        .transition { border-bottom: 3px solid #34495e; }
+        .halogen { border-bottom: 3px solid #f1c40f; }
+
+        .number-pad {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .num-key {
+            padding: 15px;
+            background: #34495e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        #status-bar {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            border-left: 5px solid var(--primary);
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
 
-<div class="app-card">
-    <div class="header">
-        <h1>Smart Chem Lab</h1>
-        <p>Elementlarni tanlang va reaksiya hosil qiling</p>
+<div class="app-container">
+    <div class="screen" id="display">Reaksiyani kiriting...</div>
+
+    <div class="controls">
+        <button class="btn-main btn-calc" onclick="processReaction()">Tahlil qilish</button>
+        <button class="btn-main btn-clear" onclick="clearDisplay()">Tozalash</button>
+        <button class="btn-main" style="background:#7f8c8d; color:white" onclick="backspace()">⌫</button>
     </div>
 
-    <div id="display" class="display-area">Kiritishni boshlang...</div>
+    <div class="keyboard-grid" id="element-keys">
+        </div>
 
-    <div class="keyboard">
-        <button class="key" onclick="add('H')">H</button>
-        <button class="key" onclick="add('O')">O</button>
-        <button class="key" onclick="add('C')">C</button>
-        <button class="key" onclick="add('N')">N</button>
-        <button class="key" onclick="add('S')">S</button>
-        
-        <button class="key" onclick="add('Fe')">Fe</button>
-        <button class="key" onclick="add('Cu')">Cu</button>
-        <button class="key" onclick="add('Zn')">Zn</button>
-        <button class="key" onclick="add('Na')">Na</button>
-        <button class="key" onclick="add('Cl')">Cl</button>
-
-        <button class="key special" onclick="add('2')">2</button>
-        <button class="key special" onclick="add('3')">3</button>
-        <button class="key special" onclick="add('4')">4</button>
-        <button class="key special" onclick="add(' + ')">+</button>
-        <button class="key special" onclick="backspace()">⌫</button>
-
-        <button class="key action" onclick="process()">Reaksiyani ko'rish</button>
-        <button class="key action" style="background:#e74c3c" onclick="clearAll()">Tozalash</button>
+    <div class="number-pad">
+        <button class="num-key" onclick="addToInput('2')">2</button>
+        <button class="num-key" onclick="addToInput('3')">3</button>
+        <button class="num-key" onclick="addToInput('4')">4</button>
+        <button class="num-key" onclick="addToInput(' + ')">+</button>
+        <button class="num-key" onclick="addToInput('(')">(</button>
     </div>
 
-    <div class="history">
-        <strong>Status:</strong> <span id="status">Tayyor</span>
+    <div id="status-bar">
+        <strong>Ma'lumot:</strong> <span id="status-text">Kutish rejimi...</span>
     </div>
 </div>
 
 <script>
+    // Lantanoid va Aktinoidlarsiz asosiy elementlar ro'yxati
+    const elements = [
+        {s: 'H', n: 'Vodorod', c: 'non-metal'}, {s: 'He', n: 'Geliy', c: 'noble-gas'},
+        {s: 'Li', n: 'Litiy', c: 'alkali'}, {s: 'Be', n: 'Berilliy', c: 'alkali'},
+        {s: 'B', n: 'Bor', c: 'non-metal'}, {s: 'C', n: 'Uglerod', c: 'non-metal'},
+        {s: 'N', n: 'Azot', c: 'non-metal'}, {s: 'O', n: 'Kislorod', c: 'non-metal'},
+        {s: 'F', n: 'Ftor', c: 'halogen'}, {s: 'Ne', n: 'Neon', c: 'noble-gas'},
+        {s: 'Na', n: 'Natriy', c: 'alkali'}, {s: 'Mg', n: 'Magniy', c: 'alkali'},
+        {s: 'Al', n: 'Alyuminiy', c: 'transition'}, {s: 'Si', n: 'Kremniy', c: 'non-metal'},
+        {s: 'P', n: 'Fosfor', c: 'non-metal'}, {s: 'S', n: 'Oltingugurt', c: 'non-metal'},
+        {s: 'Cl', n: 'Xlor', c: 'halogen'}, {s: 'Ar', n: 'Argon', c: 'noble-gas'},
+        {s: 'K', n: 'Kaliy', c: 'alkali'}, {s: 'Ca', n: 'Kalsiy', c: 'alkali'},
+        {s: 'Sc', n: 'Skandiy', c: 'transition'}, {s: 'Ti', n: 'Titan', c: 'transition'},
+        {s: 'V', n: 'Vanadiy', c: 'transition'}, {s: 'Cr', n: 'Xrom', c: 'transition'},
+        {s: 'Mn', n: 'Marganets', c: 'transition'}, {s: 'Fe', n: 'Temir', c: 'transition'},
+        {s: 'Co', n: 'Kobalt', c: 'transition'}, {s: 'Ni', n: 'Nikel', c: 'transition'},
+        {s: 'Cu', n: 'Mis', c: 'transition'}, {s: 'Zn', n: 'Rux', c: 'transition'},
+        {s: 'Ga', n: 'Galliy', c: 'transition'}, {s: 'Ge', n: 'Germaniy', c: 'transition'},
+        {s: 'As', n: 'Mishyak', c: 'non-metal'}, {s: 'Se', n: 'Selen', c: 'non-metal'},
+        {s: 'Br', n: 'Brom', c: 'halogen'}, {s: 'Kr', n: 'Kripton', c: 'noble-gas'},
+        {s: 'Rb', n: 'Rubidiy', c: 'alkali'}, {s: 'Sr', n: 'Stronsiy', c: 'alkali'},
+        {s: 'Y', n: 'Ittriy', c: 'transition'}, {s: 'Zr', n: 'Sirkoniy', c: 'transition'},
+        {s: 'Nb', n: 'Niobiy', c: 'transition'}, {s: 'Mo', n: 'Molibden', c: 'transition'},
+        {s: 'Tc', n: 'Texnetsiy', c: 'transition'}, {s: 'Ru', n: 'Ruteniy', c: 'transition'},
+        {s: 'Rh', n: 'Rodiy', c: 'transition'}, {s: 'Pd', n: 'Palladiy', c: 'transition'},
+        {s: 'Ag', n: 'Kumush', c: 'transition'}, {s: 'Cd', n: 'Kadmiy', c: 'transition'},
+        {s: 'In', n: 'Indiy', c: 'transition'}, {s: 'Sn', n: 'Qalay', c: 'transition'},
+        {s: 'Sb', n: 'Surma', c: 'transition'}, {s: 'Te', n: 'Tellur', c: 'non-metal'},
+        {s: 'I', n: 'Yod', c: 'halogen'}, {s: 'Xe', n: 'Ksenon', c: 'noble-gas'},
+        {s: 'Cs', n: 'Seziy', c: 'alkali'}, {s: 'Ba', n: 'Bariy', c: 'alkali'},
+        {s: 'Hf', n: 'Gafniy', c: 'transition'}, {s: 'Ta', n: 'Tantal', c: 'transition'},
+        {s: 'W', n: 'Volfram', c: 'transition'}, {s: 'Re', n: 'Reniy', c: 'transition'},
+        {s: 'Os', n: 'Osmiy', c: 'transition'}, {s: 'Ir', n: 'Iridiy', c: 'transition'},
+        {s: 'Pt', n: 'Platina', c: 'transition'}, {s: 'Au', n: 'Oltin', c: 'transition'},
+        {s: 'Hg', n: 'Simob', c: 'transition'}, {s: 'Tl', n: 'Talliy', c: 'transition'},
+        {s: 'Pb', n: 'Qo\'rg\'oshin', c: 'transition'}, {s: 'Bi', n: 'Vismut', c: 'transition'}
+    ];
+
     let currentInput = "";
     const display = document.getElementById('display');
+    const keyGrid = document.getElementById('element-keys');
 
-    function add(char) {
-        currentInput += char;
-        updateDisplay();
+    // Tugmalarni yaratish
+    elements.forEach(el => {
+        const btn = document.createElement('button');
+        btn.className = `key ${el.c}`;
+        btn.innerHTML = `${el.s} <span>${el.n}</span>`;
+        btn.onclick = () => addToInput(el.s);
+        keyGrid.appendChild(btn);
+    });
+
+    function addToInput(val) {
+        if (currentInput === "") display.innerHTML = "";
+        currentInput += val;
+        display.innerHTML = currentInput;
     }
 
-    function clearAll() {
+    function clearDisplay() {
         currentInput = "";
-        updateDisplay();
+        display.innerHTML = "Reaksiyani kiriting...";
+        document.getElementById('status-text').innerText = "Kutish rejimi...";
     }
 
     function backspace() {
+        currentInput = currentInput.trim();
         currentInput = currentInput.slice(0, -1);
-        updateDisplay();
+        display.innerHTML = currentInput || "Reaksiyani kiriting...";
     }
 
-    function updateDisplay() {
-        display.innerHTML = currentInput || "Kiritishni boshlang...";
-    }
+    // Bu funksiya siz yaratgan reaksiyalar.json bilan ishlaydi
+    async function processReaction() {
+        const status = document.getElementById('status-text');
+        try {
+            const response = await fetch('reaksiyalar.json');
+            const data = await response.json();
+            const cleanInput = currentInput.replace(/\s+/g, '').toUpperCase();
+            
+            const reaction = data.reaksiyalar.find(r => 
+                r.kirish.replace(/\s+/g, '').toUpperCase() === cleanInput
+            );
 
-    function process() {
-        const status = document.getElementById('status');
-        if(currentInput.includes("H") && currentInput.includes("O")) {
-            display.innerHTML = "2H₂ + O₂ → 2H₂O";
-            status.innerText = "Reaksiya muvaffaqiyatli!";
-        } else {
-            status.innerText = "Noma'lum birikma. Algoritm tahlil qilmoqda...";
+            if (reaction) {
+                display.innerHTML = reaction.chiqish;
+                status.innerHTML = `<b style="color:green">Topildi!</b> Turi: ${reaction.turi}. ${reaction.izoh}`;
+            } else {
+                status.innerHTML = `<b style="color:red">Xato!</b> Baza ichidan ushbu reaksiya topilmadi.`;
+            }
+        } catch (e) {
+            status.innerText = "Xatolik: JSON fayli yuklanmadi.";
         }
     }
 </script>
