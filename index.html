@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Chem AI - Groq Edition</title>
+    <title>Smart Chem AI - Final Edition</title>
     <style>
         :root { --p: #0f172a; --a: #22d3ee; --s: #4ade80; --d: #f87171; }
         body { background: var(--p); color: #fff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 10px; }
-        .card { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 400px; border-radius: 30px; padding: 25px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
+        .card { background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 400px; border-radius: 30px; padding: 25px; box-shadow: 0 25px 50px rgba(0,0,0,0.6); }
         .screen { background: #000; border-radius: 20px; padding: 25px; margin-bottom: 20px; border: 2px solid #1e293b; min-height: 90px; display: flex; flex-direction: column; justify-content: center; text-align: center; }
         #display { font-size: 28px; color: var(--s); text-shadow: 0 0 10px rgba(74, 222, 128, 0.4); }
         #status { font-size: 10px; color: var(--a); font-weight: bold; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px; }
@@ -27,7 +27,7 @@
 
 <div class="card">
     <h2 style="margin:0 0 5px 0; color: var(--a); text-align:center;">SMART CHEM AI</h2>
-    <p style="font-size: 10px; opacity: 0.5; text-align:center; margin-bottom: 20px;">O'zMU • Malikov Lab (Powered by Groq)</p>
+    <p style="font-size: 10px; opacity: 0.5; text-align:center; margin-bottom: 20px;">O'zMU • Malikov Lab (Final)</p>
 
     <div class="screen">
         <div id="display">H2O + Na</div>
@@ -48,8 +48,8 @@
 </div>
 
 <script>
-    // Siz yuborgan maxfiy kalit 🤫
-    const API_KEY = "Gsk_SWoW3xrqU5P8Zx6hnqfWWGdyb3FYyTpZ1GzNQKxuTv0HOkMNemv0";
+    // Yangi yuborgan kalitingiz:
+    const API_KEY = "Gsk_spgdv68nCgAvBmtvYL7GWGdyb3FYrA1EPwbnzg87gzjoHhfsIcdI".trim();
     const URL = "https://api.groq.com/openai/v1/chat/completions";
 
     let input = "H2O + Na";
@@ -65,9 +65,10 @@
     });
 
     function add(v) {
-        if(input === "" || document.getElementById('display').innerText.includes("→")) input = "";
+        const display = document.getElementById('display');
+        if(input === "" || display.innerText.includes("→")) input = "";
         input += v;
-        document.getElementById('display').innerText = input;
+        display.innerText = input;
         document.getElementById('status').innerText = "TAYYOR";
     }
 
@@ -83,7 +84,8 @@
         const st = document.getElementById('status');
         const box = document.getElementById('res-box');
         
-        st.innerText = "GROQ TAHLIL QILMOQDA...";
+        st.innerText = "TAHLIL KETMOQDA...";
+        st.style.color = "var(--a)";
         
         try {
             const r = await fetch(URL, {
@@ -96,24 +98,28 @@
                     model: "llama-3.3-70b-versatile",
                     messages: [{
                         role: "user", 
-                        content: `Sen kimyogarsan. Reaksiyani tugalla va muvozanatla: ${input}. FAQAT JSON qaytar: {"t": "tenglama", "i": "izoh"}. Javobda boshqa hech qanday so'z bo'lmasin.`
+                        content: `Sen kimyogarsan. Reaksiyani tugalla va muvozanatla: ${input}. FAQAT JSON qaytar: {"t": "tenglama", "i": "izoh"}. Boshqa matn qo'shma.`
                     }],
                     response_format: { type: "json_object" }
                 })
             });
 
-            const d = await r.json();
-            
-            if(d.error) throw new Error(d.error.message);
+            if (!r.ok) {
+                const err = await r.json();
+                throw new Error(err.error.message);
+            }
 
+            const d = await r.json();
             const res = JSON.parse(d.choices[0].message.content);
 
             document.getElementById('display').innerText = res.t;
             st.innerText = "MUVAFFAQIYATLI!";
-            box.innerHTML = `<b>Tahlil:</b> ${res.i}`;
+            st.style.color = "var(--s)";
+            box.innerHTML = `<b>Xulosa:</b> ${res.i}`;
             box.style.display = "block";
         } catch (e) {
             st.innerText = "XATO: " + e.message;
+            st.style.color = "var(--d)";
             console.error(e);
         }
     }
