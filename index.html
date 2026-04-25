@@ -165,6 +165,58 @@
         <button id="mode-kb" class="btn-mode" onclick="switchMode('kb')">⌨️ KLAVIATURA</button>
         <button id="mode-grid" class="btn-mode active" onclick="switchMode('grid')">🧪 JADVAL</button>
     </div>
+
+    <div class="floating-molar-container">
+    <button class="btn-molar-fly" onclick="openMolarCalc()">M<sub>r</sub></button>
+</div>
+
+<style>
+    .floating-molar-container {
+        position: fixed; /* Ekranga nisbatan qat'iy joylashuv */
+        top: 15px;       /* Tepadan masofa */
+        right: 15px;     /* O'ngdan masofa */
+        z-index: 9999;   /* Hammasidan ustida turishi uchun */
+    }
+
+    .btn-molar-fly {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: rgba(15, 23, 42, 0.9);
+        border: 2px solid #00ff00;
+        color: #00ff00;
+        font-weight: bold;
+        font-size: 18px;
+        cursor: pointer;
+        /* Neon nurlanishi */
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.6), inset 0 0 10px rgba(0, 255, 0, 0.3);
+        transition: 0.3s all ease;
+        /* "Nafas olish" animatsiyasi */
+        animation: pulseFly 2s infinite ease-in-out;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    @keyframes pulseFly {
+        0% { transform: scale(1); box-shadow: 0 0 15px rgba(0, 255, 0, 0.6); }
+        50% { transform: scale(1.1); box-shadow: 0 0 30px rgba(0, 255, 0, 0.9); }
+        100% { transform: scale(1); box-shadow: 0 0 15px rgba(0, 255, 0, 0.6); }
+    }
+
+    .btn-molar-fly:hover {
+        background: #00ff00;
+        color: #0a0f1e;
+        transform: rotate(360deg) scale(1.2);
+    }
+</style>
+
+<script>
+    function openMolarCalc() {
+        // Yangi oynada ochish (molar.html faylingiz tayyor bo'lishi kerak)
+        window.open('molar.html', '_blank');
+    }
+</script>
     
     
     <div class="screen">
