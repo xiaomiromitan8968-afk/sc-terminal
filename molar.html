@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <title>Molar Massa Kalkulyatori</title>
+    <style>
+        body { background: #0a0f1e; color: white; font-family: sans-serif; display: flex; justify-content: center; padding: 20px; }
+        .calc-card { background: #1e293b; padding: 25px; border-radius: 25px; width: 100%; border: 1px solid #00ff00; text-align: center; box-shadow: 0 0 20px rgba(0,255,0,0.2); }
+        input { width: 90%; padding: 15px; border-radius: 10px; border: 1px solid #22d3ee; background: #000; color: #00ff00; font-size: 18px; margin-bottom: 15px; text-align: center; }
+        button { background: #22d3ee; color: #000; border: none; padding: 15px 30px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; }
+        #res { margin-top: 20px; text-align: left; line-height: 1.6; border-top: 1px solid #334155; padding-top: 15px; display: none; }
+        .mass-val { color: #00ff00; font-size: 24px; font-weight: bold; display: block; margin: 10px 0; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="calc-card">
+        <h3>Molar Massa (M<sub>r</sub>)</h3>
+        <input type="text" id="formula" placeholder="Masalan: H2SO4 yoki Glyukoza">
+        <button onclick="calculate()">HISOBLASH</button>
+        
+        <div id="res">
+            <span id="formula-name" style="color: #22d3ee; display: block; text-align: center;"></span>
+            <span class="mass-val" id="total-mass">0 g/mol</span>
+            <div id="details" style="font-size: 13px; opacity: 0.8;"></div>
+        </div>
+    </div>
+
+    <script>
+        const KEY = "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";
+
+        async function calculate() {
+            const input = document.getElementById('formula').value;
+            if(!input) return;
+            
+            const btn = document.querySelector('button');
+            btn.innerText = "HISOBLANMOQDA...";
+            
+            try {
+                const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: "llama-3.3-70b-versatile",
+                        messages: [{
+                            role: "user", 
+                            content: `Modda: ${input}. FAQAT JSON qaytar: {"name": "nomi", "total": "umumiy massa", "details": "elementlar massasi haqida qisqa ma'lumot"}`
+                        }],
+                        response_format: { type: "json_object" }
+                    })
+                });
+
+                const data = await r.json();
+                const res = JSON.parse(data.choices[0].message.content);
+
+                document.getElementById('res').style.display = "block";
+                document.getElementById('formula-name').innerText = res.name;
+                document.getElementById('total-mass').innerText = res.total + " g/mol";
+                document.getElementById('details').innerHTML = res.details;
+                btn.innerText = "HISOBLASH";
+
+            } catch (e) {
+                alert("Xatolik: " + e.message);
+                btn.innerText = "HISOBLASH";
+            }
+        }
+    </script>
+</body>
+</html>
