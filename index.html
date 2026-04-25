@@ -3,21 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PARADOX Smart Chem AI</title>
+    <title>PARADOX Smart Chem AI v2</title>
     <style>
-        /* Neon yashil va qorong'u laboratoriya mavzusi */
         :root {
-            --p: #0a0f1e; /* Qorong'u fon */
-            --a: #22d3ee; /* Neon moviy (status uchun) */
-            --s: #00ff00; /* Neon yashil (tugmalar va tenglama uchun) */
-            --d: #f87171; /* Neon qizil (xato uchun) */
-            --key-bg: #1e293b; /* Tugma foni */
+            --p: #0a0f1e; 
+            --a: #22d3ee; 
+            --s: #00ff00; 
+            --d: #f87171; 
+            --key-bg: #1e293b;
         }
 
         body {
             background-color: var(--p);
             color: #fff;
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -27,188 +26,182 @@
         }
 
         .card {
-            background: rgba(15, 23, 42, 0.9);
+            background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(20px);
             border: 2px solid rgba(0, 255, 0, 0.2);
             width: 100%;
-            max-width: 480px;
+            max-width: 500px;
             border-radius: 35px;
-            padding: 30px;
-            box-shadow: 0 0 30px rgba(0, 255, 0, 0.1);
+            padding: 25px;
+            box-shadow: 0 0 40px rgba(0, 255, 0, 0.15);
+        }
+
+        /* Mode Switcher Styles */
+        .mode-switcher {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn-mode {
+            background: #1e293b;
+            border: 1px solid var(--a);
+            color: var(--a);
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-mode.active {
+            background: var(--a);
+            color: var(--p);
+            box-shadow: 0 0 15px var(--a);
         }
 
         .screen {
             background: #000;
             border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 25px;
+            padding: 20px;
+            margin-bottom: 20px;
             border: 2px solid var(--s);
-            min-height: 100px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
             text-align: center;
-            /* Neon yashil soya effekti */
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5), inset 0 0 10px rgba(0, 255, 0, 0.3);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
         }
 
         #display {
-            font-size: 30px;
+            font-size: 28px;
             color: var(--s);
-            font-weight: bold;
-            /* Tenglama uchun neon nurlanish */
-            text-shadow: 0 0 10px rgba(0, 255, 0, 0.7), 0 0 20px rgba(0, 255, 0, 0.5);
+            text-shadow: 0 0 10px var(--s);
+            min-height: 40px;
             word-break: break-all;
         }
 
-        #status {
-            font-size: 11px;
-            color: var(--a);
-            font-weight: bold;
-            margin-top: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
+        /* Keyboard Input Style */
+        #kb-input-container {
+            display: none;
+            margin-bottom: 15px;
         }
 
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
+        #manual-input {
+            width: 100%;
+            background: #000;
+            border: 1px solid var(--a);
+            color: var(--s);
+            padding: 15px;
+            border-radius: 15px;
+            font-size: 18px;
+            outline: none;
+            text-align: center;
+            box-sizing: border-box;
         }
 
         .zone {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-            gap: 10px;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 12px;
             border-radius: 20px;
+            max-height: 300px;
+            overflow-y: auto;
             border: 1px solid rgba(0, 255, 0, 0.1);
-        }
-
-        .controls-zone {
-            display: grid;
-            grid-template-columns: 2fr repeat(4, 1fr);
-            gap: 10px;
+            margin-bottom: 15px;
         }
 
         button {
             border: none;
-            border-radius: 15px;
-            padding: 18px 5px;
+            border-radius: 12px;
+            padding: 15px 5px;
             cursor: pointer;
             color: #fff;
             font-weight: bold;
-            transition: 0.2s ease-in-out;
-            font-size: 15px;
-            position: relative;
-            overflow: hidden;
+            transition: 0.2s;
         }
 
-        /* Standart tugmalar: Yashil neon soya bilan */
-        .btn-el, .btn-op {
+        .btn-el {
             background: var(--key-bg);
             border: 1px solid rgba(0, 255, 0, 0.3);
-            box-shadow: 0 0 5px rgba(0, 255, 0, 0.1);
+            font-size: 14px;
         }
 
-        .btn-el span {
-            display: block;
-            font-size: 9px;
-            opacity: 0.6;
-            font-weight: normal;
-        }
+        .btn-el span { display: block; font-size: 8px; opacity: 0.5; }
 
-        /* AI tugmasi: Moviy nurlanish */
         .btn-ai {
             background: var(--a);
             color: var(--p);
-            font-size: 16px;
-            box-shadow: 0 0 15px rgba(34, 211, 238, 0.5);
+            width: 100%;
+            font-size: 18px;
+            margin-bottom: 10px;
+            box-shadow: 0 0 20px var(--a);
         }
 
-        /* CLR va DEL tugmalari: Qizil neon nurlanish */
-        .btn-res {
-            background: var(--d);
-            box-shadow: 0 0 15px rgba(248, 113, 113, 0.5);
+        .controls-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
         }
 
-        /* Tugma bosilganda yoki sichqoncha ustiga kelganda neon effektini kuchaytirish */
-        button:hover, button:active {
-            transform: scale(1.05);
-        }
-
-        .btn-el:hover, .btn-el:active {
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
-            border-color: var(--s);
-        }
-
-        .btn-ai:hover, .btn-ai:active {
-            box-shadow: 0 0 25px rgba(34, 211, 238, 0.8);
-        }
-
-        .btn-res:hover, .btn-res:active {
-            box-shadow: 0 0 25px rgba(248, 113, 113, 0.8);
-        }
+        .btn-op { background: #475569; border: 1px solid var(--s); }
+        .btn-res { background: var(--d); box-shadow: 0 0 15px var(--d); }
 
         #res-box {
-            margin-top: 20px;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 20px;
-            font-size: 14px;
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 15px;
             display: none;
-            border-left: 5px solid var(--s);
-            line-height: 1.6;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.1);
+            border-left: 4px solid var(--s);
+            font-size: 13px;
         }
-
-        /* Scrollbar dizayni */
-        .zone::-webkit-scrollbar { width: 5px; }
-        .zone::-webkit-scrollbar-thumb { background: var(--s); border-radius: 10px; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2 style="margin:0 0 5px 0; color: var(--s); text-align:center; text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);">SMART CHEM AI</h2>
-    <p style="font-size: 11px; opacity: 0.6; text-align:center; margin-bottom: 25px;">Paradox Lab | O'zMU Edition</p>
+    <div class="mode-switcher">
+        <button id="mode-kb" class="btn-mode" onclick="switchMode('kb')">⌨️ KLAVIATURA</button>
+        <button id="mode-grid" class="btn-mode active" onclick="switchMode('grid')">🧪 JADVAL</button>
+    </div>
 
     <div class="screen">
         <div id="display">...</div>
-        <div id="status">TAYYOR</div>
+        <div id="status" style="font-size: 10px; color: var(--a); margin-top: 10px;">TAYYOR</div>
     </div>
 
-    <div class="grid">
-        <div class="zone elements-zone" id="el-keys"></div>
-
-        <div class="controls-zone">
-            <button class="btn-ai" onclick="askAI()">AI TAHLIL</button>
-            <button class="btn-op" onclick="addChar(' + ')">+</button>
-            <button class="btn-op" onclick="addChar('2')">2</button>
-            <button class="btn-op" onclick="addChar('3')">3</button>
-            <button class="btn-res" style="background:#64748b; box-shadow: 0 0 10px rgba(100, 116, 139, 0.5);" onclick="backspace()">⌫</button>
-            <button class="btn-res" onclick="reset()">CLR</button>
-        </div>
+    <div id="kb-input-container">
+        <input type="text" id="manual-input" placeholder="Masalan: NaOH + HCl" oninput="syncInput()">
     </div>
+
+    <div id="grid-container">
+        <div class="zone" id="el-keys"></div>
+    </div>
+
+    <button class="btn-ai" onclick="askAI()">AI TAHLIL</button>
+
+    <div class="controls-row">
+        <button class="btn-op" onclick="addChar(' + ')">+</button>
+        <button class="btn-op" onclick="addChar('2')">2</button>
+        <button class="btn-op" onclick="addChar('3')">3</button>
+        <button class="btn-res" onclick="reset()">CLR</button>
+    </div>
+
     <div id="res-box"></div>
 </div>
 
 <script>
-    // Maxfiy kalit 🤫
     const KEY = "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";
     const URL = "https://api.groq.com/openai/v1/chat/completions";
 
     let currentInput = "";
+    let currentMode = "grid";
 
-    // Lantanoidlar va Aktinoidlardan tashqari davriy jadval
     const elements = [
         {s:'H', n:'Vodorod'}, {s:'He', n:'Geliy'}, {s:'Li', n:'Litiy'}, {s:'Be', n:'Berilliy'}, {s:'B', n:'Bor'}, {s:'C', n:'Uglerod'}, {s:'N', n:'Azot'}, {s:'O', n:'Kislorod'}, {s:'F', n:'Ftor'}, {s:'Ne', n:'Neon'},
         {s:'Na', n:'Natriy'}, {s:'Mg', n:'Magniy'}, {s:'Al', n:'Alyuminiy'}, {s:'Si', n:'Kremniy'}, {s:'P', n:'Fosfor'}, {s:'S', n:'Oltingugurt'}, {s:'Cl', n:'Xlor'}, {s:'Ar', n:'Argon'},
-        {s:'K', n:'Kaliy'}, {s:'Ca', n:'Kalsiy'}, {s:'Sc', n:'Skandiy'}, {s:'Ti', n:'Titan'}, {s:'V', n:'Vanadiy'}, {s:'Cr', n:'Xrom'}, {s:'Mn', n:'Marganes'}, {s:'Fe', n:'Temir'}, {s:'Co', n:'Kobalt'}, {s:'Ni', n:'Nikel'}, {s:'Cu', n:'Mis'}, {s:'Zn', n:'Rux'}, {s:'Ga', n:'Galliy'}, {s:'Ge', n:'Germaniy'}, {s:'As', n:'Margumush'}, {s:'Se', n:'Selen'}, {s:'Br', n:'Brom'}, {s:'Kr', n:'Kripton'},
-        {s:'Rb', n:'Rubidiy'}, {s:'Sr', n:'Stronsiy'}, {s:'Y', n:'Ittriy'}, {s:'Zr', n:'Tsirkoniy'}, {s:'Nb', n:'Niobiy'}, {s:'Mo', n:'Molibden'}, {s:'Tc', n:'Texnetsiy'}, {s:'Ru', n:'Ruteniy'}, {s:'Rh', n:'Rodiy'}, {s:'Pd', n:'Palladiy'}, {s:'Ag', n:'Kumush'}, {s:'Cd', n:'Kadmiy'}, {s:'In', n:'Indiy'}, {s:'Sn', n:'Qalay'}, {s:'Sb', n:'Surma'}, {s:'Te', n:'Tellur'}, {s:'I', n:'Yod'}, {s:'Xe', n:'Ksenon'},
-        {s:'Cs', n:'Tseziy'}, {s:'Ba', n:'Bariy'}, {s:'Hf', n:'Gafniy'}, {s:'Ta', n:'Tantal'}, {s:'W', n:'Volfram'}, {s:'Re', n:'Reniy'}, {s:'Os', n:'Osmiy'}, {s:'Ir', n:'Iridiy'}, {s:'Pt', n:'Platina'}, {s:'Au', n:'Oltin'}, {s:'Hg', n:'Simob'}, {s:'Tl', n:'Talliy'}, {s:'Pb', n:'Qorgoshin'}, {s:'Bi', n:'Vismut'}, {s:'Po', n:'Poloniy'}, {s:'At', n:'Astat'}, {s:'Rn', n:'Radon'},
-        {s:'Fr', n:'Fransiy'}, {s:'Ra', n:'Radiy'}, {s:'Rf', n:'Rezfordiy'}, {s:'Db', n:'Dubniy'}, {s:'Sg', n:'Siborgiy'}, {s:'Bh', n:'Boriy'}, {s:'Hs', n:'Hassiy'}, {s:'Mt', n:'Meytneriy'}, {s:'Ds', n:'Darmshtadtiy'}, {s:'Rg', n:'Rentgeniy'}, {s:'Cn', n:'Kopernitsiy'}, {s:'Nh', n:'Nixoniy'}, {s:'Fl', n:'Fleroviy'}, {s:'Mc', n:'Moskoviy'}, {s:'Lv', n:'Livermoriy'}, {s:'Ts', n:'Tennessin'}, {s:'Og', n:'Oganesson'}
+        {s:'K', n:'Kaliy'}, {s:'Ca', n:'Kalsiy'}, {s:'Sc', n:'Skandiy'}, {s:'Ti', n:'Titan'}, {s:'V', n:'Vanadiy'}, {s:'Cr', n:'Xrom'}, {s:'Mn', n:'Marganes'}, {s:'Fe', n:'Temir'}, {s:'Co', n:'Kobalt'}, {s:'Ni', n:'Nikel'}, {s:'Cu', n:'Mis'}, {s:'Zn', n:'Rux'}, {s:'Ag', n:'Kumush'}, {s:'Au', n:'Oltin'}, {s:'Hg', n:'Simob'}, {s:'Pb', n:'Qorgoshin'}
     ];
 
     const keysDiv = document.getElementById('el-keys');
@@ -220,35 +213,39 @@
         keysDiv.appendChild(b);
     });
 
+    function switchMode(mode) {
+        currentMode = mode;
+        document.getElementById('mode-kb').classList.toggle('active', mode === 'kb');
+        document.getElementById('mode-grid').classList.toggle('active', mode === 'grid');
+        
+        document.getElementById('kb-input-container').style.display = (mode === 'kb') ? 'block' : 'none';
+        document.getElementById('grid-container').style.display = (mode === 'grid') ? 'block' : 'none';
+    }
+
+    function syncInput() {
+        currentInput = document.getElementById('manual-input').value;
+        document.getElementById('display').innerText = currentInput || "...";
+    }
+
     function addChar(v) {
-        const display = document.getElementById('display');
-        if(currentInput === "" || display.innerText.includes("→")) currentInput = "";
+        if(currentInput === "" || document.getElementById('display').innerText.includes("→")) currentInput = "";
         currentInput += v;
-        display.innerText = currentInput;
-        document.getElementById('status').innerText = "TAYYOR";
-        document.getElementById('status').style.color = "var(--a)";
+        document.getElementById('display').innerText = currentInput;
+        document.getElementById('manual-input').value = currentInput;
     }
 
     function reset() {
         currentInput = "";
         document.getElementById('display').innerText = "...";
-        document.getElementById('status').innerText = "TAYYOR";
-        document.getElementById('status').style.color = "var(--a)";
+        document.getElementById('manual-input').value = "";
         document.getElementById('res-box').style.display = "none";
-    }
-
-    function backspace() {
-        currentInput = currentInput.trim().slice(0, -1);
-        document.getElementById('display').innerText = currentInput || "...";
+        document.getElementById('display').style.color = "var(--s)";
     }
 
     async function askAI() {
-        if(!currentInput || currentInput === "...") return;
+        if(!currentInput) return;
         const st = document.getElementById('status');
-        const box = document.getElementById('res-box');
-        
-        st.innerText = "TAHLIL QILINMOQDA (GROQ)...";
-        st.style.color = "#fbbf24"; /* Sariq nurlanish */
+        st.innerText = "TAHLIL KETMOQDA...";
         
         try {
             const response = await fetch(URL, {
@@ -261,39 +258,28 @@
                     model: "llama-3.3-70b-versatile",
                     messages: [{
                         role: "user", 
-                        content: `Sen kimyogarsan. Reaksiyani tugalla va muvozanatla: ${currentInput}. FAQAT JSON formatda qaytar. Agar reaksiya kimyoviy jihatdan bormasa, JSONda "reaksiyaBormaydi": true qaytar. Format: {"t": "equation", "i": "izoh", "reaksiyaBormaydi": false}`
+                        content: `Sen kimyogarsan. Reaksiyani tugalla: ${currentInput}. FAQAT JSON qaytar: {"t": "equation", "i": "explanation", "possible": true}. Agar reaksiya bormasa "possible": false qaytar.`
                     }],
                     response_format: { type: "json_object" }
                 })
             });
 
             const data = await response.json();
-            
-            if(data.error) throw new Error(data.error.message);
-
             const res = JSON.parse(data.choices[0].message.content);
 
-            if (res.reaksiyaBormaydi) {
+            if (!res.possible) {
                 document.getElementById('display').innerText = "BU REAKSIYA BORMAYDI";
-                document.getElementById('display').style.color = "var(--d)"; /* Neon qizil */
-                document.getElementById('display').style.textShadow = "0 0 10px rgba(248, 113, 113, 0.7)";
-                st.innerText = "KIMYOVIY JIHATDAN MUMKIN EMAS";
-                st.style.color = "var(--d)";
-                box.style.display = "none";
+                document.getElementById('display').style.color = "var(--d)";
+                st.innerText = "XATO";
             } else {
                 document.getElementById('display').innerText = res.t;
-                document.getElementById('display').style.color = "var(--s)"; /* Qayta yashil */
-                document.getElementById('display').style.textShadow = "0 0 10px rgba(0, 255, 0, 0.7)";
-                st.innerText = "MUVAFFAQIYATLI!";
-                st.style.color = "var(--s)";
-                box.innerHTML = `<b>Laboratoriya xulosasi:</b><br>${res.i}`;
-                box.style.display = "block";
+                document.getElementById('display').style.color = "var(--s)";
+                st.innerText = "TAYYOR";
+                document.getElementById('res-box').innerHTML = `<b>Xulosa:</b> ${res.i}`;
+                document.getElementById('res-box').style.display = "block";
             }
-
         } catch (e) {
-            st.innerText = "XATO: " + e.message;
-            st.style.color = "var(--d)";
-            console.error(e);
+            st.innerText = "Xatolik yuz berdi";
         }
     }
 </script>
