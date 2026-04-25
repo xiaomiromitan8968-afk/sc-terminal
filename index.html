@@ -20,7 +20,7 @@
         .btn-ai { background: var(--a); color: var(--p); height: 70px; font-size: 16px; }
         .btn-res { background: var(--d); }
         .btn-op { background: #475569; }
-        #res-box { margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 15px; font-size: 13px; display: none; border-left: 5px solid var(--a); line-height: 1.5; }
+        #res-box { margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 15px; font-size: 13px; display: none; border-left: 5px solid var(--a); line-height: 1.5; text-align: left; }
     </style>
 </head>
 <body>
@@ -48,8 +48,8 @@
 </div>
 
 <script>
-    // Yangi yuborgan maxfiy kalitingiz 🤫
-    const API_KEY = "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".trim();
+    // DIQQAT: Birinchi harf qat'iy ravishda kichkina 'g' bo'lishi kerak!
+    const API_KEY = "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";
     const URL = "https://api.groq.com/openai/v1/chat/completions";
 
     let input = "H2O + Na";
@@ -70,25 +70,27 @@
         input += v;
         display.innerText = input;
         document.getElementById('status').innerText = "TAYYOR";
+        document.getElementById('status').style.color = "var(--a)";
     }
 
     function reset() {
         input = "";
         document.getElementById('display').innerText = "...";
         document.getElementById('status').innerText = "TAYYOR";
+        document.getElementById('status').style.color = "var(--a)";
         document.getElementById('res-box').style.display = "none";
     }
 
     async function ask() {
-        if(!input) return;
+        if(!input || input === "...") return;
         const st = document.getElementById('status');
         const box = document.getElementById('res-box');
         
-        st.innerText = "TAHLIL JARAYONI...";
+        st.innerText = "TAHLIL KETMOQDA...";
         st.style.color = "var(--a)";
         
         try {
-            const r = await fetch(URL, {
+            const response = await fetch(URL, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${API_KEY}`,
@@ -98,29 +100,30 @@
                     model: "llama-3.3-70b-versatile",
                     messages: [{
                         role: "user", 
-                        content: `Sen professional kimyogarsan. Reaksiyani tugalla va muvozanatla: ${input}. FAQAT JSON qaytar: {"t": "tenglama", "i": "izoh"}. Boshqa hech narsa yozma.`
+                        content: `Sen profissionalsan. Kimyoviy reaksiyani tugalla va muvozanatla: ${input}. FAQAT JSON formatda qaytar: {"t": "tenglama", "i": "izoh"}`
                     }],
                     response_format: { type: "json_object" }
                 })
             });
 
-            if (!r.ok) {
-                const errData = await r.json();
-                throw new Error(errData.error.message);
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error.message || "Tarmoq xatosi");
             }
 
-            const d = await r.json();
-            const res = JSON.parse(d.choices[0].message.content);
+            const res = JSON.parse(data.choices[0].message.content);
 
             document.getElementById('display').innerText = res.t;
             st.innerText = "MUVAFFAQIYATLI!";
             st.style.color = "var(--s)";
-            box.innerHTML = `<b>Tahlil natijasi:</b><br>${res.i}`;
+            box.innerHTML = `<b>Natija:</b> ${res.i}`;
             box.style.display = "block";
+
         } catch (e) {
             st.innerText = "XATO: " + e.message;
             st.style.color = "var(--d)";
-            console.error("Xato tafsiloti:", e);
+            console.error(e);
         }
     }
 </script>
