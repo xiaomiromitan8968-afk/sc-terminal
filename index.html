@@ -3,277 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Chem AI Lab - Malikov Edition</title>
+    <title>Smart Chem AI Lab</title>
     <style>
         :root {
             --primary: #0f172a;
             --accent: #38bdf8;
-            --success: #22c55e;
-            --danger: #ef4444;
-            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --success: #4ade80;
+            --danger: #f87171;
+            --bg: #0f172a;
         }
 
         body {
-            background: var(--bg-gradient);
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
             color: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 20px;
         }
 
-        .app-card {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
+        .app-container {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 100%;
-            max-width: 900px;
-            border-radius: 24px;
-            padding: 30px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 95%;
+            max-width: 500px;
+            border-radius: 30px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
 
-        .header { text-align: center; margin-bottom: 25px; }
-        .header h1 { margin: 0; font-size: 28px; color: var(--accent); letter-spacing: 1px; }
-        .header p { opacity: 0.7; font-size: 14px; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { color: var(--accent); margin: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 2px; }
+        .header p { font-size: 12px; opacity: 0.6; margin-top: 5px; }
 
-        .display-screen {
+        .screen {
             background: #000;
-            border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 25px;
-            min-height: 80px;
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            min-height: 100px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            align-items: center;
-            border: 2px solid #334155;
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+            border: 1px solid #334155;
+            margin-bottom: 20px;
         }
 
-        #formula-display {
-            font-family: 'JetBrains Mono', 'Consolas', monospace;
-            font-size: 32px;
-            color: #4ade80;
-            text-shadow: 0 0 15px rgba(74, 222, 128, 0.5);
-            word-wrap: break-word;
-            text-align: center;
+        #display {
+            font-size: 28px;
+            color: var(--success);
+            text-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
+            word-break: break-all;
         }
 
-        .ai-status {
-            font-size: 12px;
+        #status {
+            font-size: 10px;
             margin-top: 10px;
             color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .keyboard-layout {
-            display: grid;
-            grid-template-columns: 3fr 1fr;
-            gap: 20px;
-        }
-
-        .elements-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
-            gap: 8px;
-            background: rgba(15, 23, 42, 0.5);
-            padding: 15px;
-            border-radius: 16px;
-            max-height: 350px;
-            overflow-y: auto;
-        }
-
-        .key {
-            padding: 12px 5px;
-            background: #334155;
-            border: none;
-            border-radius: 8px;
-            color: white;
+            letter-spacing: 1px;
             font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 14px;
         }
 
-        .key:hover { background: var(--accent); transform: scale(1.05); }
-        .key span { display: block; font-size: 8px; opacity: 0.6; font-weight: normal; }
-
-        /* Guruh ranglari */
-        .alkali { border-bottom: 3px solid #f97316; }
-        .non-metal { border-bottom: 3px solid #22c55e; }
-        .transition { border-bottom: 3px solid #94a3b8; }
-        .noble { border-bottom: 3px solid #a855f7; }
-        .halogen { border-bottom: 3px solid #eab308; }
-
-        .side-controls {
-            display: flex;
-            flex-direction: column;
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 10px;
         }
 
-        .action-btn {
-            padding: 15px;
+        .elements-zone {
+            grid-column: span 2;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .controls-zone {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        button {
             border: none;
             border-radius: 12px;
+            padding: 15px 5px;
             font-weight: bold;
             cursor: pointer;
-            text-transform: uppercase;
-            transition: 0.3s;
+            transition: 0.2s;
+            font-size: 14px;
+            color: white;
         }
 
-        .btn-ai { background: var(--accent); color: var(--primary); font-size: 16px; }
-        .btn-ai:hover { box-shadow: 0 0 20px rgba(56, 189, 248, 0.4); }
-        .btn-clear { background: var(--danger); color: white; }
-        .btn-num { background: #475569; color: white; }
+        .btn-el { background: #334155; }
+        .btn-el:hover { background: var(--accent); color: var(--primary); }
+        .btn-el span { display: block; font-size: 8px; opacity: 0.5; }
 
-        .info-panel {
-            margin-top: 25px;
+        .btn-op { background: #475569; }
+        .btn-ai { background: var(--accent); color: var(--primary); font-size: 16px; }
+        .btn-del { background: var(--danger); }
+
+        .result-box {
+            margin-top: 15px;
+            padding: 15px;
             background: rgba(255,255,255,0.05);
-            padding: 20px;
-            border-radius: 16px;
-            font-size: 14px;
-            line-height: 1.6;
+            border-radius: 15px;
+            font-size: 13px;
+            display: none;
             border-left: 4px solid var(--accent);
         }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-<div class="app-card">
+<div class="app-container">
     <div class="header">
-        <h1>SMART CHEM AI</h1>
-        <p>Sun'iy intellekt asosidagi kimyoviy laboratoriya</p>
+        <h1>Smart Chem AI</h1>
+        <p>Malikov Laboratory Edition</p>
     </div>
 
-    <div class="display-screen">
-        <div id="formula-display">Reaksiyani kiriting...</div>
-        <div id="ai-status" class="ai-status">Tizim tayyor</div>
+    <div class="screen">
+        <div id="display">Kuting...</div>
+        <div id="status">TAYYOR</div>
     </div>
 
-    <div class="keyboard-layout">
-        <div class="elements-grid" id="keys">
-            </div>
-
-        <div class="side-controls">
-            <button class="action-btn btn-ai" onclick="analyzeWithAI()">AI Tahlil</button>
-            <button class="action-btn btn-num" onclick="addChar(' + ')">+</button>
-            <button class="action-btn btn-num" onclick="addChar('2')">2</button>
-            <button class="action-btn btn-num" onclick="addChar('3')">3</button>
-            <button class="action-btn btn-num" onclick="addChar('4')">4</button>
-            <button class="action-btn btn-num" onclick="backspace()">⌫</button>
-            <button class="action-btn btn-clear" onclick="clearAll()">Tozalash</button>
+    <div class="keyboard">
+        <div class="elements-zone" id="el-keys"></div>
+        <div class="controls-zone">
+            <button class="btn-ai" onclick="askAI()">AI TAHLIL</button>
+            <button class="btn-op" onclick="add('+')">+</button>
+            <button class="btn-op" onclick="add('2')">2</button>
+            <button class="btn-op" onclick="add('3')">3</button>
+            <button class="btn-del" onclick="back()">⌫</button>
+            <button class="btn-del" style="background:#dc2626" onclick="reset()">TOZALASH</button>
         </div>
     </div>
 
-    <div id="result-panel" class="info-panel" style="display: none;">
-        <div id="reaction-type" style="color: var(--accent); font-weight: bold; margin-bottom: 5px;"></div>
-        <div id="reaction-desc"></div>
-    </div>
+    <div id="result" class="result-box"></div>
 </div>
 
 <script>
-    const API_KEY = "AIzaSyDR7TGZxIZLm-odXszDoaqZXiNwYp2w3VA"; // SHU YERGA KALITNI QO'YING
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+    // Maxfiy kalit integratsiyasi
+    const API_KEY = "AIzaSyDR7TGZxIZLm-odXszDoaqZXiNwYp2w3VA"; 
+    const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+
+    let input = "";
+    const elDisplay = document.getElementById('display');
+    const elStatus = document.getElementById('status');
+    const elResult = document.getElementById('result');
 
     const elements = [
-        {s: 'H', n: 'Vodorod', c: 'non-metal'}, {s: 'He', n: 'Geliy', c: 'noble'},
-        {s: 'Li', n: 'Litiy', c: 'alkali'}, {s: 'Be', n: 'Berilliy', c: 'alkali'},
-        {s: 'B', n: 'Bor', c: 'non-metal'}, {s: 'C', n: 'Uglerod', c: 'non-metal'},
-        {s: 'N', n: 'Azot', c: 'non-metal'}, {s: 'O', n: 'Kislorod', c: 'non-metal'},
-        {s: 'F', n: 'Ftor', c: 'halogen'}, {s: 'Ne', n: 'Neon', c: 'noble'},
-        {s: 'Na', n: 'Natriy', c: 'alkali'}, {s: 'Mg', n: 'Magniy', c: 'alkali'},
-        {s: 'Al', n: 'Alyuminiy', c: 'transition'}, {s: 'Si', n: 'Kremniy', c: 'non-metal'},
-        {s: 'P', n: 'Fosfor', c: 'non-metal'}, {s: 'S', n: 'Oltingugurt', c: 'non-metal'},
-        {s: 'Cl', n: 'Xlor', c: 'halogen'}, {s: 'Ar', n: 'Argon', c: 'noble'},
-        {s: 'K', n: 'Kaliy', c: 'alkali'}, {s: 'Ca', n: 'Kalsiy', c: 'alkali'},
-        {s: 'Fe', n: 'Temir', c: 'transition'}, {s: 'Cu', n: 'Mis', c: 'transition'},
-        {s: 'Zn', n: 'Rux', c: 'transition'}, {s: 'Ag', n: 'Kumush', c: 'transition'},
-        {s: 'Au', n: 'Oltin', c: 'transition'}, {s: 'Hg', n: 'Simob', c: 'transition'},
-        {s: 'Pb', n: 'Qo\'rg\'oshin', c: 'transition'}
-    ]; // Elementlar ro'yxatini xohlagancha kengaytirish mumkin
+        {s:'H', n:'Vodorod'}, {s:'O', n:'Kislorod'}, {s:'Na', n:'Natriy'},
+        {s:'Cl', n:'Xlor'}, {s:'C', n:'Uglerod'}, {s:'N', n:'Azot'},
+        {s:'S', n:'Oltingugurt'}, {s:'Fe', n:'Temir'}, {s:'Cu', n:'Mis'}
+    ];
 
-    let currentInput = "";
-
-    // Klaviatura yaratish
-    const keysDiv = document.getElementById('keys');
+    // Klaviaturani yaratish
+    const keysDiv = document.getElementById('el-keys');
     elements.forEach(el => {
-        const btn = document.createElement('button');
-        btn.className = `key ${el.c}`;
-        btn.innerHTML = `${el.s}<span>${el.n}</span>`;
-        btn.onclick = () => addChar(el.s);
-        keysDiv.appendChild(btn);
+        const b = document.createElement('button');
+        b.className = 'btn-el';
+        b.innerHTML = `${el.s}<span>${el.n}</span>`;
+        b.onclick = () => add(el.s);
+        keysDiv.appendChild(b);
     });
 
-    function addChar(char) {
-        if (currentInput === "") document.getElementById('formula-display').innerText = "";
-        currentInput += char;
-        document.getElementById('formula-display').innerText = currentInput;
+    function add(v) {
+        if(input === "") elDisplay.innerText = "";
+        input += v;
+        elDisplay.innerText = input;
+        elResult.style.display = "none";
     }
 
-    function clearAll() {
-        currentInput = "";
-        document.getElementById('formula-display').innerText = "Reaksiyani kiriting...";
-        document.getElementById('ai-status').innerText = "Tizim tayyor";
-        document.getElementById('result-panel').style.display = "none";
+    function reset() {
+        input = "";
+        elDisplay.innerText = "Reaksiyani kiriting...";
+        elStatus.innerText = "TAYYOR";
+        elResult.style.display = "none";
     }
 
-    function backspace() {
-        currentInput = currentInput.slice(0, -1);
-        document.getElementById('formula-display').innerText = currentInput || "Reaksiyani kiriting...";
+    function back() {
+        input = input.slice(0, -1);
+        elDisplay.innerText = input || "Reaksiyani kiriting...";
     }
 
-    
+    async function askAI() {
+        if(!input) return;
+        
+        elStatus.innerText = "AI TAHLIL QILMOQDA...";
+        elStatus.style.color = "#fbbf24";
 
-    async function analyzeWithAI() {
-        if (!currentInput) return;
-
-        const status = document.getElementById('ai-status');
-        const display = document.getElementById('formula-display');
-        const resPanel = document.getElementById('result-panel');
-
-        status.innerText = "Gemini AI tahlil qilmoqda...";
-        status.style.color = "#fbbf24";
-
-        const prompt = `Sen kimyo fanlari doktori va professorisan. Foydalanuvchi kiritgan ushbu moddalar o'rtasidagi kimyoviy reaksiyani tugalla va muvozanatla. Javobni FAQAT quyidagi JSON formatida qaytar, boshqa hech qanday matn qo'shma: {"tenglama": "reaksiya_tenglamasi", "turi": "reaksiya_turi_o'zbekcha", "tushuntirish": "qisqa_ilmiy_tushuntirish_o'zbekcha"}. Kiritilgan moddalar: ${currentInput}`;
+        const prompt = `Sen kimyogarsan. Ushbu reaksiyani tugalla va muvozanatla: ${input}. Javobni FAQAT ushbu formatda qaytar: {"t": "tenglama", "info": "izoh"}`;
 
         try {
-            const response = await fetch(API_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }]
-                })
+            const resp = await fetch(URL, {
+                method: 'POST',
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
             });
 
-            const data = await response.json();
-            const rawText = data.candidates[0].content.parts[0].text;
-            const cleanJson = rawText.replace(/```json|```/g, "").trim();
-            const result = JSON.parse(cleanJson);
+            const data = await resp.json();
+            const text = data.candidates[0].content.parts[0].text;
+            
+            // JSONni matn ichidan ajratib olish (Xavfsiz usul)
+            const jsonStr = text.match(/\{.*?\}/s)[0];
+            const res = JSON.parse(jsonStr);
 
-            display.innerHTML = result.tenglama;
-            status.innerText = "Tahlil yakunlandi";
-            status.style.color = "#4ade80";
+            elDisplay.innerText = res.t;
+            elStatus.innerText = "MUVAFFARIYATLI!";
+            elStatus.style.color = "#4ade80";
+            
+            elResult.innerHTML = `<b>Ma'lumot:</b> ${res.info}`;
+            elResult.style.display = "block";
 
-            resPanel.style.display = "block";
-            document.getElementById('reaction-type').innerText = "Turi: " + result.turi;
-            document.getElementById('reaction-desc').innerText = result.tushuntirish;
-
-        } catch (error) {
-            console.error(error);
-            status.innerText = "Xatolik yuz berdi!";
-            status.style.color = "#ef4444";
+        } catch (e) {
+            console.error(e);
+            elStatus.innerText = "XATOLIK YUZ BERDI!";
+            elStatus.style.color = "#f87171";
         }
     }
-</script>
 
+    reset();
+</script>
 </body>
 </html>
