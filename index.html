@@ -3,264 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Chem AI - Malikov</title>
+    <title>Smart Chem AI - Final</title>
     <style>
-        :root {
-            --primary: #0f172a;
-            --accent: #38bdf8;
-            --success: #4ade80;
-            --danger: #f87171;
-            --bg: #0f172a;
-        }
-
-        body {
-            background-color: var(--bg);
-            color: #f8fafc;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 15px;
-        }
-
-        .app-container {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 100%;
-            max-width: 420px;
-            border-radius: 28px;
-            padding: 25px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        .header { text-align: center; margin-bottom: 20px; }
-        .header h1 { color: var(--accent); margin: 0; font-size: 24px; letter-spacing: 1.5px; }
-        .header p { font-size: 11px; opacity: 0.6; margin-top: 4px; }
-
-        .screen {
-            background: #000;
-            border-radius: 20px;
-            padding: 25px;
-            text-align: center;
-            min-height: 100px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            border: 2px solid #1e293b;
-            margin-bottom: 25px;
-            box-shadow: inset 0 2px 15px rgba(0,0,0,0.6);
-        }
-
-        #display {
-            font-size: 30px;
-            color: var(--success);
-            text-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
-            word-break: break-all;
-            margin-bottom: 8px;
-        }
-
-        #status {
-            font-size: 10px;
-            color: var(--accent);
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-        }
-
-        .keyboard {
-            display: grid;
-            grid-template-columns: 3fr 1.2fr;
-            gap: 12px;
-        }
-
-        .elements-zone {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-
-        .controls-zone {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        button {
-            border: none;
-            border-radius: 14px;
-            padding: 15px 5px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 14px;
-            color: white;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.3);
-        }
-
-        button:active { transform: translateY(3px); box-shadow: none; }
-
+        :root { --p: #0f172a; --a: #38bdf8; --s: #4ade80; --d: #f87171; }
+        body { background: var(--p); color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); width: 90%; max-width: 400px; border-radius: 25px; padding: 20px; text-align: center; }
+        .screen { background: #000; border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid #334155; min-height: 80px; display: flex; flex-direction: column; justify-content: center; }
+        #display { font-size: 24px; color: var(--s); margin-bottom: 5px; }
+        #status { font-size: 10px; color: var(--a); font-weight: bold; }
+        .grid { display: grid; grid-template-columns: 3fr 1fr; gap: 10px; }
+        .elements { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .controls { display: flex; flex-direction: column; gap: 8px; }
+        button { border: none; border-radius: 12px; padding: 15px 5px; cursor: pointer; color: #fff; font-weight: bold; transition: 0.2s; }
         .btn-el { background: #334155; }
-        .btn-el:hover { background: #475569; border: 1px solid var(--accent); }
-        .btn-el span { display: block; font-size: 9px; opacity: 0.5; font-weight: 400; }
-
+        .btn-ai { background: var(--a); color: var(--p); height: 60px; }
+        .btn-res { background: var(--d); }
         .btn-op { background: #475569; }
-        .btn-ai { 
-            background: var(--accent); 
-            color: var(--primary); 
-            font-size: 16px; 
-            height: 70px;
-            box-shadow: 0 5px 0 #0284c7;
-        }
-        .btn-del { background: #64748b; }
-        .btn-reset { background: var(--danger); box-shadow: 0 5px 0 #b91c1c; }
-
-        .result-box {
-            margin-top: 20px;
-            padding: 18px;
-            background: rgba(15, 23, 42, 0.8);
-            border-radius: 18px;
-            font-size: 13px;
-            display: none;
-            border-left: 5px solid var(--accent);
-            animation: fadeIn 0.4s ease;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        #res-box { margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; font-size: 13px; display: none; text-align: left; border-left: 4px solid var(--a); }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="header">
-        <h1>SMART CHEM AI</h1>
-        <p>National University of Uzbekistan | Malikov</p>
-    </div>
+<div class="card">
+    <h2 style="margin:0 0 5px 0; font-size: 20px; color: var(--a);">SMART CHEM AI</h2>
+    <p style="font-size: 10px; opacity: 0.5; margin-bottom: 15px;">National University of Uzbekistan</p>
 
     <div class="screen">
-        <div id="display">Kuting...</div>
+        <div id="display">...</div>
         <div id="status">TAYYOR</div>
     </div>
 
-    <div class="keyboard">
-        <div class="elements-zone" id="el-keys"></div>
-        <div class="controls-zone">
-            <button class="btn-ai" onclick="askAI()">AI TAHLIL</button>
+    <div class="grid">
+        <div class="elements" id="el-keys"></div>
+        <div class="controls">
+            <button class="btn-ai" onclick="ask()">AI TAHLIL</button>
             <button class="btn-op" onclick="add(' + ')">+</button>
             <button class="btn-op" onclick="add('2')">2</button>
             <button class="btn-op" onclick="add('3')">3</button>
-            <button class="btn-del" onclick="back()">⌫</button>
-            <button class="btn-reset" onclick="reset()">TOZALASH</button>
+            <button class="btn-res" onclick="reset()">CLR</button>
         </div>
     </div>
-
-    <div id="result" class="result-box"></div>
+    <div id="res-box"></div>
 </div>
 
 <script>
-    const API_KEY = "AIzaSyDR7TGZxIZLm-odXszDoaqZXiNwYp2w3VA"; 
-    // Barqaror v1 versiyasi ishlatilmoqda
-    const URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+    const KEY = "AIzaSyDR7TGZxIZLm-odXszDoaqZXiNwYp2w3VA";
+    // DIQQAT: Endpointni eng aniq versiyaga o'zgartirdik
+    const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${KEY}`;
 
     let input = "";
-    const elDisplay = document.getElementById('display');
-    const elStatus = document.getElementById('status');
-    const elResult = document.getElementById('result');
-
-    const elements = [
-        {s:'H', n:'Vodorod'}, {s:'O', n:'Kislorod'}, {s:'Na', n:'Natriy'},
-        {s:'Cl', n:'Xlor'}, {s:'C', n:'Uglerod'}, {s:'N', n:'Azot'},
-        {s:'S', n:'Oltingugurt'}, {s:'Fe', n:'Temir'}, {s:'Cu', n:'Mis'},
-        {s:'Al', n:'Alyuminiy'}, {s:'Mg', n:'Magniy'}, {s:'K', n:'Kaliy'}
-    ];
-
+    const els = ['H', 'O', 'Na', 'Cl', 'C', 'N', 'S', 'Fe', 'Cu', 'Al', 'Mg', 'K'];
+    
     const keysDiv = document.getElementById('el-keys');
-    elements.forEach(el => {
+    els.forEach(e => {
         const b = document.createElement('button');
         b.className = 'btn-el';
-        b.innerHTML = `${el.s}<span>${el.n}</span>`;
-        b.onclick = () => add(el.s);
+        b.innerText = e;
+        b.onclick = () => add(e);
         keysDiv.appendChild(b);
     });
 
     function add(v) {
-        if(input === "" || elDisplay.innerText.includes("→")) {
-            input = "";
-            elDisplay.innerText = "";
-        }
+        if(input === "" || document.getElementById('display').innerText.includes("→")) input = "";
         input += v;
-        elDisplay.innerText = input;
-        elResult.style.display = "none";
-        elStatus.innerText = "TAYYOR";
-        elStatus.style.color = "var(--accent)";
+        document.getElementById('display').innerText = input;
     }
 
     function reset() {
         input = "";
-        elDisplay.innerText = "Reaksiyani kiriting...";
-        elStatus.innerText = "TAYYOR";
-        elStatus.style.color = "var(--accent)";
-        elResult.style.display = "none";
+        document.getElementById('display').innerText = "...";
+        document.getElementById('status').innerText = "TAYYOR";
+        document.getElementById('res-box').style.display = "none";
     }
 
-    function back() {
-        input = input.trim().slice(0, -1);
-        elDisplay.innerText = input || "Reaksiyani kiriting...";
-    }
-
-    async function askAI() {
+    async function ask() {
         if(!input) return;
+        const st = document.getElementById('status');
+        const box = document.getElementById('res-box');
         
-        elStatus.innerText = "BOG'LANISH O'RNATILMOQDA...";
-        elStatus.style.color = "#fbbf24";
-        elDisplay.style.opacity = "0.4";
-
-        const prompt = `Sen kimyogarsan. Ushbu reaksiyani tugalla va muvozanatla: ${input}. Javobni FAQAT JSON formatida ber: {"t": "tenglama", "info": "izoh"}. Boshqa matn yozma.`;
-
+        st.innerText = "ALOKA O'RNATILMOQDA...";
+        
         try {
-            const resp = await fetch(URL, {
+            const r = await fetch(URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ contents: [{ parts: [{ text: `Sen kimyogarsan. Reaksiyani tugalla va muvozanatla: ${input}. FAQAT JSON qaytar: {"t": "tenglama", "i": "izoh"}` }] }] })
             });
 
-            const data = await resp.json();
+            const d = await r.json();
+            if(d.error) throw new Error(d.error.message);
 
-            if (data.error) {
-                throw new Error(data.error.message);
-            }
+            const txt = d.candidates[0].content.parts[0].text;
+            const res = JSON.parse(txt.match(/\{.*\}/s)[0]);
 
-            if (!data.candidates || !data.candidates[0]) {
-                throw new Error("AI javob bera olmadi. Qayta urinib ko'ring.");
-            }
-
-            const text = data.candidates[0].content.parts[0].text;
-            const jsonMatch = text.match(/\{[\s\S]*\}/);
-            
-            if (!jsonMatch) throw new Error("Format xatosi yuz berdi");
-
-            const res = JSON.parse(jsonMatch[0]);
-
-            elDisplay.innerText = res.t;
-            elDisplay.style.opacity = "1";
-            elStatus.innerText = "MUVAFFAQIYATLI!";
-            elStatus.style.color = "#4ade80";
-            
-            elResult.innerHTML = `<b>Tahlil:</b> ${res.info}`;
-            elResult.style.display = "block";
-
+            document.getElementById('display').innerText = res.t;
+            st.innerText = "MUVAFFAQIYATLI!";
+            box.innerHTML = `<b>Izoh:</b> ${res.i}`;
+            box.style.display = "block";
         } catch (e) {
+            st.innerText = "XATO: " + e.message;
             console.error(e);
-            elDisplay.style.opacity = "1";
-            // Aniq xatolikni ekranga chiqarish
-            elStatus.innerText = "XATO: " + e.message;
-            elStatus.style.color = "var(--danger)";
         }
     }
-
-    reset();
 </script>
 </body>
 </html>
