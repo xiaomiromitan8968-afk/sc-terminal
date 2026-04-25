@@ -166,57 +166,46 @@
         <button id="mode-grid" class="btn-mode active" onclick="switchMode('grid')">🧪 JADVAL</button>
     </div>
 
-    <div class="floating-molar-container">
-    <button class="btn-molar-fly" onclick="openMolarCalc()">M<sub>r</sub></button>
+    <div class="sky-molar-container">
+    <button class="btn-molar-sky" onclick="openMolarCalc()">M<sub>r</sub></button>
 </div>
 
 <style>
-    .floating-molar-container {
-        position: fixed; /* Ekranga nisbatan qat'iy joylashuv */
-        top: 15px;       /* Tepadan masofa */
-        right: 15px;     /* O'ngdan masofa */
-        z-index: 9999;   /* Hammasidan ustida turishi uchun */
+    .sky-molar-container {
+        position: fixed;
+        /* Ekranning eng yuqori burchagi */
+        top: 10px; 
+        right: 15px;
+        z-index: 10000; /* Hammasidan tepada turishi shart */
     }
 
-    .btn-molar-fly {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: rgba(15, 23, 42, 0.9);
-        border: 2px solid #00ff00;
+    .btn-molar-sky {
+        width: 42px; /* Biroz kichikroq, o'sha burchakka mos tushishi uchun */
+        height: 42px;
+        border-radius: 12px; /* Dumaloq emas, biroz kvadratroq qilsak chiroyli chiqadi */
+        background: rgba(0, 255, 0, 0.1); /* Shaffofroq fon */
+        border: 1.5px solid #00ff00;
         color: #00ff00;
         font-weight: bold;
-        font-size: 18px;
+        font-size: 16px;
         cursor: pointer;
-        /* Neon nurlanishi */
-        box-shadow: 0 0 15px rgba(0, 255, 0, 0.6), inset 0 0 10px rgba(0, 255, 0, 0.3);
-        transition: 0.3s all ease;
-        /* "Nafas olish" animatsiyasi */
-        animation: pulseFly 2s infinite ease-in-out;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        backdrop-filter: blur(5px); /* Orqa fonni xiralashtirish */
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        transition: 0.3s;
+        animation: skyGlow 3s infinite alternate;
     }
 
-    @keyframes pulseFly {
-        0% { transform: scale(1); box-shadow: 0 0 15px rgba(0, 255, 0, 0.6); }
-        50% { transform: scale(1.1); box-shadow: 0 0 30px rgba(0, 255, 0, 0.9); }
-        100% { transform: scale(1); box-shadow: 0 0 15px rgba(0, 255, 0, 0.6); }
+    @keyframes skyGlow {
+        from { box-shadow: 0 0 5px rgba(0, 255, 0, 0.3); border-color: rgba(0, 255, 0, 0.5); }
+        to { box-shadow: 0 0 20px rgba(0, 255, 0, 0.8); border-color: rgba(0, 255, 0, 1); }
     }
 
-    .btn-molar-fly:hover {
+    .btn-molar-sky:hover {
         background: #00ff00;
-        color: #0a0f1e;
-        transform: rotate(360deg) scale(1.2);
+        color: #000;
     }
 </style>
 
-<script>
-    function openMolarCalc() {
-        // Yangi oynada ochish (molar.html faylingiz tayyor bo'lishi kerak)
-        window.open('molar.html', '_blank');
-    }
-</script>
     
     
     <div class="screen">
