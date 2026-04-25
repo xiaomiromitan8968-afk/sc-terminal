@@ -50,6 +50,10 @@
     { "kirish": "P2O5+H2O", "chiqish": "P₂O₅ + 3H₂O → 2H₃PO₄", "turi": "Birikish", "izoh": "Fosfat kislota hosil bo'lishi" },
     { "kirish": "CuSO4+NaOH", "chiqish": "CuSO₄ + 2NaOH → Cu(OH)₂↓ + Na₂SO₄", "turi": "Almashinish", "izoh": "Havorang cho'kma" },
     { "kirish": "Al+Fe2O3", "chiqish": "2Al + Fe₂O₃ → Al₂O₃ + 2Fe", "turi": "Termit", "izoh": "Termit reaksiyasi (yuqori issiqlik)" }
+  ]
+}
+{
+  "reaksiyalar": [
     { "kirish": "Li+O2", "chiqish": "4Li + O₂ → 2Li₂O", "turi": "Birikish", "izoh": "Litiy oksidi hosil bo'lishi" },
     { "kirish": "Na+O2", "chiqish": "2Na + O₂ → Na₂O₂", "turi": "Birikish", "izoh": "Natriy peroksid hosil bo'lishi" },
     { "kirish": "K+O2", "chiqish": "K + O₂ → KO₂", "turi": "Birikish", "izoh": "Kaliy superoksid hosil bo'lishi" },
@@ -151,5 +155,4 @@
     { "kirish": "CH2Cl2+Cl2", "chiqish": "CH₂Cl₂ + Cl₂ → CHCl₃ + HCl", "turi": "Almashinish", "izoh": "Xloroform hosil bo'lishi" },
     { "kirish": "CHCl3+Cl2", "chiqish": "CHCl₃ + Cl₂ → CCl₄ + HCl", "turi": "Almashinish", "izoh": "Uglerod tetraxlorid" }
   ]
-    }
-    
+}
