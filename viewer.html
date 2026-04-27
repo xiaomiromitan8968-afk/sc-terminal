@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Al Kimyogar Pro | O'zMU Mobile</title>
+    <title>Al Kimyogar Pro | AR Edition</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/3Dmol/2.0.4/3Dmol-min.js"></script>
     <style>
         :root {
@@ -11,14 +11,14 @@
             --panel: #0f172a;
             --neon-blue: #22d3ee;
             --neon-green: #00ff00;
-            --neon-red: #f87171;
+            --neon-pink: #f472b6;
             --text: #e2e8f0;
         }
 
         body {
             background-color: var(--bg);
             color: var(--text);
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-family: sans-serif;
             margin: 0; padding: 10px;
             display: flex; flex-direction: column; align-items: center;
         }
@@ -28,36 +28,48 @@
             background: rgba(15, 23, 42, 0.9);
             padding: 15px; border-radius: 15px;
             border: 1px solid rgba(34, 211, 238, 0.2);
-            text-align: center; margin-bottom: 15px;
+            text-align: center; margin-bottom: 10px;
         }
 
         .search-box {
             display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
         input {
-            flex: 1; min-width: 200px; background: #000; 
+            flex: 1; min-width: 150px; background: #000; 
             border: 2px solid var(--neon-blue);
             border-radius: 10px; padding: 12px; color: var(--neon-green);
         }
 
         .btn {
-            padding: 12px 20px; border-radius: 10px; border: none;
-            font-weight: bold; cursor: pointer;
+            padding: 12px 15px; border-radius: 10px; border: none;
+            font-weight: bold; cursor: pointer; transition: 0.3s;
         }
         .btn-analyze { background: var(--neon-green); color: #000; }
         .btn-voice { background: var(--neon-blue); color: #000; }
+        .btn-ar { background: var(--neon-pink); color: #fff; }
 
-        /* DASHBOARD - MOBIL UCHUN MOSLANUVCHAN */
         .dashboard {
-            display: flex; flex-direction: column; /* Mobil uchun ustun shaklida */
-            gap: 15px; width: 100%; max-width: 800px;
+            display: flex; flex-direction: column;
+            gap: 10px; width: 100%; max-width: 800px;
         }
 
         .viewer-box {
             background: #000; border-radius: 20px; border: 2px solid var(--panel);
-            height: 350px; position: relative; width: 100%;
+            height: 400px; position: relative; width: 100%; overflow: hidden;
+        }
+
+        /* AR Video qatlami */
+        #webcam {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover; display: none; z-index: 1;
+        }
+
+        #v-canvas {
+            width: 100%; height: 100%;
+            position: relative; z-index: 2; /* Kamera ustida turishi uchun */
         }
 
         .info-panel {
@@ -79,106 +91,112 @@
             background: rgba(0,0,0,0.6); padding: 4px 8px;
             border-radius: 5px; font-size: 11px; z-index: 10;
         }
-
-        /* PLANSHEET VA KOMPYUTER UCHUN */
-        @media (min-width: 768px) {
-            .dashboard { flex-direction: row; }
-            .viewer-box { flex: 1.5; height: 500px; }
-            .info-panel { flex: 1; grid-template-columns: 1fr 1fr; }
-        }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h2 style="margin:0; letter-spacing:2px; color:var(--neon-blue)">AL KIMYOGAR <span style="color:var(--neon-green)">PRO</span></h2>
+        <h2 style="margin:0; color:var(--neon-blue)">AL KIMYOGAR <span style="color:var(--neon-green)">PRO</span></h2>
         <div class="search-box">
-            <input type="text" id="mol-input" placeholder="H2SO4, Caffeine, Ethanol...">
+            <input type="text" id="mol-input" placeholder="H2O, Caffeine, Glucose...">
             <button class="btn btn-voice" onclick="startVoice()">🎤</button>
+            <button class="btn btn-ar" id="ar-btn" onclick="toggleAR()">🕶️ AR</button>
             <button class="btn btn-analyze" onclick="runAnalysis()">TAHLIL</button>
         </div>
     </div>
 
     <div class="dashboard">
         <div class="viewer-box">
-            <div id="loading" style="color:var(--neon-green)">Tizim Tayyor</div>
-            <div id="v-canvas" style="width:100%; height:100%;"></div>
+            <video id="webcam" autoplay playsinline></video>
+            <div id="loading" style="color:var(--neon-green)">Tayyor</div>
+            <div id="v-canvas"></div>
         </div>
 
         <div class="info-panel">
-            <div style="grid-column: 1 / -1; color: var(--neon-green); text-align: center; font-size: 14px; font-weight: bold; margin-bottom: 5px;">KIMYOVIY PARAMETRLAR</div>
-            <div class="stat-card"><div class="label">Massa</div><div id="res-mw" class="value">--</div></div>
             <div class="stat-card"><div class="label">Formula</div><div id="res-f" class="value">--</div></div>
-            <div class="stat-card"><div class="label">Erish T.</div><div id="res-mp" class="value">--</div></div>
-            <div class="stat-card"><div class="label">Qaynash T.</div><div id="res-bp" class="value">--</div></div>
-            <div class="stat-card"><div class="label">pH</div><div id="res-ph" class="value">--</div></div>
+            <div class="stat-card"><div class="label">Massa</div><div id="res-mw" class="value">--</div></div>
             <div class="stat-card"><div class="label">Xossasi</div><div id="res-prop" class="value">--</div></div>
+            <div class="stat-card"><div class="label">pH muhiti</div><div id="res-ph" class="value">--</div></div>
         </div>
     </div>
 
     <script>
         let viewer = null;
+        let isAR = false;
+        const video = document.getElementById('webcam');
 
+        // 1. AR REJIMINI BOSHQARISH
+        async function toggleAR() {
+            const arBtn = document.getElementById('ar-btn');
+            if (!isAR) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { facingMode: "environment" } 
+                    });
+                    video.srcObject = stream;
+                    video.style.display = 'block';
+                    if (viewer) {
+                        viewer.setBackgroundColor(0x000000, 0); // Fonnni shaffof qilish
+                        viewer.render();
+                    }
+                    arBtn.innerText = "✖ Yopish";
+                    arBtn.style.background = "#ff4444";
+                    isAR = true;
+                } catch (err) {
+                    alert("Kameraga ruxsat bering!");
+                }
+            } else {
+                const stream = video.srcObject;
+                if (stream) stream.getTracks().forEach(t => t.stop());
+                video.style.display = 'none';
+                if (viewer) {
+                    viewer.setBackgroundColor(0x000000, 1); // Fonni qora qilish
+                    viewer.render();
+                }
+                arBtn.innerText = "🕶️ AR";
+                arBtn.style.background = "var(--neon-pink)";
+                isAR = false;
+            }
+        }
+
+        // 2. TAHLIL QILISH
         async function runAnalysis() {
             let query = document.getElementById('mol-input').value.trim();
             if(!query) return;
-            
             const loader = document.getElementById('loading');
-            loader.innerText = "Qidirilmoqda...";
-            loader.style.color = "var(--neon-blue)";
+            loader.innerText = "Yuklanmoqda...";
 
             try {
-                // SMART SEARCH: Avval CID-ni aniqlaymiz (formula yoki nom bo'yicha)
-                const searchRes = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${query}/cids/JSON`);
-                const searchData = await searchRes.json();
-                
-                if(!searchData.IdentifierList) throw new Error("Topilmadi");
-                const cid = searchData.IdentifierList.CID[0];
-
-                // Ma'lumotlarni olish
-                const propRes = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/property/MolecularWeight,MolecularFormula,IUPACName/JSON`);
-                const propData = await propRes.json();
-                const p = propData.PropertyTable.Properties[0];
+                const res = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${query}/property/MolecularWeight,MolecularFormula,IUPACName,CID/JSON`);
+                const data = await res.json();
+                const p = data.PropertyTable.Properties[0];
 
                 document.getElementById('res-mw').innerText = p.MolecularWeight + " g/mol";
                 document.getElementById('res-f').innerText = p.MolecularFormula;
-
-                // pH va Xossa mantiqi (Oddiy tahlil)
+                
+                // pH mantiqi
                 let name = p.IUPACName.toLowerCase();
-                let propTxt = "Neytral";
-                if(name.includes("acid") || p.MolecularFormula.startsWith("H")) {
-                    propTxt = "Kislota"; document.getElementById('res-ph').innerText = "< 7";
-                } else if(name.includes("hydroxide")) {
-                    propTxt = "Ishqor"; document.getElementById('res-ph').innerText = "> 7";
-                } else {
-                    document.getElementById('res-ph').innerText = "7";
-                }
-                document.getElementById('res-prop').innerText = propTxt;
+                document.getElementById('res-prop').innerText = name.includes("acid") ? "Kislota" : "Neytral/Ishqor";
+                document.getElementById('res-ph').innerText = name.includes("acid") ? "< 7" : ">= 7";
 
                 // 3D Model
                 const vDiv = document.getElementById('v-canvas');
                 vDiv.innerHTML = '';
-                viewer = $3Dmol.createViewer(vDiv, { backgroundColor: "black" });
-                
-                const sdfRes = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/SDF?record_type=3d`);
-                const sdf = await sdfRes.text();
-                
+                viewer = $3Dmol.createViewer(vDiv, { backgroundColor: isAR ? "black" : "black" });
+                if(isAR) viewer.setBackgroundColor(0x000000, 0);
+
+                const sdf = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${p.CID}/SDF?record_type=3d`).then(r => r.text());
                 viewer.addModel(sdf, "sdf");
                 viewer.setStyle({}, { stick: { radius:0.15 }, sphere: { scale:0.25 } });
                 viewer.zoomTo(); viewer.render(); viewer.spin(true);
 
-                loader.innerText = "Muvaffaqiyatli ✓";
-                loader.style.color = "var(--neon-green)";
-            } catch(e) {
-                loader.innerText = "Xato: Topilmadi";
-                loader.style.color = "var(--neon-red)";
-            }
+                loader.innerText = "Muvaffaqiyatli";
+            } catch(e) { loader.innerText = "Topilmadi"; }
         }
 
+        // 3. OVOZLI BOSHQARUV
         function startVoice() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if(!SpeechRecognition) return;
-            const rec = new SpeechRecognition();
+            const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
             rec.lang = 'en-US';
             rec.start();
             rec.onresult = (e) => {
