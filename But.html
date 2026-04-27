@@ -2,95 +2,86 @@
 <html>
 <head>
     <style>
-        body { background: #020617; color: #22d3ee; font-family: sans-serif; overflow: hidden; margin: 0; }
-        #canvas { cursor: crosshair; }
-        .ui { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); 
-              background: rgba(15, 23, 42, 0.8); padding: 15px; border-radius: 20px; border: 1px solid #22d3ee; text-align: center; }
-        button { background: #22d3ee; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        body { background: #000; color: #00ff00; font-family: 'Courier New', monospace; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
+        #lab-canvas { border: 2px solid #333; box-shadow: 0 0 50px rgba(0, 255, 0, 0.1); margin-top: 20px; border-radius: 50%; }
+        .terminal { width: 400px; background: rgba(0, 20, 0, 0.9); padding: 15px; border-radius: 10px; margin-top: 20px; border-left: 5px solid #00ff00; }
+        .btn-chaos { 
+            padding: 20px 40px; background: transparent; border: 2px solid #00ff00; color: #00ff00; 
+            font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 20px; margin-top: 20px;
+        }
+        .btn-chaos:hover { background: #00ff00; color: #000; box-shadow: 0 0 30px #00ff00; }
+        .score-box { font-size: 24px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <canvas id="canvas"></canvas>
+    <h1 style="letter-spacing: 10px;">NANO-GEN v1.0</h1>
 
-    <div class="ui">
-        <div id="status">Atomlarni bir-biriga yaqinlashtiring</div>
-        <button onclick="reset()">LOBORATORIYANI TOZALASH</button>
+    <canvas id="lab-canvas" width="400" height="400"></canvas>
+
+    <div class="terminal">
+        <div class="score-box">STABILITY: <span id="stability">0%</span></div>
+        <div id="log">> Tizim tayyor. Tajribani boshlang...</div>
     </div>
 
+    <button class="btn-chaos" onclick="triggerChaos()">CHAOS GENERATION</button>
+
     <script>
-        const canvas = document.getElementById('canvas');
+        const canvas = document.getElementById('lab-canvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        const log = document.getElementById('log');
+        const stability = document.getElementById('stability');
 
-        let atoms = [];
-        const types = {
-            C: { color: '#444', r: 25, bonds: 4 },
-            H: { color: '#fff', r: 15, bonds: 1 }
-        };
+        function triggerChaos() {
+            // Animatsiya effekti
+            log.innerText = "> Atomlar to'qnashuvi hisoblanmoqda...";
+            let count = 0;
+            let interval = setInterval(() => {
+                drawRandomAtoms();
+                count++;
+                if(count > 10) {
+                    clearInterval(interval);
+                    finalizeDiscovery();
+                }
+            }, 100);
+        }
 
-        class Atom {
-            constructor(x, y, type) {
-                this.x = x; this.y = y;
-                this.type = type;
-                this.r = types[type].r;
-                this.color = types[type].color;
-                this.isDragging = false;
-            }
-            draw() {
+        function drawRandomAtoms() {
+            ctx.clearRect(0, 0, 400, 400);
+            for(let i=0; i<8; i++) {
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
-                ctx.fillStyle = this.color;
-                ctx.shadowBlur = 15; ctx.shadowColor = this.color;
+                ctx.arc(Math.random()*400, Math.random()*400, Math.random()*20+10, 0, Math.PI*2);
+                ctx.fillStyle = Math.random() > 0.5 ? '#00ff00' : '#ff00ff';
                 ctx.fill();
-                ctx.shadowBlur = 0;
+                ctx.strokeStyle = "white";
+                ctx.stroke();
             }
         }
 
-        // Atomlarni yaratish
-        for(let i=0; i<10; i++) {
-            atoms.push(new Atom(Math.random()*canvas.width, Math.random()*canvas.height, Math.random() > 0.3 ? 'C' : 'H'));
-        }
-
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        function finalizeDiscovery() {
+            const score = Math.floor(Math.random() * 100);
+            stability.innerText = score + "%";
             
-            // Bog'lanishlarni chizish (Fizika)
-            atoms.forEach((a, i) => {
-                atoms.forEach((b, j) => {
-                    if(i !== j) {
-                        let dist = Math.hypot(a.x - b.x, a.y - b.y);
-                        if(dist < 100) {
-                            ctx.beginPath();
-                            ctx.moveTo(a.x, a.y);
-                            ctx.lineTo(b.x, b.y);
-                            ctx.strokeStyle = `rgba(34, 211, 238, ${1 - dist/100})`;
-                            ctx.lineWidth = 3;
-                            ctx.stroke();
-                        }
-                    }
-                });
-                a.draw();
-            });
-            requestAnimationFrame(animate);
+            if(score > 70) {
+                log.innerHTML = "<span style='color:yellow'>> KASHFIYOT! Barqaror nano-tuzilma aniqlandi.</span>";
+                drawMolecule();
+            } else {
+                log.innerText = "> Tajriba muvaffaqiyatsiz: Struktura beqaror.";
+            }
         }
 
-        // Drag & Drop mantiqi
-        let selectedAtom = null;
-        canvas.onmousedown = (e) => {
-            atoms.forEach(a => {
-                if(Math.hypot(a.x - e.clientX, a.y - e.clientY) < a.r) selectedAtom = a;
+        function drawMolecule() {
+            ctx.clearRect(0, 0, 400, 400);
+            ctx.beginPath();
+            ctx.moveTo(150, 200); ctx.lineTo(250, 200);
+            ctx.lineTo(200, 150); ctx.closePath();
+            ctx.strokeStyle = "#00ff00"; ctx.lineWidth = 5; ctx.stroke();
+            // Atomlar
+            [150, 250, 200].forEach(x => {
+                ctx.beginPath(); ctx.arc(x, x == 200 ? 150 : 200, 20, 0, Math.PI*2);
+                ctx.fillStyle = "#00ff00"; ctx.fill();
             });
-        };
-        window.onmousemove = (e) => {
-            if(selectedAtom) { selectedAtom.x = e.clientX; selectedAtom.y = e.clientY; }
-        };
-        window.onmouseup = () => selectedAtom = null;
-
-        function reset() { atoms.forEach(a => { a.x = Math.random()*canvas.width; a.y = Math.random()*canvas.height; }); }
-
-        animate();
+        }
     </script>
 </body>
 </html>
