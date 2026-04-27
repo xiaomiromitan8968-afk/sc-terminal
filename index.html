@@ -362,7 +362,7 @@
         particles = [];
         function loop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if (particles.length < 150) {
+            if (particles.length < 550) {
                 particles.push(new Particle(canvas.width / 2 + (Math.random() - 0.5) * 40, canvas.height * 0.9));
             }
             for (let i = particles.length - 1; i >= 0; i--) {
