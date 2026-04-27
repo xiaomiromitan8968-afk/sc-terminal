@@ -3,168 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Al Kimyogar 3Dmol | O'zMU</title>
+    <title>Al Kimyogar 3D Pro | O'zMU</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/3Dmol/2.0.4/3Dmol-min.js"></script>
     <style>
         :root {
-            --p: #0a0f1e; 
-            --a: #22d3ee; 
-            --s: #00ff00; 
-            --d: #f87171;
+            --p: #0a0f1e; --a: #22d3ee; --s: #00ff00; --d: #f87171;
         }
 
         body {
             background-color: var(--p);
             color: #fff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
+            margin: 0; padding: 20px;
         }
 
-        .header h1 {
-            font-size: 24px;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            color: #fff;
-            text-shadow: 0 0 15px var(--a);
-            margin-bottom: 25px;
+        .search-section {
+            width: 100%; max-width: 600px;
+            text-align: center; margin-bottom: 20px;
         }
 
-        .search-box {
-            display: flex;
-            width: 100%;
-            max-width: 500px;
-            gap: 10px;
+        .input-group {
+            display: flex; gap: 10px;
             background: rgba(255,255,255,0.05);
-            padding: 10px;
-            border-radius: 15px;
-            border: 1px solid rgba(34, 211, 238, 0.3);
-            margin-bottom: 20px;
+            padding: 10px; border-radius: 15px;
+            border: 1px solid var(--a);
         }
 
-        #molecule-input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: var(--s);
-            font-size: 16px;
-            padding: 10px;
-            outline: none;
-            text-align: center;
+        input {
+            flex: 1; background: transparent; border: none;
+            color: var(--s); font-size: 18px; outline: none; text-align: center;
         }
 
-        #search-btn {
-            background: var(--s);
-            color: #000;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
+        button {
+            background: var(--s); color: #000; border: none;
+            padding: 10px 25px; border-radius: 10px;
+            font-weight: bold; cursor: pointer;
         }
 
-        #search-btn:hover {
-            box-shadow: 0 0 15px var(--s);
-            transform: scale(1.05);
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px; width: 100%; max-width: 1000px;
         }
 
-        /* VIZUAL KONTEYNER */
         #container-3d {
-            width: 100%;
-            max-width: 600px;
-            height: 400px;
-            background: #000;
-            border-radius: 20px;
-            border: 2px solid var(--a);
+            height: 500px; background: #000;
+            border-radius: 20px; border: 2px solid var(--a);
             position: relative;
-            overflow: hidden;
-            box-shadow: 0 0 30px rgba(34, 211, 238, 0.2);
         }
 
-        #mol-viewer {
-            width: 100%;
-            height: 100%;
+        /* MA'LUMOTLAR PANELI */
+        .info-panel {
+            background: rgba(15, 23, 42, 0.9);
+            border-radius: 20px; border: 1px solid var(--s);
+            padding: 20px; display: flex; flex-direction: column; gap: 15px;
         }
 
-        #status {
-            position: absolute;
-            bottom: 20px;
-            width: 100%;
-            text-align: center;
-            font-size: 12px;
-            color: #666;
+        .info-card {
+            border-bottom: 1px solid rgba(0, 255, 0, 0.2);
+            padding-bottom: 10px;
         }
 
-        .hint {
-            margin-top: 15px;
-            font-size: 12px;
-            color: #888;
-            text-align: center;
+        .info-label { color: var(--a); font-size: 12px; text-transform: uppercase; }
+        .info-value { font-size: 18px; font-weight: bold; color: #fff; margin-top: 5px; }
+
+        @media (max-width: 800px) {
+            .main-layout { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <h1>AL KIMYOGAR 3Dmol</h1>
+<div class="search-section">
+    <h1 style="letter-spacing: 5px; text-shadow: 0 0 15px var(--a);">AL KIMYOGAR PRO</h1>
+    <div class="input-group">
+        <input type="text" id="mol-input" placeholder="Formula (H2O, C6H6, NaCl...)" onkeypress="if(event.key==='Enter') searchAll()">
+        <button onclick="searchAll()">TAHLIL</button>
+    </div>
 </div>
 
-<div class="search-box">
-    <input type="text" id="molecule-input" placeholder="Formula yoki nom (H2O, Caffeine...)" onkeypress="if(event.key==='Enter') searchMolecule()">
-    <button id="search-btn" onclick="searchMolecule()">QIDIRISH</button>
-</div>
+<div class="main-layout">
+    <div id="container-3d">
+        <div id="mol-viewer" style="width:100%; height:100%;"></div>
+    </div>
 
-<div id="container-3d">
-    <div id="mol-viewer"></div>
-    <div id="status">Modda kiritilishini kutyapman...</div>
+    <div class="info-panel" id="data-panel">
+        <div style="text-align:center; color:var(--s); font-weight:bold; border-bottom: 2px solid var(--s); padding-bottom:10px;">XUSUSIYATLARI</div>
+        <div class="info-card">
+            <div class="info-label">Molyar Massa</div>
+            <div id="val-mass" class="info-value">--</div>
+        </div>
+        <div class="info-card">
+            <div class="info-label">Molekulyar Formula</div>
+            <div id="val-form" class="info-value">--</div>
+        </div>
+        <div class="info-card">
+            <div class="info-label">Zichlik</div>
+            <div id="val-dens" class="info-value">--</div>
+        </div>
+        <div class="info-card">
+            <div class="info-label">IUPAC Nomi</div>
+            <div id="val-name" class="info-value" style="font-size:14px;">--</div>
+        </div>
+    </div>
 </div>
-
-<p class="hint">Maslahat: Inglizcha nomlardan foydalaning (masalan: <b>Ethanol</b>, <b>Benzene</b>)</p>
 
 <script>
-    let glviewer = null;
+    let viewer = null;
 
-    function searchMolecule() {
-        const input = document.getElementById('molecule-input').value.trim();
-        const status = document.getElementById('status');
+    async function searchAll() {
+        const name = document.getElementById('mol-input').value.trim();
+        if(!name) return;
+
+        // 1. 3D Modelni yuklash
+        load3D(name);
+        
+        // 2. Ma'lumotlarni PubChem JSON API orqali olish
+        try {
+            const res = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${name}/property/MolecularWeight,MolecularFormula,IUPACName/JSON`);
+            const data = await res.json();
+            const prop = data.PropertyTable.Properties[0];
+
+            document.getElementById('val-mass').innerText = prop.MolecularWeight + " g/mol";
+            document.getElementById('val-form').innerText = prop.MolecularFormula;
+            document.getElementById('val-name').innerText = prop.IUPACName;
+            
+            // Zichlik odatda boshqa API qismida bo'ladi, biz uni taxminiy yoki qo'shimcha so'rov bilan olamiz
+            document.getElementById('val-dens').innerText = "Ma'lumot mavjud emas";
+        } catch (e) {
+            console.log("Ma'lumot topilmadi");
+        }
+    }
+
+    function load3D(input) {
         const viewerDiv = document.getElementById('mol-viewer');
+        viewerDiv.innerHTML = '';
+        viewer = $3Dmol.createViewer(viewerDiv, { backgroundColor: "black" });
 
-        if (!input) return;
-
-        status.innerText = `"${input}" yuklanmoqda...`;
-        status.style.color = "var(--a)";
-
-        // PubChem dan SDF formatida modelni olish (3D record bilan)
-        const url = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${input}/SDF?record_type=3d`;
-
-        fetch(url)
-            .then(res => {
-                if(!res.ok) throw new Error("Topilmadi");
-                return res.text();
-            })
+        fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${input}/SDF?record_type=3d`)
+            .then(r => r.text())
             .then(data => {
-                status.innerText = "Muvaffaqiyatli yuklandi ✓";
-                status.style.color = "var(--s)";
-
-                // Viewer-ni tozalash va yangilash
-                viewerDiv.innerHTML = '';
-                glviewer = $3Dmol.createViewer(viewerDiv, { backgroundColor: "black" });
-                
-                glviewer.addModel(data, "sdf");
-                glviewer.setStyle({}, { stick: { radius: 0.2 }, sphere: { scale: 0.3 } });
-                glviewer.zoomTo();
-                glviewer.render();
-                glviewer.spin(true);
-            })
-            .catch(err => {
-                console.error(err);
-                status.innerText = "Xato: Modda topilmadi yoki 3D modeli mavjud emas.";
-                status.style.color = "var(--d)";
+                viewer.addModel(data, "sdf");
+                viewer.setStyle({}, { stick: { radius: 0.2 }, sphere: { scale: 0.3 } });
+                viewer.zoomTo();
+                viewer.render();
+                viewer.spin(true);
             });
     }
 </script>
