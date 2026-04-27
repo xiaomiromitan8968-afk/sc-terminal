@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al Kimyogar Pro | O'zMU Digital Lab</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/3Dmol/2.0.4/3Dmol-min.js"></script>
+    <style>
+        :root {
+            --bg: #050810;
+            --panel: #0f172a;
+            --neon-blue: #22d3ee;
+            --neon-green: #00ff00;
+            --text: #e2e8f0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: sans-serif;
+            margin: 0; padding: 20px;
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        .header {
+            width: 100%; max-width: 1100px;
+            background: rgba(15, 23, 42, 0.8);
+            padding: 20px; border-radius: 20px;
+            border: 1px solid rgba(34, 211, 238, 0.2);
+            text-align: center; margin-bottom: 25px;
+        }
+
+        .search-box {
+            display: flex; gap: 10px; max-width: 600px; margin: 20px auto 0;
+        }
+
+        input {
+            flex: 1; background: #000; border: 2px solid var(--neon-blue);
+            border-radius: 12px; padding: 12px; color: var(--neon-green); outline: none;
+        }
+
+        button {
+            padding: 12px 25px; border-radius: 12px; border: none;
+            background: var(--neon-green); color: #000; font-weight: bold; cursor: pointer;
+        }
+
+        .dashboard {
+            display: grid; grid-template-columns: 1fr 400px;
+            gap: 20px; width: 100%; max-width: 1100px;
+        }
+
+        .viewer-box {
+            background: #000; border-radius: 24px; border: 2px solid var(--panel);
+            height: 500px; position: relative;
+        }
+
+        .info-panel {
+            background: var(--panel); border-radius: 24px; padding: 20px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+            border: 1px solid rgba(34, 211, 238, 0.2);
+        }
+
+        .stat-card {
+            background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px;
+            border-left: 3px solid var(--neon-blue);
+        }
+
+        .label { color: var(--neon-blue); font-size: 10px; text-transform: uppercase; }
+        .value { font-size: 14px; font-weight: bold; margin-top: 5px; color: #fff; }
+
+        #loading {
+            position: absolute; top: 10px; right: 10px; color: var(--neon-green); font-size: 12px;
+        }
+
+        @media (max-width: 900px) { .dashboard { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1 style="margin:0; letter-spacing:5px; color:var(--neon-blue)">AL KIMYOGAR <span style="color:var(--neon-green)">PRO</span></h1>
+        <div class="search-box">
+            <input type="text" id="mol-input" placeholder="Modda nomi (masalan: Ethanol)...">
+            <button onclick="runAnalysis()">TAHLIL QILISH</button>
+        </div>
+    </div>
+
+    <div class="dashboard">
+        <div class="viewer-box">
+            <div id="loading">Tizim Tayyor</div>
+            <div id="v-canvas" style="width:100%; height:100%;"></div>
+        </div>
+
+        <div class="info-panel">
+            <div style="grid-column: 1 / -1; color: var(--neon-green); text-align: center; font-weight: bold; border-bottom: 1px solid;">XOSSALARI</div>
+            
+            <div class="stat-card"><div class="label">Molyar Massa</div><div id="res-mw" class="value">--</div></div>
+            <div class="stat-card"><div class="label">Formula</div><div id="res-f" class="value">--</div></div>
+            <div class="stat-card"><div class="label">Zichlik</div><div id="res-d" class="value">Ma'lumot yo'q</div></div>
+            <div class="stat-card"><div class="label">Erish harorati</div><div id="res-mp" class="value">--</div></div>
+            <div class="stat-card"><div class="label">Qaynash harorati</div><div id="res-bp" class="value">--</div></div>
+            <div class="stat-card"><div class="label">pH ko'rsatkich</div><div id="res-ph" class="value">Analiz...</div></div>
+            <div class="stat-card"><div class="label">pOH</div><div id="res-poh" class="value">Analiz...</div></div>
+            <div class="stat-card"><div class="label">Xossasi</div><div id="res-prop" class="value">--</div></div>
+        </div>
+    </div>
+
+    <script>
+        let viewer = null;
+
+        async function runAnalysis() {
+            const query = document.getElementById('mol-input').value.trim();
+            if(!query) return;
+            document.getElementById('loading').innerText = "Yuklanmoqda...";
+
+            try {
+                // 1. CID va Asosiy xususiyatlar
+                const r1 = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${query}/property/MolecularWeight,MolecularFormula,IUPACName/JSON`);
+                const d1 = await r1.json();
+                const p = d1.PropertyTable.Properties[0];
+                const cid = p.CID;
+
+                document.getElementById('res-mw').innerText = p.MolecularWeight + " g/mol";
+                document.getElementById('res-f').innerText = p.MolecularFormula;
+
+                // 2. Fizikaviy xossalar (Density, MP, BP)
+                const r2 = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/view/data/compound/${cid}/JSON`);
+                const d2 = await r2.json();
+
+                // Ma'lumotlarni qidirish funksiyasi
+                const findVal = (label) => {
+                    try {
+                        let sections = d2.Record.Section;
+                        for(let s of sections) {
+                            if(s.TOCHeading === "Chemical and Physical Properties") {
+                                for(let ss of s.Section) {
+                                    if(ss.TOCHeading === label) return ss.Information[0].Value.StringWithMarkup[0].String;
+                                }
+                            }
+                        }
+                    } catch(e) { return "--"; }
+                    return "--";
+                };
+
+                const mp = findVal("Melting Point");
+                const bp = findVal("Boiling Point");
+                const density = findVal("Density");
+
+                document.getElementById('res-mp').innerText = mp;
+                document.getElementById('res-bp').innerText = bp;
+                document.getElementById('res-d').innerText = density;
+
+                // 3. pH va pOH hisoblash (Mantiqiy yondashuv)
+                let name = p.IUPACName.toLowerCase();
+                let acidity = "Neytral";
+                if(name.includes("acid") || name.includes("kislota")) {
+                    acidity = "Kislotali";
+                    document.getElementById('res-ph').innerText = "< 7";
+                    document.getElementById('res-poh').innerText = "> 7";
+                } else if(name.includes("hydroxide") || name.includes("ishqor")) {
+                    acidity = "Ishqoriy";
+                    document.getElementById('res-ph').innerText = "> 7";
+                    document.getElementById('res-poh').innerText = "< 7";
+                } else {
+                    document.getElementById('res-ph').innerText = "7";
+                    document.getElementById('res-poh').innerText = "7";
+                }
+                document.getElementById('res-prop').innerText = acidity;
+
+                // 4. 3D Model
+                const r3 = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/SDF?record_type=3d`);
+                const sdf = await r3.text();
+                const vDiv = document.getElementById('v-canvas');
+                vDiv.innerHTML = '';
+                viewer = $3Dmol.createViewer(vDiv, { backgroundColor: "black" });
+                viewer.addModel(sdf, "sdf");
+                viewer.setStyle({}, { stick: { radius:0.15 }, sphere: { scale:0.25 } });
+                viewer.zoomTo(); viewer.render(); viewer.spin(true);
+
+                document.getElementById('loading').innerText = "Online";
+            } catch(e) {
+                document.getElementById('loading').innerText = "Xato: Topilmadi";
+            }
+        }
+    </script>
+</body>
+</html>
