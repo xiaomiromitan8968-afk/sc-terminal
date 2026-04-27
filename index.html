@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-    <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#0a0f1e">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PARADOX Smart Chem AI v2</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0a0f1e">
+    
     <style>
         :root {
             --p: #0a0f1e; 
@@ -25,23 +27,67 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 0; /* To'liq ekran uchun chekka bo'shliqlari olib tashlandi */
+            padding: 0;
+            overflow: hidden; /* Animatsiya vaqtida aylantirishni o'chirish */
         }
 
+        /* Asosiy va Molar panellari uchun umumiy uslublar va animatsiyalar */
+        .card-main, #molar-calc-panel {
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            position: absolute;
+            width: 100%;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        .card-main {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: auto;
+        }
+
+        .card-main.hidden {
+            opacity: 0;
+            transform: scale(1.1) translateY(-20px); /* Kichrayish va yuqoriga surilish effekti */
+            pointer-events: none;
+        }
+
+        #molar-calc-panel {
+            opacity: 0;
+            transform: scale(0.9) translateY(20px); /* Kattalashish va pastdan surilish effekti */
+            pointer-events: none;
+            display: flex; 
+            flex-direction: column;
+            z-index: 999; /* Asosiy carddan balandroq */
+        }
+
+        #molar-calc-panel.visible {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: auto;
+        }
+
+        /* Asosiy Card Dizayni (o'zgarishsiz) */
         .card {
             background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(20px);
             border: 2px solid rgba(0, 255, 0, 0.2);
             width: 100%;
-            max-width: 100%; /* 500px cheklovi olib tashlandi */
-            min-height: 100vh; /* Ekran balandligini to'liq egallaydi */
-            border-radius: 0; /* Burchaklar to'g'rilandi */
+            max-width: 500px;
+            border-radius: 35px;
             padding: 25px;
             box-shadow: 0 0 40px rgba(0, 255, 0, 0.15);
-            box-sizing: border-box; /* Padding ekrandan chiqib ketmasligi uchun */
+            box-sizing: border-box;
         }
 
-        /* Mode Switcher Styles */
+        /* Mode Switcher Styles (o'zgarishsiz) */
         .mode-switcher {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -84,7 +130,7 @@
             word-break: break-all;
         }
 
-        /* Keyboard Input Style */
+        /* Keyboard Input Style (o'zgarishsiz) */
         #kb-input-container {
             display: none;
             margin-bottom: 15px;
@@ -162,13 +208,13 @@
             font-size: 13px;
         }
 
-        /* Suzib yuruvchi tugma CSS */
+        /* Suzib yuruvchi tugma CSS (o'zgarishsiz) */
         .molar-btn-container {
             position: fixed;
             top: 20px;
             right: 20px;
             z-index: 10000;
-            touch-action: none; /* Telefonda tirtishayotganda ekran qimirlamasligi uchun */
+            touch-action: none;
             cursor: grab;
         }
 
@@ -186,49 +232,209 @@
             font-weight: bold;
             font-size: 20px;
             box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
-            /* Animatsiya o'chirib qo'yildi, chunki sudrashga xalaqit berishi mumkin */
-            pointer-events: none; /* Faqat konteyner bosilishini ushlaydi */
+            pointer-events: none;
         }
+
+        /* YANGI: Molar Panel Style-lari (molar.html-dan ko'chirilgan va moslashtirilgan) */
+        .molar-card { 
+            background: rgba(30, 41, 59, 0.95); 
+            backdrop-filter: blur(15px);
+            padding: 35px 25px; 
+            border-radius: 30px; 
+            width: 100%; 
+            max-width: 450px;
+            border: 2px solid var(--s); 
+            text-align: center; 
+            box-shadow: 0 0 40px rgba(0, 255, 0, 0.2); 
+            position: relative;
+        }
+
+        /* Orqaga qaytish tugmasi (Asosiy ekranga) */
+        .btn-back-main {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: transparent;
+            border: 1px solid var(--a);
+            color: var(--a);
+            padding: 8px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.3s;
+            box-shadow: 0 0 10px rgba(34, 211, 238, 0.2);
+        }
+
+        .btn-back-main:hover {
+            background: var(--a);
+            color: var(--p);
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.6);
+        }
+
+        .molar-card h2 { color: var(--s); text-shadow: 0 0 10px rgba(0,255,0,0.5); margin-top: 30px; margin-bottom: 20px; }
+
+        .molar-input { 
+            width: 100%; 
+            padding: 18px; 
+            border-radius: 15px; 
+            border: 1px solid var(--a); 
+            background: #000; 
+            color: var(--s); 
+            font-size: 20px; 
+            margin-bottom: 15px; 
+            text-align: center; 
+            box-sizing: border-box;
+            outline: none;
+            box-shadow: inset 0 0 10px rgba(34, 211, 238, 0.2);
+        }
+
+        .btn-calc-main { 
+            background: var(--a); 
+            color: var(--p); 
+            border: none; 
+            padding: 18px 30px; 
+            border-radius: 15px; 
+            font-weight: bold; 
+            font-size: 16px;
+            cursor: pointer; 
+            width: 100%; 
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.4);
+            transition: 0.2s;
+        }
+
+        .btn-calc-main:active { transform: scale(0.98); }
+
+        #res-molar { 
+            margin-top: 25px; 
+            text-align: left; 
+            background: rgba(0,0,0,0.5);
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(0,255,0,0.3);
+            display: none; 
+        }
+
+        #formula-name-main {
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            display: block;
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed #475569;
+            padding-bottom: 10px;
+        }
+
+        /* Elementlar ro'yxati */
+        .element-list-main {
+            font-family: monospace;
+            font-size: 16px;
+            color: #cbd5e1;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .element-list-main span {
+            color: var(--a);
+            font-weight: bold;
+        }
+
+        /* Umumiy Molyar Massa */
+        .total-mass-main { 
+            color: var(--s); 
+            font-size: 32px; 
+            font-weight: bold; 
+            display: block; 
+            text-align: center; 
+            text-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
+            border-top: 1px dashed #475569;
+            padding-top: 15px;
+        }
+
     </style>
 </head>
 <body>
 
-<div class="card">
-    <div class="mode-switcher">
-        <button id="mode-kb" class="btn-mode" onclick="switchMode('kb')">⌨️ KLAVIATURA</button>
-        <button id="mode-grid" class="btn-mode active" onclick="switchMode('grid')">🧪 JADVAL</button>
+    <div class="card-main" id="main-content">
+        <div class="card">
+            <div class="mode-switcher">
+                <button id="mode-kb" class="btn-mode" onclick="switchMode('kb')">⌨️ KLAVIATURA</button>
+                <button id="mode-grid" class="btn-mode active" onclick="switchMode('grid')">🧪 JADVAL</button>
+            </div>
+
+            <div class="screen">
+                <div id="display">...</div>
+                <div id="status" style="font-size: 10px; color: var(--a); margin-top: 10px;">TAYYOR</div>
+            </div>
+
+            <div id="kb-input-container">
+                <input type="text" id="manual-input" placeholder="Masalan: NaOH + HCl" oninput="syncInput()">
+            </div>
+
+            <div id="grid-container">
+                <div class="zone" id="el-keys"></div>
+            </div>
+
+            <button class="btn-ai" onclick="askAI()">⚗️</button>
+
+            <div class="controls-row">
+                <button class="btn-op" onclick="addChar(' + ')">+</button>
+                <button class="btn-op" onclick="addChar('2')">2</button>
+                <button class="btn-op" onclick="addChar('3')">3</button>
+                <button class="btn-res" onclick="reset()">CLR</button>
+            </div>
+
+            <div id="res-box"></div>
+        </div>
+    </div>
+
+    <div id="molar-calc-panel">
+        <div class="molar-card">
+            <button class="btn-back-main" onclick="toggleMolarCalc()">⬅ ORTGA</button>
+
+            <h2>M<sub>r</sub> KALKULYATOR</h2>
+            <input type="text" class="molar-input" id="molar-formula" placeholder="Masalan: H2SO4 yoki Glyukoza">
+            <button class="btn-calc-main" onclick="calculateMolar()">AI HISOBLASH</button>
+            
+            <div id="res-molar">
+                <span id="formula-name-main"></span>
+                <div class="element-list-main" id="details-molar"></div>
+                <span class="total-mass-main" id="total-mass-main"></span>
+            </div>
+        </div>
     </div>
 
     <div class="molar-btn-container" id="draggable-mr">
         <button class="btn-molar">M<sub>r</sub></button>
     </div>
 
-    <div class="screen">
-        <div id="display">...</div>
-        <div id="status" style="font-size: 10px; color: var(--a); margin-top: 10px;">TAYYOR</div>
-    </div>
-
-    <div id="kb-input-container">
-        <input type="text" id="manual-input" placeholder="Masalan: NaOH + HCl" oninput="syncInput()">
-    </div>
-
-    <div id="grid-container">
-        <div class="zone" id="el-keys"></div>
-    </div>
-
-    <button class="btn-ai" onclick="askAI()">⚗️</button>
-
-    <div class="controls-row">
-        <button class="btn-op" onclick="addChar(' + ')">+</button>
-        <button class="btn-op" onclick="addChar('2')">2</button>
-        <button class="btn-op" onclick="addChar('3')">3</button>
-        <button class="btn-res" onclick="reset()">CLR</button>
-    </div>
-
-    <div id="res-box"></div>
-</div>
-
 <script>
+    const KEY = "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";
+    const URL = "https://api.groq.com/openai/v1/chat/completions";
+
+    let currentInput = "";
+    let currentMode = "grid";
+    let isMolarPanelVisible = false;
+
+    // --- PANEL ALMASHTIRISH ANIMATSIYASI ---
+    function toggleMolarCalc() {
+        const mainContent = document.getElementById('main-content');
+        const molarPanel = document.getElementById('molar-calc-panel');
+        
+        isMolarPanelVisible = !isMolarPanelVisible;
+        
+        if (isMolarPanelVisible) {
+            mainContent.classList.add('hidden');
+            molarPanel.classList.add('visible');
+            document.body.style.overflow = 'hidden'; // Ekran aylantirishni o'chirish
+        } else {
+            mainContent.classList.remove('hidden');
+            molarPanel.classList.remove('visible');
+            document.body.style.overflow = ''; // Asosiy ekranda aylantirishga ruxsat
+        }
+    }
+
     // --- SUZIB YURUVCHI TUGMA LOGIKASI ---
     const dragEl = document.getElementById('draggable-mr');
     let isDragging = false;
@@ -266,19 +472,13 @@
         
         // Agar sudrab olib kelinmagan bo'lsa, uni "click" deb qabul qilamiz
         if (!isDragging) {
-            window.open('molar.html', '_blank');
+            toggleMolarCalc(); // Yangi animatsiyali oyna ochish
         }
         setTimeout(() => { isDragging = false; }, 10);
     });
 
 
-    // --- ASOSIY KOD ---
-    const KEY = "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";
-    const URL = "https://api.groq.com/openai/v1/chat/completions";
-
-    let currentInput = "";
-    let currentMode = "grid";
-
+    // --- ASOSIY REAKSIYA TAHLILI (o'zgarishsiz) ---
     const elements = [
         {s:'H', n:'Vodorod'}, {s:'He', n:'Geliy'}, {s:'Li', n:'Litiy'}, {s:'Be', n:'Berilliy'}, {s:'B', n:'Bor'}, {s:'C', n:'Uglerod'}, {s:'N', n:'Azot'}, {s:'O', n:'Kislorod'}, {s:'F', n:'Ftor'}, {s:'Ne', n:'Neon'},
         {s:'Na', n:'Natriy'}, {s:'Mg', n:'Magniy'}, {s:'Al', n:'Alyuminiy'}, {s:'Si', n:'Kremniy'}, {s:'P', n:'Fosfor'}, {s:'S', n:'Oltingugurt'}, {s:'Cl', n:'Xlor'}, {s:'Ar', n:'Argon'},
@@ -363,6 +563,26 @@
             st.innerText = "Xatolik yuz berdi";
         }
     }
-</script>
-</body>
-</html>
+
+
+    // --- AI MOLYAR MASSA HISOBI (o'zgarishsiz, molar.html-dan) ---
+    async function calculateMolar() {
+        const inputMolarFormula = document.getElementById('molar-formula').value;
+        if(!inputMolarFormula) return;
+        
+        const btnCalcMolar = document.querySelector('.btn-calc-main');
+        btnCalcMolar.innerText = "TAHLIL KETMOQDA...";
+        btnCalcMolar.style.opacity = "0.7";
+        
+        try {
+            const rMolar = await fetch(URL, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${KEY}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: "llama-3.3-70b-versatile",
+                    messages: [{
+                        role: "user", 
+                        content: `Modda: "${inputMolarFormula}". 
+                        Kimyoviy formulani tahlil qil va uning molyar massasini hisobla. 
+                        FAQAT JSON formatda qaytar. Hech qanday izoh qo'shma.
+         
