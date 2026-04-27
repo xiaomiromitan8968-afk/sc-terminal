@@ -23,6 +23,24 @@
             min-height: 100vh;
             margin: 0;
             padding: 0; 
+            transition: box-shadow 0.5s ease; /* Issiqlik effekti uchun */
+        }
+
+        /* --- O'zMU YONIB O'CHUVCHI YON PANEL --- */
+        .ozmu-header {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 5px;
+            color: #fff;
+            text-shadow: 0 0 10px var(--a), 0 0 20px var(--a);
+            margin-bottom: 15px;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { opacity: 0.4; text-shadow: 0 0 5px var(--a); }
+            to { opacity: 1; text-shadow: 0 0 20px var(--a), 0 0 40px var(--s); }
         }
 
         .card {
@@ -36,7 +54,13 @@
             padding: 25px;
             box-shadow: 0 0 40px rgba(0, 255, 0, 0.15);
             box-sizing: border-box; 
+            position: relative;
+            transition: all 0.5s ease;
         }
+
+        /* Issiqlik effektlari uchun klasslar */
+        .exothermic { box-shadow: inset 0 0 100px rgba(248, 113, 113, 0.4) !important; border-color: var(--d) !important; }
+        .endothermic { box-shadow: inset 0 0 100px rgba(59, 130, 246, 0.4) !important; border-color: #3b82f6 !important; }
 
         .mode-switcher {
             display: grid;
@@ -157,7 +181,6 @@
             font-size: 13px;
         }
 
-        /* VIZUAL KONTEYNER */
         #visual-container {
             display: none;
             margin-top: 15px;
@@ -190,10 +213,6 @@
             cursor: grab;
         }
 
-        .molar-btn-container:active {
-            cursor: grabbing;
-        }
-
         .btn-molar {
             width: 60px;
             height: 60px;
@@ -210,7 +229,9 @@
 </head>
 <body>
 
-<div class="card">
+<div class="card" id="mainCard">
+    <div class="ozmu-header">O‘zMU</div>
+
     <div class="mode-switcher">
         <button id="mode-kb" class="btn-mode" onclick="switchMode('kb')">⌨️ KLAVIATURA</button>
         <button id="mode-grid" class="btn-mode active" onclick="switchMode('grid')">🧪 JADVAL</button>
@@ -331,10 +352,10 @@
         document.getElementById('res-box').style.display = "none";
         document.getElementById('visual-container').style.display = "none";
         document.getElementById('display').style.color = "var(--s)";
+        document.getElementById('mainCard').className = "card"; // Effektni o'chirish
         cancelAnimationFrame(animationId);
     }
 
-    // --- VIZUALIZATSIYA ---
     let canvas = document.getElementById('reactionCanvas');
     let ctx = canvas.getContext('2d');
     let particles = [];
@@ -342,15 +363,13 @@
 
     class Particle {
         constructor(x, y, mode, color) {
-            this.x = x;
-            this.y = y;
-            this.mode = mode;
+            this.x = x; this.y = y; this.mode = mode;
             this.color = color || "rgba(255,255,255,0.8)";
             this.radius = Math.random() * 3 + 2;
             this.vx = (Math.random() - 0.5) * 4;
             this.vy = mode === 'gas' ? (-Math.random() * 5 - 2) : (Math.random() * 2 + 1);
             this.opacity = 1;
-            this.maxRadius = Math.random() * 20 + 10;
+            this.maxRadius = Math.random() * 25 + 15;
         }
         draw() {
             ctx.beginPath();
@@ -359,26 +378,28 @@
             ctx.fill();
         }
         update() {
-            this.x += this.vx;
-            this.y += this.vy;
+            this.x += this.vx; this.y += this.vy;
             if(this.mode === 'gas') {
-                if(this.radius < this.maxRadius) this.radius += 0.2;
-                this.opacity -= 0.005;
-                this.vy += 0.01;
+                if(this.radius < this.maxRadius) this.radius += 0.3;
+                this.opacity -= 0.004; this.vy += 0.01;
             } else {
                 if(this.y > canvas.height - 5) { this.vy = 0; this.vx = 0; this.opacity -= 0.005; }
             }
         }
     }
 
-    function startVisual(mode, color, env) {
+    function startVisual(mode, color, env, heat) {
         const container = document.getElementById('visual-container');
         const phTag = document.getElementById('ph-tag');
+        const card = document.getElementById('mainCard');
         container.style.display = "block";
         canvas.width = container.offsetWidth;
         canvas.height = container.offsetHeight;
         particles = [];
         
+        // ISSIQLIK EFFEKTI
+        card.className = "card " + (heat === "exothermic" ? "exothermic" : (heat === "endothermic" ? "endothermic" : ""));
+
         if(env) {
             phTag.style.display = "block";
             phTag.innerText = "MUHIT: " + env.toUpperCase();
@@ -387,16 +408,15 @@
 
         function loop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if(particles.length < 300) {
-                for(let i=0; i<6; i++) {
-                    let px = mode === 'gas' ? (canvas.width/2 + (Math.random()-0.5)*40) : (Math.random()*canvas.width);
+            if(particles.length < 400) {
+                for(let i=0; i<8; i++) {
+                    let px = mode === 'gas' ? (canvas.width/2 + (Math.random()-0.5)*50) : (Math.random()*canvas.width);
                     let py = mode === 'gas' ? (canvas.height*0.9) : 0;
                     particles.push(new Particle(px, py, mode, color));
                 }
             }
             for (let i = particles.length - 1; i >= 0; i--) {
-                particles[i].update();
-                particles[i].draw();
+                particles[i].update(); particles[i].draw();
                 if (particles[i].opacity <= 0) particles.splice(i, 1);
             }
             animationId = requestAnimationFrame(loop);
@@ -416,7 +436,7 @@
                     model: "llama-3.3-70b-versatile",
                     messages: [{
                         role: "user", 
-                        content: `Sen kimyogarsan. Reaksiyani tugalla: ${currentInput}. FAQAT JSON qaytar: {"t": "equation", "i": "explanation", "possible": true, "gas": true, "precipitate": true, "color": "hex_code", "env": "kislotali|ishqoriy|neytral"}.`
+                        content: `Sen kimyogarsan. Reaksiyani tugalla: ${currentInput}. FAQAT JSON qaytar: {"t": "equation", "i": "explanation", "possible": true, "gas": true, "precipitate": true, "color": "hex_code", "env": "kislotali|ishqoriy|neytral", "heat": "exothermic|endothermic|none"}.`
                     }],
                     response_format: { type: "json_object" }
                 })
@@ -434,9 +454,9 @@
                 document.getElementById('res-box').innerHTML = `<b>Xulosa:</b> ${res.i}`;
                 document.getElementById('res-box').style.display = "block";
                 
-                if(res.gas) startVisual('gas', 'rgba(255,255,255,0.8)', res.env);
-                else if(res.precipitate) startVisual('precipitate', res.color, res.env);
-                else if(res.env) startVisual('none', null, res.env);
+                if(res.gas) startVisual('gas', 'rgba(255,255,255,0.8)', res.env, res.heat);
+                else if(res.precipitate) startVisual('precipitate', res.color, res.env, res.heat);
+                else startVisual('none', null, res.env, res.heat);
             }
         } catch (e) { st.innerText = "Xatolik yuz berdi"; }
     }
