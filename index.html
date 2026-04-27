@@ -307,20 +307,87 @@ class Particle {
 }
 
 function startReactionVisual() {
+    // --- KUCHAYTIRILGAN, ZICH BULUT SIMULYATSIYASI ---
+function startReactionVisual(type, color) {
     const container = document.getElementById('visual-container');
     container.style.display = "block";
     canvas.width = container.offsetWidth;
     canvas.height = container.offsetHeight;
-
     particles = [];
-    cancelAnimationFrame(animationId); 
+    cancelAnimationFrame(animationId);
 
-    for (let i = 0; i < 30; i++) {
-        // Neon moviy va yashil rangli atomlar
-        let color = i < 15 ? "#22d3ee" : "#00ff00"; 
-        particles.push(new Particle(Math.random() * canvas.width, Math.random() * canvas.height, color));
+    // Reaksiya turiga ko'ra default ranglar
+    if (type === "gas") {
+        color = "rgba(230, 230, 230, 0.8)"; // Zich, translucent och kulrang/oq bulut
+    } else if (type === "precipitate") {
+        color = "#ffffff"; // Cho'kma uchun qattiq oq
     }
-    animateParticles();
+
+    if (type === "gas") {
+        // ENHANCED GAS SIMULATION: Zich bulut ko'rinishida
+        for (let i = 0; i < 150; i++) { // Zarrachalar sonini sezilarli darajada ko'paytiramiz (30-dan 150-ga)
+            let p = new Particle(Math.random() * canvas.width, Math.random() * canvas.height, color);
+            
+            // Boshlanish nuqtasi: Ekranining pastki markazidan (reaksiya manbai)
+            p.x = canvas.width / 2 + (Math.random() - 0.5) * 30; // Markaz atrofida spread
+            p.y = canvas.height * 0.9 + (Math.random() - 0.5) * 10; // Tubiga yaqin
+
+            // Asosiy tepaga yo'naltirilgan tezlik, biroz chetga yoyilish bilan
+            p.vx = (Math.random() - 0.5) * 2;
+            p.vy = -Math.random() * 4 - 1; // Tepaga tezroq uchish
+            p.radius = Math.random() * 3 + 2; // Dastlabki kichik hajm
+
+            // Bulut kabi yoyilish va yo'qolish xususiyatlari
+            p.fadeRate = 0.005 + Math.random() * 0.01; // Yo'qolish tezligi
+            p.expansionRate = 0.05 + Math.random() * 0.1; // Kengayish tezligi
+            p.opacity = 0.8; // Dastlabki shaffoflik
+            p.maxRadius = Math.random() * 15 + 10; // Maksimal hajm
+
+            particles.push(p);
+        }
+    } else if (type === "precipitate") {
+        // ... (oldingi cho'kma kodi - zarrachalar pastga tushadi)
+    } else {
+        // ... (oldingi normal/boshqa turlar kodi - tartibsiz floating)
+    }
+
+    // Yangi zarracha xususiyatlarini boshqarish uchun animateParticles-ni ham yangilash kerak
+    animateParticles(type);
+}
+
+// Bulut effektini boshqarish uchun animateParticles funksiyasini ham yangilaymiz
+function animateParticles(type) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    for (let i = particles.length - 1; i >= 0; i--) {
+        let p = particles[i];
+        p.update();
+
+        // Gaz buluti uchun maxsus logika
+        if (type === "gas") {
+            // Zarrachani kengaytirish
+            if (p.radius < p.maxRadius) {
+                p.radius += p.expansionRate;
+            }
+            
+            // Shaffoflikni kamaytirish va tezlikni sekinlashtirish (havoda tarqalish efekti)
+            p.opacity -= p.fadeRate;
+            p.vy += 0.02; // Sekinlashtiruvchi kuch
+
+            // Yangi shaffof rangni o'rnatish
+            p.color = `rgba(230, 230, 230, ${p.opacity})`;
+
+            // Agar zarracha butunlay shaffof bo'lib ketsa, uni o'chirib tashlash
+            if (p.opacity <= 0) {
+                particles.splice(i, 1);
+                continue; 
+            }
+        }
+
+        p.draw(); 
+    }
+    
+    animationId = requestAnimationFrame(() => animateParticles(type));
 }
 
 function animateParticles() {
