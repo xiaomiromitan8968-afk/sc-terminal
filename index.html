@@ -205,6 +205,11 @@
         <div id="status" style="font-size: 10px; color: var(--a); margin-top: 10px;">TAYYOR</div>
     </div>
 
+    <div id="visual-container" style="display:none; margin-top: 20px; position: relative; width: 100%; height: 180px; background: radial-gradient(circle, #0f172a 0%, #000 100%); border-radius: 20px; border: 1px solid rgba(34, 211, 238, 0.3); overflow: hidden; box-shadow: inset 0 0 20px rgba(34, 211, 238, 0.1);">
+    <canvas id="reactionCanvas"></canvas>
+    <div id="reaction-status-tag" style="position: absolute; top: 10px; right: 15px; font-size: 9px; color: var(--a); letter-spacing: 2px; text-transform: uppercase; opacity: 0.8;">Simulyatsiya: Aktiv</div>
+    </div>
+
     <div id="kb-input-container">
         <input type="text" id="manual-input" placeholder="Masalan: NaOH + HCl" oninput="syncInput()">
     </div>
