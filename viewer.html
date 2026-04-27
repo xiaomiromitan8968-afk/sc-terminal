@@ -182,45 +182,59 @@
         let glViewer = null;
 
         async function startAnalysis() {
-            const query = document.getElementById('mol-name').value.trim();
-            if(!query) return;
+    // Kiruvchi matnni kichik harflarga o'tkazamiz
+    const query = document.getElementById('mol-name').value.trim().toLowerCase();
+    if(!query) return;
 
-            const status = document.getElementById('status-indicator');
-            status.style.display = 'block';
-            status.innerText = "Qidirilmoqda...";
+    const status = document.getElementById('status-indicator');
+    status.style.display = 'block';
+    status.innerText = "Qidirilmoqda...";
+    status.style.color = "var(--neon-blue)";
 
-            try {
-                // 1. Ma'lumotlarni olish
-                const response = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${query}/property/MolecularWeight,MolecularFormula,IUPACName,CID/JSON`);
-                const result = await response.json();
-                const data = result.PropertyTable.Properties[0];
+    try {
+        // PubChem dan CID (ID raqami) olish - bu eng ishonchli yo'l
+        const resId = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${query}/cids/JSON`);
+        const idData = await resId.json();
+        
+        if (!idData.IdentifierList) throw new Error("Topilmadi");
+        const cid = idData.IdentifierList.CID[0];
 
-                // Update UI
-                document.getElementById('res-name').innerText = data.IUPACName;
-                document.getElementById('res-mass').innerText = data.MolecularWeight + " g/mol";
-                document.getElementById('res-form').innerText = data.MolecularFormula;
-                document.getElementById('res-id').innerText = "#" + data.CID;
+        // Endi CID orqali barcha ma'lumotlarni bir yo'la olamiz
+        const resProps = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/property/MolecularWeight,MolecularFormula,IUPACName/JSON`);
+        const propData = await resProps.json();
+        const prop = propData.PropertyTable.Properties[0];
 
-                // 2. 3D Modelni yuklash
-                const sdfResponse = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${data.CID}/SDF?record_type=3d`);
-                const sdfData = await sdfResponse.text();
+        // UI yangilash
+        document.getElementById('res-name').innerText = prop.IUPACName || "Noma'lum";
+        document.getElementById('res-mass').innerText = prop.MolecularWeight + " g/mol";
+        document.getElementById('res-form').innerText = prop.MolecularFormula;
+        document.getElementById('res-id').innerText = "#" + cid;
 
-                const viewerDiv = document.getElementById('g-viewer');
-                viewerDiv.innerHTML = '';
-                glViewer = $3Dmol.createViewer(viewerDiv, { backgroundColor: "black" });
-                glViewer.addModel(sdfData, "sdf");
+        // 3D Modelni yuklash
+        const viewerDiv = document.getElementById('g-viewer');
+        viewerDiv.innerHTML = '';
+        glViewer = $3Dmol.createViewer(viewerDiv, { backgroundColor: "black" });
+
+        // Eng barqaror 3D fayl formati (SDF)
+        fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/SDF?record_type=3d`)
+            .then(r => r.text())
+            .then(sdf => {
+                glViewer.addModel(sdf, "sdf");
                 glViewer.setStyle({}, { stick: { radius: 0.15 }, sphere: { scale: 0.25 } });
                 glViewer.zoomTo();
                 glViewer.render();
                 glViewer.spin(true);
+                status.innerText = "Tahlil yakunlandi ✓";
+                status.style.color = "var(--neon-green)";
+            });
 
-                status.innerText = "Tahlil yakunlandi";
-                status.style.borderColor = "var(--neon-green)";
-            } catch (err) {
-                status.innerText = "Xatolik: Topilmadi";
-                status.style.borderColor = "var(--neon-red)";
-            }
-        }
+    } catch (err) {
+        console.error(err);
+        status.innerText = "Xatolik: Modda topilmadi";
+        status.style.color = "var(--neon-red)";
+    }
+}
+
 
         async function downloadReport() {
             const { jsPDF } = window.jspdf;
