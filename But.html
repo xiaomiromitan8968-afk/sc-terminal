@@ -2,122 +2,166 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <title>Quantum Kinetics Terminal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al Kimyogar | SMC Terminal</title>
     <style>
-        body { background: #050810; color: #22d3ee; font-family: 'Courier New', monospace; text-align: center; margin: 0; overflow: hidden; }
-        #canvas-container { position: relative; width: 100vw; height: 70vh; background: radial-gradient(circle, #0f172a 0%, #000 100%); border-bottom: 2px solid #22d3ee; }
+        body { background: #050810; color: #e2e8f0; font-family: 'Courier New', monospace; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .header { width: 100%; max-width: 800px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .title-box { display: flex; flex-direction: column; }
+        .chart-container { width: 100%; max-width: 800px; height: 400px; background: #0a0e17; border: 1px solid #1e293b; border-radius: 10px; position: relative; overflow: hidden; box-shadow: 0 0 20px rgba(34, 211, 238, 0.1); }
         canvas { width: 100%; height: 100%; }
-        .control-panel { padding: 20px; }
-        input[type="range"] { width: 80%; max-width: 400px; cursor: pointer; accent-color: #ff00ff; }
-        .stats { display: flex; justify-content: center; gap: 30px; margin-top: 15px; font-size: 18px; font-weight: bold; }
-        .alert { color: #ff4444; font-size: 24px; text-shadow: 0 0 10px #ff0000; display: none; margin-top: 10px; }
+        
+        .controls { width: 100%; max-width: 800px; display: flex; gap: 10px; margin-top: 15px; }
+        button { flex: 1; padding: 15px; background: #0f172a; border: 1px solid #22d3ee; color: #22d3ee; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #22d3ee; color: #000; }
+        .btn-impulse { border-color: #00ff00; color: #00ff00; }
+        .btn-impulse:hover { background: #00ff00; color: #000; }
+        
+        .fib-label { position: absolute; right: 10px; font-size: 10px; color: #94a3b8; }
     </style>
 </head>
 <body>
 
-    <h2 style="margin: 15px 0; text-shadow: 0 0 10px #22d3ee;">NANO-KINETIK SIMULYATOR</h2>
-
-    <div id="canvas-container">
-        <canvas id="simCanvas"></canvas>
+    <div class="header">
+        <div class="title-box">
+            <h2 style="margin: 0; color: #22d3ee;">CHEM-CHART <span style="color: #00ff00;">PRO</span></h2>
+            <span style="font-size: 12px; color: #94a3b8;">Smart Molecular Concepts (SMC) Analysis</span>
+        </div>
+        <div style="text-align: right;">
+            <div style="color: #00ff00; font-weight: bold;">HOSILDORLIK: <span id="yield-val">45.2</span>%</div>
+            <div style="font-size: 12px; color: #f472b6;" id="choch-status">Trend: Konsolidatsiya</div>
+        </div>
     </div>
 
-    <div class="control-panel">
-        <label style="font-size: 14px; color: #94a3b8; display: block; margin-bottom: 10px;">ENERGIYA (HARORAT) DARAJASI</label>
-        <input type="range" id="tempSlider" min="0" max="100" value="0">
-        
-        <div class="stats">
-            <div id="tempDisplay" style="color: #00ff00;">Harorat: 0 °C</div>
-            <div id="stateDisplay" style="color: #f472b6;">Holat: Barqaror</div>
-        </div>
-        <div id="breakAlert" class="alert">⚠️ KRITIK NUQTA: BOG'LANISHLAR UZILDI! (ChoCh)</div>
+    <div class="chart-container">
+        <canvas id="chartCanvas"></canvas>
+    </div>
+
+    <div class="controls">
+        <button onclick="addReagent()">+ REAGENT QO'SHISH</button>
+        <button class="btn-impulse" onclick="addCatalyst()">⚡ KATALIZATOR (ChoCh Impuls)</button>
     </div>
 
     <script>
-        const canvas = document.getElementById('simCanvas');
+        const canvas = document.getElementById('chartCanvas');
         const ctx = canvas.getContext('2d');
-        const slider = document.getElementById('tempSlider');
-        const alertBox = document.getElementById('breakAlert');
-        const stateDisp = document.getElementById('stateDisplay');
-        const tempDisp = document.getElementById('tempDisplay');
+        let width, height;
+        let candles = [];
+        let currentYield = 40;
+        let timeStep = 0;
+        let isCatalyzed = false;
 
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight * 0.7;
+        function initCanvas() {
+            width = canvas.width = canvas.parentElement.clientWidth;
+            height = canvas.height = canvas.parentElement.clientHeight;
         }
-        window.addEventListener('resize', resize);
-        resize();
 
-        // Molekula atomlari
-        let atoms = [
-            { id: 'O', x: 0, y: 0, baseR: 40, color: '#ff4444' }, // Markaz
-            { id: 'H1', x: -80, y: 60, baseR: 20, color: '#ffffff' },
-            { id: 'H2', x: 80, y: 60, baseR: 20, color: '#ffffff' }
-        ];
+        // Dastlabki shamchalarni generatsiya qilish
+        for(let i=0; i<40; i++) {
+            generateCandle();
+        }
 
-        let time = 0;
+        function generateCandle() {
+            let open = currentYield;
+            let volatility = isCatalyzed ? (Math.random() * 8 + 2) : (Math.random() * 3);
+            let direction = isCatalyzed ? 1 : (Math.random() > 0.5 ? 1 : -1);
+            
+            let close = open + (volatility * direction);
+            // Reaksiya chegaralari 0% dan 100% gacha
+            if(close > 95) close = 95 - Math.random()*2;
+            if(close < 5) close = 5 + Math.random()*2;
+            
+            let high = Math.max(open, close) + Math.random() * 2;
+            let low = Math.min(open, close) - Math.random() * 2;
 
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            let temp = parseInt(slider.value);
-            let cx = canvas.width / 2;
-            let cy = canvas.height / 2;
-
-            tempDisp.innerText = `Harorat: ${(temp * 10)} °C`;
-
-            // Tebranish amplitudasi (Volatility)
-            let vibe = temp * 0.5; 
-            let isBroken = temp > 85;
-
-            if (isBroken) {
-                alertBox.style.display = 'block';
-                stateDisp.innerText = "Holat: Parchalangan";
-                stateDisp.style.color = "#ff4444";
-            } else {
-                alertBox.style.display = 'none';
-                stateDisp.innerText = "Holat: Barqaror";
-                stateDisp.style.color = "#f472b6";
+            candles.push({open, close, high, low});
+            if(candles.length > 50) candles.shift();
+            
+            currentYield = close;
+            document.getElementById('yield-val').innerText = currentYield.toFixed(2);
+            
+            if(isCatalyzed && currentYield > 80) {
+                isCatalyzed = false; // Impuls tugadi
+                document.getElementById('choch-status').innerText = "Trend: Muvozanat (QM yelka)";
+                document.getElementById('choch-status').style.color = "#94a3b8";
             }
+        }
 
-            // Bog'lanishlarni chizish (agar parchalanmagan bo'lsa)
-            if (!isBroken) {
+        function drawChart() {
+            ctx.clearRect(0, 0, width, height);
+            
+            // Fibonacci darajalarini chizish (Reaksiya muvozanati)
+            let fibs = [
+                { level: 100, color: '#ff4444', text: '1.000 (To\'liq unum)' },
+                { level: 76.4, color: '#f472b6', text: '0.764 (Kritik nuqta)' },
+                { level: 61.8, color: '#22d3ee', text: '0.618 (Oltin kesma / Muvozanat)' },
+                { level: 38.2, color: '#94a3b8', text: '0.382' },
+                { level: 0, color: '#444', text: '0.000' }
+            ];
+
+            fibs.forEach(f => {
+                let y = height - (f.level / 100) * height;
                 ctx.beginPath();
-                ctx.moveTo(cx + atoms[0].x, cy + atoms[0].y);
-                ctx.lineTo(cx + atoms[1].x + Math.sin(time) * vibe, cy + atoms[1].y + Math.cos(time) * vibe);
-                ctx.moveTo(cx + atoms[0].x, cy + atoms[0].y);
-                ctx.lineTo(cx + atoms[2].x + Math.cos(time) * vibe, cy + atoms[2].y + Math.sin(time) * vibe);
-                ctx.strokeStyle = `rgba(34, 211, 238, ${1 - (temp/100)})`;
-                ctx.lineWidth = 6;
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.strokeStyle = f.color;
+                ctx.setLineDash([5, 5]);
                 ctx.stroke();
-            }
-
-            // Atomlarni chizish
-            atoms.forEach((a, i) => {
-                let dx = 0, dy = 0;
+                ctx.setLineDash([]);
                 
-                // Agar parchalanib ketsa, ekrandan chiqib keta boshlaydi
-                if (isBroken) {
-                    dx = (a.x * (temp - 80) * 0.1);
-                    dy = (a.y * (temp - 80) * 0.1);
-                } else {
-                    // Normal tebranish
-                    dx = Math.sin(time * (i+1)) * vibe;
-                    dy = Math.cos(time * (i+1)) * vibe;
-                }
-
-                ctx.beginPath();
-                ctx.arc(cx + a.x + dx, cy + a.y + dy, a.baseR, 0, Math.PI * 2);
-                ctx.fillStyle = a.color;
-                ctx.shadowBlur = 20;
-                ctx.shadowColor = a.color;
-                ctx.fill();
-                ctx.shadowBlur = 0;
+                ctx.fillStyle = f.color;
+                ctx.font = "10px sans-serif";
+                ctx.fillText(f.text, width - 150, y - 5);
             });
 
-            time += 0.1 + (temp * 0.005);
-            requestAnimationFrame(draw);
+            // Shamchalarni chizish
+            let candleWidth = width / 60;
+            let spacing = candleWidth * 0.2;
+            
+            candles.forEach((c, i) => {
+                let x = i * (candleWidth + spacing);
+                let yOpen = height - (c.open / 100) * height;
+                let yClose = height - (c.close / 100) * height;
+                let yHigh = height - (c.high / 100) * height;
+                let yLow = height - (c.low / 100) * height;
+                
+                let isBullish = c.close >= c.open;
+                ctx.strokeStyle = isBullish ? '#00ff00' : '#ff4444';
+                ctx.fillStyle = isBullish ? '#00ff00' : '#ff4444';
+
+                // Wix (Dum)
+                ctx.beginPath();
+                ctx.moveTo(x + candleWidth/2, yHigh);
+                ctx.lineTo(x + candleWidth/2, yLow);
+                ctx.stroke();
+
+                // Tana
+                ctx.fillRect(x, Math.min(yOpen, yClose), candleWidth, Math.abs(yOpen - yClose) || 1);
+            });
         }
 
-        draw();
+        function addReagent() {
+            currentYield -= 10; // Konsentratsiya suyuldi
+            generateCandle();
+            drawChart();
+        }
+
+        function addCatalyst() {
+            isCatalyzed = true;
+            document.getElementById('choch-status').innerText = "Trend: ChoCh (Aktivlanish yorildi!)";
+            document.getElementById('choch-status').style.color = "#00ff00";
+        }
+
+        initCanvas();
+        drawChart();
+
+        // Jonli bozor (reaksiya) simulyatsiyasi
+        setInterval(() => {
+            generateCandle();
+            drawChart();
+        }, 1000);
+
+        window.addEventListener('resize', () => { initCanvas(); drawChart(); });
     </script>
 </body>
 </html>
