@@ -1,0 +1,15 @@
+{
+  "name": "PARADOX Smart Chem AI",
+  "short_name": "ChemAI",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0a0f1e",
+  "theme_color": "#22d3ee",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3655/3655580.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
