@@ -273,7 +273,80 @@
         setTimeout(() => { isDragging = false; }, 10);
     });
 
+    // --- VIZUALIZATSIYA KODI ---
+let canvas = document.getElementById('reactionCanvas');
+let ctx = canvas.getContext('2d');
+let particles = [];
+let animationId;
 
+class Particle {
+    constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.radius = Math.random() * 3 + 2;
+        this.vx = (Math.random() - 0.5) * 4; 
+        this.vy = (Math.random() - 0.5) * 4; 
+    }
+
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = this.color;
+        ctx.fill();
+    }
+
+    update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+    }
+}
+
+function startReactionVisual() {
+    const container = document.getElementById('visual-container');
+    container.style.display = "block";
+    canvas.width = container.offsetWidth;
+    canvas.height = container.offsetHeight;
+
+    particles = [];
+    cancelAnimationFrame(animationId); 
+
+    for (let i = 0; i < 30; i++) {
+        // Neon moviy va yashil rangli atomlar
+        let color = i < 15 ? "#22d3ee" : "#00ff00"; 
+        particles.push(new Particle(Math.random() * canvas.width, Math.random() * canvas.height, color));
+    }
+    animateParticles();
+}
+
+function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach((p, index) => {
+        p.update();
+        p.draw();
+        for (let j = index + 1; j < particles.length; j++) {
+            let dx = p.x - particles[j].x;
+            let dy = p.y - particles[j].y;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < 60) {
+                ctx.beginPath();
+                ctx.strokeStyle = p.color;
+                ctx.globalAlpha = 1 - (dist / 60);
+                ctx.lineWidth = 0.8;
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(particles[j].x, particles[j].y);
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+            }
+        }
+    });
+    animationId = requestAnimationFrame(animateParticles);
+                            }
+    
     // --- ASOSIY KOD ---
     const KEY = "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";
     const URL = "https://api.groq.com/openai/v1/chat/completions";
