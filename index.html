@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PARADOX Smart Chem AI v2</title>
+    <title>Al Kimyogar - Smart Chem AI</title>
     <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
     <style>
         :root {
@@ -14,33 +14,38 @@
             --key-bg: #1e293b;
         }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             background-color: var(--p);
             color: #fff;
             font-family: 'Segoe UI', sans-serif;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start; /* Mobil qurilmada tepadan boshlash uchun */
             min-height: 100vh;
-            margin: 0;
-            padding: 0; 
-            transition: box-shadow 0.5s ease; /* Issiqlik effekti uchun */
+            transition: box-shadow 0.5s ease;
+            padding: 10px;
         }
 
         /* --- O'zMU YONIB O'CHUVCHI YON PANEL --- */
         .ozmu-header {
             text-align: center;
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 900;
             letter-spacing: 5px;
             color: #fff;
             text-shadow: 0 0 10px var(--a), 0 0 20px var(--a);
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             animation: glow 1.5s infinite alternate;
         }
 
         @keyframes glow {
-            from { opacity: 0.4; text-shadow: 0 0 5px var(--a); }
+            from { opacity: 0.6; text-shadow: 0 0 5px var(--a); }
             to { opacity: 1; text-shadow: 0 0 20px var(--a), 0 0 40px var(--s); }
         }
 
@@ -49,34 +54,35 @@
             backdrop-filter: blur(20px);
             border: 2px solid rgba(0, 255, 0, 0.2);
             width: 100%;
-            max-width: 100%; 
-            min-height: 100vh; 
-            border-radius: 0; 
-            padding: 25px;
+            max-width: 500px; /* Mobil format uchun qulflash */
+            border-radius: 20px; 
+            padding: 20px;
             box-shadow: 0 0 40px rgba(0, 255, 0, 0.15);
-            box-sizing: border-box; 
             position: relative;
             transition: all 0.5s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* Barcha elementlar orasidagi aniq masofa */
         }
 
-        /* Issiqlik effektlari uchun klasslar */
-        .exothermic { box-shadow: inset 0 0 100px rgba(248, 113, 113, 0.4) !important; border-color: var(--d) !important; }
-        .endothermic { box-shadow: inset 0 0 100px rgba(59, 130, 246, 0.4) !important; border-color: #3b82f6 !important; }
+        /* Issiqlik effektlari */
+        .exothermic { box-shadow: inset 0 0 60px rgba(248, 113, 113, 0.4), 0 0 40px rgba(248, 113, 113, 0.2) !important; border-color: var(--d) !important; }
+        .endothermic { box-shadow: inset 0 0 60px rgba(59, 130, 246, 0.4), 0 0 40px rgba(59, 130, 246, 0.2) !important; border-color: #3b82f6 !important; }
 
         .mode-switcher {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            margin-bottom: 20px;
         }
 
         .btn-mode {
             background: #1e293b;
             border: 1px solid var(--a);
             color: var(--a);
-            padding: 10px;
+            padding: 12px;
             border-radius: 12px;
-            font-size: 12px;
+            font-size: 13px;
+            font-weight: bold;
             cursor: pointer;
             transition: 0.3s;
         }
@@ -89,26 +95,23 @@
 
         .screen {
             background: #000;
-            border-radius: 20px;
+            border-radius: 15px;
             padding: 20px;
-            margin-bottom: 20px;
             border: 2px solid var(--s);
             text-align: center;
             box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
         }
 
         #display {
-            font-size: 28px;
+            font-size: 24px;
             color: var(--s);
             text-shadow: 0 0 10px var(--s);
-            min-height: 40px;
+            min-height: 35px;
             word-break: break-all;
+            font-weight: bold;
         }
 
-        #kb-input-container {
-            display: none;
-            margin-bottom: 15px;
-        }
+        #kb-input-container { display: none; }
 
         #manual-input {
             width: 100%;
@@ -116,30 +119,28 @@
             border: 1px solid var(--a);
             color: var(--s);
             padding: 15px;
-            border-radius: 15px;
+            border-radius: 12px;
             font-size: 18px;
             outline: none;
             text-align: center;
-            box-sizing: border-box;
         }
 
         .zone {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
-            gap: 8px;
+            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            gap: 6px;
             background: rgba(0, 0, 0, 0.4);
-            padding: 12px;
-            border-radius: 20px;
-            max-height: 300px;
+            padding: 10px;
+            border-radius: 15px;
+            max-height: 220px;
             overflow-y: auto;
             border: 1px solid rgba(0, 255, 0, 0.1);
-            margin-bottom: 15px;
         }
 
         button {
             border: none;
-            border-radius: 12px;
-            padding: 15px 5px;
+            border-radius: 10px;
+            padding: 12px 5px;
             cursor: pointer;
             color: #fff;
             font-weight: bold;
@@ -149,18 +150,18 @@
         .btn-el {
             background: var(--key-bg);
             border: 1px solid rgba(0, 255, 0, 0.3);
-            font-size: 14px;
+            font-size: 15px;
         }
-
-        .btn-el span { display: block; font-size: 8px; opacity: 0.5; }
+        .btn-el span { display: block; font-size: 9px; opacity: 0.5; margin-top: 2px; }
 
         .btn-ai {
-            background: var(--a);
-            color: var(--p);
+            background: linear-gradient(45deg, var(--a), #3b82f6);
+            color: #fff;
             width: 100%;
-            font-size: 18px;
-            margin-bottom: 10px;
-            box-shadow: 0 0 20px var(--a);
+            font-size: 20px;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.5);
         }
 
         .controls-row {
@@ -169,77 +170,90 @@
             gap: 8px;
         }
 
-        .btn-op { background: #475569; border: 1px solid var(--s); }
-        .btn-res { background: var(--d); box-shadow: 0 0 15px var(--d); }
+        .btn-op { background: #475569; border: 1px solid var(--s); font-size: 16px; }
+        .btn-res { background: var(--d); box-shadow: 0 0 15px var(--d); font-size: 16px; }
 
-        #res-box {
-            margin-top: 15px;
-            padding: 15px;
-            background: rgba(0,0,0,0.6);
-            border-radius: 15px;
+        /* --- NATIJALAR BLOKI (YANGI VA TARTIBLI) --- */
+        #output-section {
             display: none;
-            border-left: 4px solid var(--s);
-            font-size: 13px;
+            flex-direction: column;
+            gap: 12px;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 12px;
+            margin-top: 5px;
         }
 
-        /* Yangi qo'shildi: 3D MOLEKULA OYNASI */
+        #res-box {
+            padding: 15px;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 12px;
+            border-left: 4px solid var(--s);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
         #mol-3d-view {
-            display: none;
             width: 100%;
-            height: 250px;
-            margin-top: 15px;
-            border-radius: 20px;
+            height: 220px; /* Aniq balandlik */
+            border-radius: 12px;
             border: 1px solid var(--a);
             background: #000;
+            overflow: hidden;
+            display: none;
         }
 
         #visual-container {
-            display: none;
-            margin-top: 15px;
             position: relative;
             width: 100%;
-            height: 200px;
+            height: 180px; /* Aniq balandlik */
             background: radial-gradient(circle, #0f172a 0%, #000 100%);
-            border-radius: 20px;
+            border-radius: 12px;
             border: 1px solid rgba(34, 211, 238, 0.3);
             overflow: hidden;
+            display: none;
         }
 
         #ph-tag {
             position: absolute;
             top: 10px;
-            left: 15px;
-            font-size: 9px;
-            padding: 2px 6px;
-            border-radius: 4px;
+            left: 10px;
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 6px;
             font-weight: bold;
+            color: #fff;
             display: none;
+            z-index: 10;
         }
 
         .molar-btn-container {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 15px;
+            right: 15px;
             z-index: 10000;
             touch-action: none; 
-            cursor: grab;
         }
 
         .btn-molar {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background: #0f172a;
             border: 2px solid #00ff00;
             color: #00ff00;
             font-weight: bold;
-            font-size: 20px;
+            font-size: 16px;
             box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
-            pointer-events: none; 
         }
     </style>
 </head>
 <body>
+
+<div class="molar-btn-container" id="draggable-mr">
+    <button class="btn-molar">M<sub>r</sub></button>
+</div>
 
 <div class="card" id="mainCard">
     <div class="ozmu-header">O‘zMU</div>
@@ -249,13 +263,9 @@
         <button id="mode-grid" class="btn-mode active" onclick="switchMode('grid')">🧪 JADVAL</button>
     </div>
 
-    <div class="molar-btn-container" id="draggable-mr">
-        <button class="btn-molar">M<sub>r</sub></button>
-    </div>
-
     <div class="screen">
         <div id="display">...</div>
-        <div id="status" style="font-size: 10px; color: var(--a); margin-top: 10px;">TAYYOR</div>
+        <div id="status" style="font-size: 11px; color: var(--a); margin-top: 8px; font-weight: bold;">TAYYOR</div>
     </div>
 
     <div id="kb-input-container">
@@ -266,8 +276,6 @@
         <div class="zone" id="el-keys"></div>
     </div>
 
-    <button class="btn-ai" onclick="askAI()">⚗️</button>
-
     <div class="controls-row">
         <button class="btn-op" onclick="addChar(' + ')">+</button>
         <button class="btn-op" onclick="addChar('2')">2</button>
@@ -275,50 +283,19 @@
         <button class="btn-res" onclick="reset()">CLR</button>
     </div>
 
-    <div id="res-box"></div>
-    
-    <div id="mol-3d-view"></div>
+    <button class="btn-ai" onclick="askAI()">Tahlil Qilish ⚗️</button>
 
-    <div id="visual-container">
-        <canvas id="reactionCanvas"></canvas>
-        <div id="ph-tag"></div>
+    <div id="output-section">
+        <div id="res-box"></div>
+        <div id="mol-3d-view"></div>
+        <div id="visual-container">
+            <canvas id="reactionCanvas"></canvas>
+            <div id="ph-tag"></div>
+        </div>
     </div>
 </div>
 
 <script>
-    const dragEl = document.getElementById('draggable-mr');
-    let isDragging = false;
-    let startX, startY;
-
-    dragEl.addEventListener('pointerdown', (e) => {
-        isDragging = false;
-        startX = e.clientX;
-        startY = e.clientY;
-        const rect = dragEl.getBoundingClientRect();
-        dragEl.dataset.offsetX = e.clientX - rect.left;
-        dragEl.dataset.offsetY = e.clientY - rect.top;
-        dragEl.setPointerCapture(e.pointerId);
-        dragEl.addEventListener('pointermove', onDragMove);
-    });
-
-    function onDragMove(e) {
-        if (Math.abs(e.clientX - startX) > 5 || Math.abs(e.clientY - startY) > 5) { isDragging = true; }
-        if (isDragging) {
-            const offX = parseFloat(dragEl.dataset.offsetX);
-            const offY = parseFloat(dragEl.dataset.offsetY);
-            dragEl.style.left = (e.clientX - offX) + 'px';
-            dragEl.style.top = (e.clientY - offY) + 'px';
-            dragEl.style.right = 'auto';
-        }
-    }
-
-    dragEl.addEventListener('pointerup', (e) => {
-        dragEl.removeEventListener('pointermove', onDragMove);
-        dragEl.releasePointerCapture(e.pointerId);
-        if (!isDragging) { window.open('molar.html', '_blank'); }
-        setTimeout(() => { isDragging = false; }, 10);
-    });
-
     const KEY = "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";
     const URL = "https://api.groq.com/openai/v1/chat/completions";
 
@@ -364,21 +341,25 @@
         currentInput = "";
         document.getElementById('display').innerText = "...";
         document.getElementById('manual-input').value = "";
-        document.getElementById('res-box').style.display = "none";
+        
+        // Barcha natijalarni tozalash va yashirish
+        document.getElementById('output-section').style.display = "none";
+        document.getElementById('res-box').innerHTML = "";
+        document.getElementById('mol-3d-view').style.display = "none";
         document.getElementById('visual-container').style.display = "none";
-        document.getElementById('mol-3d-view').style.display = "none"; /* Yangi qo'shildi */
+        
         document.getElementById('display').style.color = "var(--s)";
-        document.getElementById('mainCard').className = "card"; // Effektni o'chirish
+        document.getElementById('mainCard').className = "card";
+        document.getElementById('status').innerText = "TAYYOR";
         cancelAnimationFrame(animationId);
     }
 
-    // --- Yangi qo'shildi: 3D MOLEKULA CHIZISH ---
     function show3D(smiles) {
         if(!smiles) return;
         const view = document.getElementById('mol-3d-view');
         view.style.display = "block";
         view.innerHTML = "";
-        let viewer = $3Dmol.createViewer(view, { backgroundColor: 'black' });
+        let viewer = $3Dmol.createViewer(view, { backgroundColor: '#000000' });
         
         fetch(`https://cactus.nci.nih.gov/chemical/structure/${smiles}/sdf`)
             .then(res => res.text())
@@ -388,6 +369,8 @@
                 viewer.zoomTo();
                 viewer.render();
                 viewer.spin(true);
+            }).catch(e => {
+                view.style.display = "none"; // Xato bo'lsa yashirish
             });
     }
 
@@ -398,9 +381,7 @@
 
     class Particle {
         constructor(x, y, mode, color) {
-            this.x = x; 
-            this.y = y; 
-            this.mode = mode;
+            this.x = x; this.y = y; this.mode = mode;
             this.color = color || "rgba(255,255,255,0.8)";
             this.radius = Math.random() * 3 + 2;
             this.vx = (Math.random() - 0.5) * 4;
@@ -409,20 +390,16 @@
             this.maxRadius = Math.random() * 25 + 15;
         }
         draw() {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-            ctx.fillStyle = this.color.replace('0.8', this.opacity);
-            ctx.fill();
+            ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fillStyle = this.color.replace('0.8', this.opacity); ctx.fill();
         }
         update() {
-            this.x += this.vx; 
-            this.y += this.vy;
+            this.x += this.vx; this.y += this.vy;
             if(this.mode === 'gas') {
                 if(this.radius < this.maxRadius) this.radius += 0.3;
-                this.opacity -= 0.004; 
-                this.vy += 0.01;
+                this.opacity -= 0.005; this.vy += 0.015;
             } else {
-                if(this.y > canvas.height - 5) { this.vy = 0; this.vx = 0; this.opacity -= 0.005; }
+                if(this.y > canvas.height - 5) { this.vy = 0; this.vx = 0; this.opacity -= 0.008; }
             }
         }
     }
@@ -431,32 +408,34 @@
         const container = document.getElementById('visual-container');
         const phTag = document.getElementById('ph-tag');
         const card = document.getElementById('mainCard');
+        
         container.style.display = "block";
-        canvas.width = container.offsetWidth;
-        canvas.height = container.offsetHeight;
+        // Canvas o'lchamlarini konteynerga moslash
+        canvas.width = container.clientWidth; 
+        canvas.height = container.clientHeight;
         particles = [];
         
-        // ISSIQLIK EFFEKTI
         card.className = "card " + (heat === "exothermic" ? "exothermic" : (heat === "endothermic" ? "endothermic" : ""));
-
-        if(env) {
-            phTag.style.display = "block";
+        
+        if(env && env !== "none") {
+            phTag.style.display = "block"; 
             phTag.innerText = "MUHIT: " + env.toUpperCase();
             phTag.style.background = env === 'kislotali' ? '#f87171' : (env === 'ishqoriy' ? '#3b82f6' : '#10b981');
+        } else {
+            phTag.style.display = "none";
         }
 
         function loop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if(particles.length < 400) {
-                for(let i=0; i<8; i++) {
-                    let px = mode === 'gas' ? (canvas.width/2 + (Math.random()-0.5)*50) : (Math.random()*canvas.width);
+            if(particles.length < 300) { // Mobil uchun optimizatsiya
+                for(let i=0; i<6; i++) {
+                    let px = mode === 'gas' ? (canvas.width/2 + (Math.random()-0.5)*40) : (Math.random()*canvas.width);
                     let py = mode === 'gas' ? (canvas.height*0.9) : 0;
                     particles.push(new Particle(px, py, mode, color));
                 }
             }
             for (let i = particles.length - 1; i >= 0; i--) {
-                particles[i].update(); 
-                particles[i].draw();
+                particles[i].update(); particles[i].draw();
                 if (particles[i].opacity <= 0) particles.splice(i, 1);
             }
             animationId = requestAnimationFrame(loop);
@@ -468,6 +447,12 @@
         if(!currentInput) return;
         const st = document.getElementById('status');
         st.innerText = "TAHLIL KETMOQDA...";
+        
+        // Natija chiqishidan oldin tozalash
+        document.getElementById('output-section').style.display = "none";
+        document.getElementById('mol-3d-view').style.display = "none";
+        document.getElementById('visual-container').style.display = "none";
+
         try {
             const response = await fetch(URL, {
                 method: 'POST',
@@ -476,7 +461,6 @@
                     model: "llama-3.3-70b-versatile",
                     messages: [{
                         role: "user", 
-                        /* AI promptiga "smiles" qo'shildi */
                         content: `Sen kimyogarsan. Reaksiyani tugalla: ${currentInput}. FAQAT JSON qaytar: {"t": "equation", "i": "explanation", "possible": true, "gas": true, "precipitate": true, "color": "hex_code", "env": "kislotali|ishqoriy|neytral", "heat": "exothermic|endothermic|none", "smiles": "SMILES_code_of_main_product"}.`
                     }],
                     response_format: { type: "json_object" }
@@ -484,6 +468,7 @@
             });
             const data = await response.json();
             const res = JSON.parse(data.choices[0].message.content);
+            
             if (!res.possible) {
                 document.getElementById('display').innerText = "BU REAKSIYA BORMAYDI";
                 document.getElementById('display').style.color = "var(--d)";
@@ -492,17 +477,20 @@
                 document.getElementById('display').innerText = res.t;
                 document.getElementById('display').style.color = "var(--s)";
                 st.innerText = "TAYYOR";
-                document.getElementById('res-box').innerHTML = `<b>Xulosa:</b> ${res.i}`;
-                document.getElementById('res-box').style.display = "block";
                 
-                /* Yangi qo'shildi: 3D MOLEKULANI CHIQARISH */
+                // Natijalar blokini ko'rsatish
+                document.getElementById('output-section').style.display = "flex";
+                document.getElementById('res-box').innerHTML = `<b>Xulosa:</b> ${res.i}`;
+                
                 if(res.smiles) show3D(res.smiles);
 
                 if(res.gas) startVisual('gas', 'rgba(255,255,255,0.8)', res.env, res.heat);
                 else if(res.precipitate) startVisual('precipitate', res.color, res.env, res.heat);
                 else startVisual('none', null, res.env, res.heat);
             }
-        } catch (e) { st.innerText = "Xatolik yuz berdi"; }
+        } catch (e) { 
+            st.innerText = "Xatolik yuz berdi. Internetni tekshiring."; 
+        }
     }
 </script>
 </body>
