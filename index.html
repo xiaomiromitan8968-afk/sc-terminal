@@ -449,6 +449,14 @@
         }
     }
 
+    function handleCustomAction() {
+    // console.log("3D Vizual tugmasi bosildi!"); // Eskisi
+
+    // YANGISI: viewer.html sahifasini mutlaqo yangi oynada ochish
+    window.open('viewer.html', '_blank', 'width=900,height=800,scrollbars=yes,resizable=yes');
+    }
+    
+    
     function startVisual(mode, color, env, heat) {
         const container = document.getElementById('visual-container');
         const phTag = document.getElementById('ph-tag');
