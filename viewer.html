@@ -3,205 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Al Kimyogar Pro | AR Edition</title>
+    <title>Al Kimyogar Pro | Fixed Edition</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/3Dmol/2.0.4/3Dmol-min.js"></script>
     <style>
-        :root {
-            --bg: #050810;
-            --panel: #0f172a;
-            --neon-blue: #22d3ee;
-            --neon-green: #00ff00;
-            --neon-pink: #f472b6;
-            --text: #e2e8f0;
-        }
-
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: sans-serif;
-            margin: 0; padding: 10px;
-            display: flex; flex-direction: column; align-items: center;
-        }
-
-        .header {
-            width: 100%; max-width: 800px;
-            background: rgba(15, 23, 42, 0.9);
-            padding: 15px; border-radius: 15px;
-            border: 1px solid rgba(34, 211, 238, 0.2);
-            text-align: center; margin-bottom: 10px;
-        }
-
-        .search-box {
-            display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
-            margin-top: 10px;
-        }
-
-        input {
-            flex: 1; min-width: 150px; background: #000; 
-            border: 2px solid var(--neon-blue);
-            border-radius: 10px; padding: 12px; color: var(--neon-green);
-        }
-
-        .btn {
-            padding: 12px 15px; border-radius: 10px; border: none;
-            font-weight: bold; cursor: pointer; transition: 0.3s;
-        }
-        .btn-analyze { background: var(--neon-green); color: #000; }
-        .btn-voice { background: var(--neon-blue); color: #000; }
-        .btn-ar { background: var(--neon-pink); color: #fff; }
-
-        .dashboard {
-            display: flex; flex-direction: column;
-            gap: 10px; width: 100%; max-width: 800px;
-        }
-
-        .viewer-box {
-            background: #000; border-radius: 20px; border: 2px solid var(--panel);
-            height: 400px; position: relative; width: 100%; overflow: hidden;
-        }
-
-        /* AR Video qatlami */
-        #webcam {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%;
-            object-fit: cover; display: none; z-index: 1;
-        }
-
-        #v-canvas {
-            width: 100%; height: 100%;
-            position: relative; z-index: 2; /* Kamera ustida turishi uchun */
-        }
-
-        .info-panel {
-            background: var(--panel); border-radius: 20px; padding: 15px;
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-            border: 1px solid rgba(34, 211, 238, 0.2);
-        }
-
-        .stat-card {
-            background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px;
-            border-left: 3px solid var(--neon-blue);
-        }
-
-        .label { color: var(--neon-blue); font-size: 10px; text-transform: uppercase; }
-        .value { font-size: 13px; font-weight: bold; margin-top: 4px; color: #fff; }
-
-        #loading {
-            position: absolute; top: 10px; right: 10px; 
-            background: rgba(0,0,0,0.6); padding: 4px 8px;
-            border-radius: 5px; font-size: 11px; z-index: 10;
-        }
+        :root { --blue: #22d3ee; --green: #00ff00; --red: #ff4444; --bg: #050810; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 500px; text-align: center; }
+        .search-area { display: flex; gap: 5px; margin: 15px 0; flex-wrap: wrap; justify-content: center; }
+        input { background: #000; border: 2px solid var(--blue); color: var(--green); padding: 12px; border-radius: 10px; flex: 1; min-width: 150px; }
+        button { padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; }
+        .btn-tahlil { background: var(--green); color: #000; }
+        .btn-ar { background: #ff00ff; color: white; }
+        
+        .viewer-container { width: 100%; height: 350px; background: #000; border: 2px solid #1e293b; border-radius: 20px; position: relative; overflow: hidden; margin-bottom: 15px; }
+        #webcam { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: none; z-index: 1; }
+        #v-canvas { width: 100%; height: 100%; position: relative; z-index: 2; }
+        #status { position: absolute; top: 10px; left: 10px; z-index: 10; font-size: 12px; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 5px; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h2 style="margin:0; color:var(--neon-blue)">AL KIMYOGAR <span style="color:var(--neon-green)">PRO</span></h2>
-        <div class="search-box">
-            <input type="text" id="mol-input" placeholder="H2O, Caffeine, Glucose...">
-            <button class="btn btn-voice" onclick="startVoice()">🎤</button>
-            <button class="btn btn-ar" id="ar-btn" onclick="toggleAR()">🕶️ AR</button>
-            <button class="btn btn-analyze" onclick="runAnalysis()">TAHLIL</button>
+    <div class="container">
+        <h2 style="color:var(--blue); margin: 10px 0;">AL KIMYOGAR PRO</h2>
+        
+        <div class="search-area">
+            <input type="text" id="mol-input" placeholder="Masalan: Water, H2SO4">
+            <button class="btn-ar" onclick="startAR()">AR YOQISH</button>
+            <button class="btn-tahlil" onclick="doSearch()">TAHLIL</button>
         </div>
-    </div>
 
-    <div class="dashboard">
-        <div class="viewer-box">
+        <div class="viewer-container">
             <video id="webcam" autoplay playsinline></video>
-            <div id="loading" style="color:var(--neon-green)">Tayyor</div>
+            <div id="status">Tizim tayyor...</div>
             <div id="v-canvas"></div>
-        </div>
-
-        <div class="info-panel">
-            <div class="stat-card"><div class="label">Formula</div><div id="res-f" class="value">--</div></div>
-            <div class="stat-card"><div class="label">Massa</div><div id="res-mw" class="value">--</div></div>
-            <div class="stat-card"><div class="label">Xossasi</div><div id="res-prop" class="value">--</div></div>
-            <div class="stat-card"><div class="label">pH muhiti</div><div id="res-ph" class="value">--</div></div>
         </div>
     </div>
 
     <script>
         let viewer = null;
-        let isAR = false;
-        const video = document.getElementById('webcam');
 
-        // 1. AR REJIMINI BOSHQARISH
-        async function toggleAR() {
-            const arBtn = document.getElementById('ar-btn');
-            if (!isAR) {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ 
-                        video: { facingMode: "environment" } 
-                    });
-                    video.srcObject = stream;
-                    video.style.display = 'block';
-                    if (viewer) {
-                        viewer.setBackgroundColor(0x000000, 0); // Fonnni shaffof qilish
-                        viewer.render();
-                    }
-                    arBtn.innerText = "✖ Yopish";
-                    arBtn.style.background = "#ff4444";
-                    isAR = true;
-                } catch (err) {
-                    alert("Kameraga ruxsat bering!");
-                }
-            } else {
-                const stream = video.srcObject;
-                if (stream) stream.getTracks().forEach(t => t.stop());
-                video.style.display = 'none';
-                if (viewer) {
-                    viewer.setBackgroundColor(0x000000, 1); // Fonni qora qilish
-                    viewer.render();
-                }
-                arBtn.innerText = "🕶️ AR";
-                arBtn.style.background = "var(--neon-pink)";
-                isAR = false;
+        // 1. ARNI YOQISH (Qidiruvdan mustaqil)
+        async function startAR() {
+            const video = document.getElementById('webcam');
+            const status = document.getElementById('status');
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                video.srcObject = stream;
+                video.style.display = 'block';
+                status.innerText = "AR Yoqildi";
+                if(viewer) viewer.setBackgroundColor(0x000000, 0);
+            } catch (err) {
+                status.innerText = "Kamera xatosi!";
+                alert("Kameraga ruxsat bering yoki HTTPS dan foydalaning!");
             }
         }
 
-        // 2. TAHLIL QILISH
-        async function runAnalysis() {
-            let query = document.getElementById('mol-input').value.trim();
-            if(!query) return;
-            const loader = document.getElementById('loading');
-            loader.innerText = "Yuklanmoqda...";
+        // 2. STABIL QIDIRUV
+        async function doSearch() {
+            const name = document.getElementById('mol-input').value.trim();
+            const status = document.getElementById('status');
+            if(!name) return;
 
+            status.innerText = "Qidirilmoqda...";
             try {
-                const res = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${query}/property/MolecularWeight,MolecularFormula,IUPACName,CID/JSON`);
-                const data = await res.json();
-                const p = data.PropertyTable.Properties[0];
+                // PubChem dan CID raqamini olish
+                const r = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${name}/cids/JSON`);
+                const d = await r.json();
+                if(!d.IdentifierList) throw "Topilmadi";
+                const cid = d.IdentifierList.CID[0];
 
-                document.getElementById('res-mw').innerText = p.MolecularWeight + " g/mol";
-                document.getElementById('res-f').innerText = p.MolecularFormula;
-                
-                // pH mantiqi
-                let name = p.IUPACName.toLowerCase();
-                document.getElementById('res-prop').innerText = name.includes("acid") ? "Kislota" : "Neytral/Ishqor";
-                document.getElementById('res-ph').innerText = name.includes("acid") ? "< 7" : ">= 7";
-
-                // 3D Model
+                // 3D Modelni yuklash
                 const vDiv = document.getElementById('v-canvas');
-                vDiv.innerHTML = '';
-                viewer = $3Dmol.createViewer(vDiv, { backgroundColor: isAR ? "black" : "black" });
-                if(isAR) viewer.setBackgroundColor(0x000000, 0);
+                vDiv.innerHTML = "";
+                viewer = $3Dmol.createViewer(vDiv, { backgroundColor: "black" });
+                
+                // AR yoqilgan bo'lsa shaffof qilish
+                if(document.getElementById('webcam').style.display === 'block') {
+                    viewer.setBackgroundColor(0x000000, 0);
+                }
 
-                const sdf = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${p.CID}/SDF?record_type=3d`).then(r => r.text());
+                const sdf = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/SDF?record_type=3d`).then(res => res.text());
                 viewer.addModel(sdf, "sdf");
-                viewer.setStyle({}, { stick: { radius:0.15 }, sphere: { scale:0.25 } });
+                viewer.setStyle({}, { stick: {radius:0.2}, sphere: {scale:0.3} });
                 viewer.zoomTo(); viewer.render(); viewer.spin(true);
-
-                loader.innerText = "Muvaffaqiyatli";
-            } catch(e) { loader.innerText = "Topilmadi"; }
-        }
-
-        // 3. OVOZLI BOSHQARUV
-        function startVoice() {
-            const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            rec.lang = 'en-US';
-            rec.start();
-            rec.onresult = (e) => {
-                document.getElementById('mol-input').value = e.results[0][0].transcript;
-                runAnalysis();
+                
+                status.innerText = "Topildi!";
+            } catch (e) {
+                status.innerText = "Xato: Topilmadi";
+                console.error(e);
             }
         }
     </script>
