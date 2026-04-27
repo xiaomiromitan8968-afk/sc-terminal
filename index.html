@@ -402,7 +402,9 @@ function animateParticles() {
         if(!currentInput) return;
         const st = document.getElementById('status');
         st.innerText = "TAHLIL KETMOQDA...";
-        
+        // AI javobini chiqarib bo'lgach, vizualni yoqamiz
+startReactionVisual();
+    
         try {
             const response = await fetch(URL, {
                 method: 'POST',
