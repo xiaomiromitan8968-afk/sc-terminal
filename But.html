@@ -2,79 +2,75 @@
 <html>
 <head>
     <style>
-        body { background: #050810; color: #22d3ee; font-family: 'Segoe UI', sans-serif; text-align: center; padding-top: 50px; }
-        .audio-card { 
-            background: rgba(15, 23, 42, 0.9); border: 2px solid #22d3ee; 
-            padding: 30px; border-radius: 30px; display: inline-block;
-            box-shadow: 0 0 30px rgba(34, 211, 238, 0.3);
+        :root { --neon: #22d3ee; --dark: #020617; }
+        body { background: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .matrix-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 30px; }
+        .element-card { 
+            width: 80px; height: 100px; border: 1px solid rgba(34, 211, 238, 0.3);
+            border-radius: 12px; display: flex; flex-direction: column; align-items: center;
+            justify-content: center; cursor: pointer; transition: 0.4s;
+            background: linear-gradient(145deg, #0f172a, #020617);
         }
-        .visualizer { display: flex; align-items: flex-end; justify-content: center; gap: 3px; height: 100px; margin: 20px 0; }
-        .bar { width: 10px; background: #00ff00; border-radius: 5px; transition: height 0.1s; }
-        .atom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        button { 
-            padding: 15px; border-radius: 15px; border: none; font-weight: bold; 
-            cursor: pointer; background: #1e293b; color: white; transition: 0.3s;
+        .element-card:hover { 
+            border-color: var(--neon); box-shadow: 0 0 20px var(--neon);
+            transform: translateY(-5px);
         }
-        button:active { transform: scale(0.95); }
-        .H { border: 2px solid #fff; } .O { border: 2px solid #ff4444; }
-        .C { border: 2px solid #555; } .N { border: 2px solid #4444ff; }
+        .symbol { font-size: 24px; font-weight: bold; color: var(--neon); }
+        .atomic-num { font-size: 10px; position: absolute; top: 5px; left: 5px; }
+        
+        .info-panel { 
+            margin-top: 40px; width: 90%; max-width: 400px; padding: 20px;
+            border-radius: 20px; background: rgba(34, 211, 238, 0.1);
+            border: 1px solid var(--neon); display: none;
+            backdrop-filter: blur(10px);
+        }
+        .nano-tag { background: #ff00ff; color: white; padding: 3px 8px; border-radius: 5px; font-size: 10px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="audio-card">
-        <h2>MOLECULAR AUDIO-LAB</h2>
-        <div class="visualizer" id="viz">
-            </div>
-        <p id="info">Elementni tanlang va uning energiyasini eshiting</p>
+    <h2 style="color:var(--neon)">NANO-ELEMENTS MATRIX</h2>
 
-        <div class="atom-grid">
-            <button class="H" onclick="playSound(261.63, 'Vodorod: Yengil va ochiq tovush')">H (Vodorod)</button>
-            <button class="C" onclick="playSound(329.63, 'Uglerod: Barqaror va chuqur')">C (Uglerod)</button>
-            <button class="N" onclick="playSound(392.00, 'Azot: Intensiv chastota')">N (Azot)</button>
-            <button class="O" onclick="playSound(440.00, 'Kislorod: Yuqori energiya')">O (Kislorod)</button>
+    <div class="matrix-grid">
+        <div class="element-card" onclick="showInfo('H', 1, 'Nano-yoqilg\'i elementlari va vodorod saqlash tizimlarining asosi.')">
+            <span class="symbol">H</span>
+            <span style="font-size:10px">Hydrogen</span>
+        </div>
+        <div class="element-card" onclick="showInfo('C', 6, 'Grafen, nano-trubkalar va fullerengacha bo\'lgan nano-olam qiroli.')">
+            <span class="symbol" style="color:#ff00ff">C</span>
+            <span style="font-size:10px">Carbon</span>
+        </div>
+        <div class="element-card" onclick="showInfo('Si', 14, 'Yarim o\'tkazgichli nano-chiplar va kvant nuqtalarining asosi.')">
+            <span class="symbol" style="color:#fbbf24">Si</span>
+            <span style="font-size:10px">Silicon</span>
+        </div>
+        <div class="element-card" onclick="showInfo('Au', 79, 'Nano-tibbiyotda saraton hujayralarini yo\'q qilishda ishlatiladi.')">
+            <span class="symbol" style="color:#fcd34d">Au</span>
+            <span style="font-size:10px">Gold</span>
         </div>
     </div>
 
+    <div id="info-panel" class="info-panel">
+        <h3 id="info-title" style="margin-top:0"></h3>
+        <p id="info-text" style="font-size:14px; line-height:1.5"></p>
+        <div class="nano-tag">NANO-APP READY</div>
+    </div>
+
     <script>
-        const viz = document.getElementById('viz');
-        for(let i=0; i<15; i++) {
-            let bar = document.createElement('div');
-            bar.className = 'bar';
-            bar.style.height = '10px';
-            viz.appendChild(bar);
-        }
-
-        let audioCtx = null;
-
-        function playSound(freq, text) {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function showInfo(sym, num, text) {
+            const panel = document.getElementById('info-panel');
+            document.getElementById('info-title').innerText = sym + " (Atom No: " + num + ")";
+            document.getElementById('info-text').innerText = text;
+            panel.style.display = 'block';
             
-            let osc = audioCtx.createOscillator();
-            let gain = audioCtx.createGain();
-
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            
-            gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1);
-
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-
-            osc.start();
-            osc.stop(audioCtx.currentTime + 1);
-
-            document.getElementById('info').innerText = text;
-            animateViz();
-        }
-
-        function animateViz() {
-            const bars = document.querySelectorAll('.bar');
-            bars.forEach(b => {
-                b.style.height = Math.random() * 80 + 20 + 'px';
-                setTimeout(() => b.style.height = '10px', 300);
-            });
+            // Animatsiya
+            panel.style.opacity = 0;
+            let op = 0;
+            let timer = setInterval(() => {
+                if (op >= 1) clearInterval(timer);
+                panel.style.opacity = op;
+                op += 0.1;
+            }, 30);
         }
     </script>
 </body>
