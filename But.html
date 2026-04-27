@@ -2,76 +2,95 @@
 <html>
 <head>
     <style>
-        :root { --neon: #22d3ee; --dark: #020617; }
-        body { background: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .matrix-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 30px; }
-        .element-card { 
-            width: 80px; height: 100px; border: 1px solid rgba(34, 211, 238, 0.3);
-            border-radius: 12px; display: flex; flex-direction: column; align-items: center;
-            justify-content: center; cursor: pointer; transition: 0.4s;
-            background: linear-gradient(145deg, #0f172a, #020617);
-        }
-        .element-card:hover { 
-            border-color: var(--neon); box-shadow: 0 0 20px var(--neon);
-            transform: translateY(-5px);
-        }
-        .symbol { font-size: 24px; font-weight: bold; color: var(--neon); }
-        .atomic-num { font-size: 10px; position: absolute; top: 5px; left: 5px; }
-        
-        .info-panel { 
-            margin-top: 40px; width: 90%; max-width: 400px; padding: 20px;
-            border-radius: 20px; background: rgba(34, 211, 238, 0.1);
-            border: 1px solid var(--neon); display: none;
-            backdrop-filter: blur(10px);
-        }
-        .nano-tag { background: #ff00ff; color: white; padding: 3px 8px; border-radius: 5px; font-size: 10px; margin-top: 10px; }
+        body { background: #020617; color: #22d3ee; font-family: sans-serif; overflow: hidden; margin: 0; }
+        #canvas { cursor: crosshair; }
+        .ui { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); 
+              background: rgba(15, 23, 42, 0.8); padding: 15px; border-radius: 20px; border: 1px solid #22d3ee; text-align: center; }
+        button { background: #22d3ee; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <h2 style="color:var(--neon)">NANO-ELEMENTS MATRIX</h2>
+    <canvas id="canvas"></canvas>
 
-    <div class="matrix-grid">
-        <div class="element-card" onclick="showInfo('H', 1, 'Nano-yoqilg\'i elementlari va vodorod saqlash tizimlarining asosi.')">
-            <span class="symbol">H</span>
-            <span style="font-size:10px">Hydrogen</span>
-        </div>
-        <div class="element-card" onclick="showInfo('C', 6, 'Grafen, nano-trubkalar va fullerengacha bo\'lgan nano-olam qiroli.')">
-            <span class="symbol" style="color:#ff00ff">C</span>
-            <span style="font-size:10px">Carbon</span>
-        </div>
-        <div class="element-card" onclick="showInfo('Si', 14, 'Yarim o\'tkazgichli nano-chiplar va kvant nuqtalarining asosi.')">
-            <span class="symbol" style="color:#fbbf24">Si</span>
-            <span style="font-size:10px">Silicon</span>
-        </div>
-        <div class="element-card" onclick="showInfo('Au', 79, 'Nano-tibbiyotda saraton hujayralarini yo\'q qilishda ishlatiladi.')">
-            <span class="symbol" style="color:#fcd34d">Au</span>
-            <span style="font-size:10px">Gold</span>
-        </div>
-    </div>
-
-    <div id="info-panel" class="info-panel">
-        <h3 id="info-title" style="margin-top:0"></h3>
-        <p id="info-text" style="font-size:14px; line-height:1.5"></p>
-        <div class="nano-tag">NANO-APP READY</div>
+    <div class="ui">
+        <div id="status">Atomlarni bir-biriga yaqinlashtiring</div>
+        <button onclick="reset()">LOBORATORIYANI TOZALASH</button>
     </div>
 
     <script>
-        function showInfo(sym, num, text) {
-            const panel = document.getElementById('info-panel');
-            document.getElementById('info-title').innerText = sym + " (Atom No: " + num + ")";
-            document.getElementById('info-text').innerText = text;
-            panel.style.display = 'block';
-            
-            // Animatsiya
-            panel.style.opacity = 0;
-            let op = 0;
-            let timer = setInterval(() => {
-                if (op >= 1) clearInterval(timer);
-                panel.style.opacity = op;
-                op += 0.1;
-            }, 30);
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let atoms = [];
+        const types = {
+            C: { color: '#444', r: 25, bonds: 4 },
+            H: { color: '#fff', r: 15, bonds: 1 }
+        };
+
+        class Atom {
+            constructor(x, y, type) {
+                this.x = x; this.y = y;
+                this.type = type;
+                this.r = types[type].r;
+                this.color = types[type].color;
+                this.isDragging = false;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 15; ctx.shadowColor = this.color;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
         }
+
+        // Atomlarni yaratish
+        for(let i=0; i<10; i++) {
+            atoms.push(new Atom(Math.random()*canvas.width, Math.random()*canvas.height, Math.random() > 0.3 ? 'C' : 'H'));
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Bog'lanishlarni chizish (Fizika)
+            atoms.forEach((a, i) => {
+                atoms.forEach((b, j) => {
+                    if(i !== j) {
+                        let dist = Math.hypot(a.x - b.x, a.y - b.y);
+                        if(dist < 100) {
+                            ctx.beginPath();
+                            ctx.moveTo(a.x, a.y);
+                            ctx.lineTo(b.x, b.y);
+                            ctx.strokeStyle = `rgba(34, 211, 238, ${1 - dist/100})`;
+                            ctx.lineWidth = 3;
+                            ctx.stroke();
+                        }
+                    }
+                });
+                a.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        // Drag & Drop mantiqi
+        let selectedAtom = null;
+        canvas.onmousedown = (e) => {
+            atoms.forEach(a => {
+                if(Math.hypot(a.x - e.clientX, a.y - e.clientY) < a.r) selectedAtom = a;
+            });
+        };
+        window.onmousemove = (e) => {
+            if(selectedAtom) { selectedAtom.x = e.clientX; selectedAtom.y = e.clientY; }
+        };
+        window.onmouseup = () => selectedAtom = null;
+
+        function reset() { atoms.forEach(a => { a.x = Math.random()*canvas.width; a.y = Math.random()*canvas.height; }); }
+
+        animate();
     </script>
 </body>
 </html>
