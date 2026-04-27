@@ -2,73 +2,122 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <title>Al Kimyogar | Reaction Lab</title>
+    <title>Quantum Kinetics Terminal</title>
     <style>
-        body { background: #050810; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .lab-card { background: #0f172a; border: 2px solid #22d3ee; border-radius: 20px; padding: 25px; width: 350px; box-shadow: 0 0 20px rgba(34, 211, 238, 0.2); }
-        h3 { color: #22d3ee; text-align: center; margin-top: 0; }
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-size: 12px; color: #94a3b8; margin-bottom: 5px; }
-        input { width: 100%; padding: 10px; background: #000; border: 1px solid #334155; border-radius: 8px; color: #00ff00; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #00ff00; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        #result-box { margin-top: 20px; padding: 15px; border-radius: 10px; background: rgba(34, 211, 238, 0.1); display: none; }
-        .equation { font-size: 18px; color: #f472b6; text-align: center; margin-bottom: 10px; }
-        .note { font-size: 13px; color: #e2e8f0; line-height: 1.4; }
+        body { background: #050810; color: #22d3ee; font-family: 'Courier New', monospace; text-align: center; margin: 0; overflow: hidden; }
+        #canvas-container { position: relative; width: 100vw; height: 70vh; background: radial-gradient(circle, #0f172a 0%, #000 100%); border-bottom: 2px solid #22d3ee; }
+        canvas { width: 100%; height: 100%; }
+        .control-panel { padding: 20px; }
+        input[type="range"] { width: 80%; max-width: 400px; cursor: pointer; accent-color: #ff00ff; }
+        .stats { display: flex; justify-content: center; gap: 30px; margin-top: 15px; font-size: 18px; font-weight: bold; }
+        .alert { color: #ff4444; font-size: 24px; text-shadow: 0 0 10px #ff0000; display: none; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="lab-card">
-        <h3>REAKSIYA LABORATORIYASI</h3>
+    <h2 style="margin: 15px 0; text-shadow: 0 0 10px #22d3ee;">NANO-KINETIK SIMULYATOR</h2>
+
+    <div id="canvas-container">
+        <canvas id="simCanvas"></canvas>
+    </div>
+
+    <div class="control-panel">
+        <label style="font-size: 14px; color: #94a3b8; display: block; margin-bottom: 10px;">ENERGIYA (HARORAT) DARAJASI</label>
+        <input type="range" id="tempSlider" min="0" max="100" value="0">
         
-        <div class="input-group">
-            <label>1-Reagent</label>
-            <input type="text" id="r1" placeholder="Masalan: NaOH">
+        <div class="stats">
+            <div id="tempDisplay" style="color: #00ff00;">Harorat: 0 °C</div>
+            <div id="stateDisplay" style="color: #f472b6;">Holat: Barqaror</div>
         </div>
-
-        <div style="text-align: center; margin-bottom: 15px; color: #22d3ee; font-weight: bold;">+</div>
-
-        <div class="input-group">
-            <label>2-Reagent</label>
-            <input type="text" id="r2" placeholder="Masalan: HCl">
-        </div>
-
-        <button onclick="predictReaction()">REAKSIYANI BOSHLASH</button>
-
-        <div id="result-box">
-            <div class="equation" id="eq-out"></div>
-            <div class="note" id="note-out"></div>
-        </div>
+        <div id="breakAlert" class="alert">⚠️ KRITIK NUQTA: BOG'LANISHLAR UZILDI! (ChoCh)</div>
     </div>
 
     <script>
-        function predictReaction() {
-            const r1 = document.getElementById('r1').value.trim().toLowerCase();
-            const r2 = document.getElementById('r2').value.trim().toLowerCase();
-            const box = document.getElementById('result-box');
-            const eq = document.getElementById('eq-out');
-            const note = document.getElementById('note-out');
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        const slider = document.getElementById('tempSlider');
+        const alertBox = document.getElementById('breakAlert');
+        const stateDisp = document.getElementById('stateDisplay');
+        const tempDisp = document.getElementById('tempDisplay');
 
-            box.style.display = 'block';
-
-            // Oddiy mantiqiy baza (Keyinchalik buni kengaytirish mumkin)
-            if ((r1 === 'naoh' && r2 === 'hcl') || (r1 === 'hcl' && r2 === 'naoh')) {
-                eq.innerHTML = "NaOH + HCl → NaCl + H₂O";
-                note.innerHTML = "<b>Neytrallanish reaksiyasi:</b> Osh tuzi va suv hosil bo'ladi. Reaksiya ekzotermik (issiqlik chiqishi bilan) boradi.";
-            } 
-            else if ((r1 === 'h2so4' && r2 === 'naoh') || (r1 === 'naoh' && r2 === 'h2so4')) {
-                eq.innerHTML = "H₂SO₄ + 2NaOH → Na₂SO₄ + 2H₂O";
-                note.innerHTML = "<b>Neytrallanish:</b> Natriy sulfat tuzi va suv hosil bo'ladi.";
-            }
-            else if ((r1 === 'ch4' && r2 === 'o2') || (r1 === 'o2' && r2 === 'ch4')) {
-                eq.innerHTML = "CH₄ + 2O₂ → CO₂ + 2H₂O";
-                note.innerHTML = "<b>Yonish reaksiyasi:</b> Metan havoda yonib, karbonat angidrid va suv bug'ini hosil qiladi.";
-            }
-            else {
-                eq.innerHTML = "Noma'lum reaksiya";
-                note.innerHTML = "Ushbu reagentlar o'rtasidagi reaksiya bazada mavjud emas yoki ular oddiy sharoitda reaksiyaga kirishmaydi.";
-            }
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight * 0.7;
         }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Molekula atomlari
+        let atoms = [
+            { id: 'O', x: 0, y: 0, baseR: 40, color: '#ff4444' }, // Markaz
+            { id: 'H1', x: -80, y: 60, baseR: 20, color: '#ffffff' },
+            { id: 'H2', x: 80, y: 60, baseR: 20, color: '#ffffff' }
+        ];
+
+        let time = 0;
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let temp = parseInt(slider.value);
+            let cx = canvas.width / 2;
+            let cy = canvas.height / 2;
+
+            tempDisp.innerText = `Harorat: ${(temp * 10)} °C`;
+
+            // Tebranish amplitudasi (Volatility)
+            let vibe = temp * 0.5; 
+            let isBroken = temp > 85;
+
+            if (isBroken) {
+                alertBox.style.display = 'block';
+                stateDisp.innerText = "Holat: Parchalangan";
+                stateDisp.style.color = "#ff4444";
+            } else {
+                alertBox.style.display = 'none';
+                stateDisp.innerText = "Holat: Barqaror";
+                stateDisp.style.color = "#f472b6";
+            }
+
+            // Bog'lanishlarni chizish (agar parchalanmagan bo'lsa)
+            if (!isBroken) {
+                ctx.beginPath();
+                ctx.moveTo(cx + atoms[0].x, cy + atoms[0].y);
+                ctx.lineTo(cx + atoms[1].x + Math.sin(time) * vibe, cy + atoms[1].y + Math.cos(time) * vibe);
+                ctx.moveTo(cx + atoms[0].x, cy + atoms[0].y);
+                ctx.lineTo(cx + atoms[2].x + Math.cos(time) * vibe, cy + atoms[2].y + Math.sin(time) * vibe);
+                ctx.strokeStyle = `rgba(34, 211, 238, ${1 - (temp/100)})`;
+                ctx.lineWidth = 6;
+                ctx.stroke();
+            }
+
+            // Atomlarni chizish
+            atoms.forEach((a, i) => {
+                let dx = 0, dy = 0;
+                
+                // Agar parchalanib ketsa, ekrandan chiqib keta boshlaydi
+                if (isBroken) {
+                    dx = (a.x * (temp - 80) * 0.1);
+                    dy = (a.y * (temp - 80) * 0.1);
+                } else {
+                    // Normal tebranish
+                    dx = Math.sin(time * (i+1)) * vibe;
+                    dy = Math.cos(time * (i+1)) * vibe;
+                }
+
+                ctx.beginPath();
+                ctx.arc(cx + a.x + dx, cy + a.y + dy, a.baseR, 0, Math.PI * 2);
+                ctx.fillStyle = a.color;
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = a.color;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            });
+
+            time += 0.1 + (temp * 0.005);
+            requestAnimationFrame(draw);
+        }
+
+        draw();
     </script>
 </body>
 </html>
