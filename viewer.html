@@ -31,7 +31,7 @@
         }
 
         .search-box {
-            display: flex; gap: 10px; max-width: 600px; margin: 20px auto 0;
+            display: flex; gap: 10px; max-width: 650px; margin: 20px auto 0;
         }
 
         input {
@@ -39,10 +39,14 @@
             border-radius: 12px; padding: 12px; color: var(--neon-green); outline: none;
         }
 
-        button {
+        .btn {
             padding: 12px 25px; border-radius: 12px; border: none;
-            background: var(--neon-green); color: #000; font-weight: bold; cursor: pointer;
+            font-weight: bold; cursor: pointer; transition: 0.3s;
         }
+
+        .btn-analyze { background: var(--neon-green); color: #000; }
+        .btn-voice { background: var(--neon-blue); color: #000; font-size: 20px; }
+        .btn:hover { transform: scale(1.05); opacity: 0.9; }
 
         .dashboard {
             display: grid; grid-template-columns: 1fr 400px;
@@ -71,8 +75,6 @@
         #loading {
             position: absolute; top: 10px; right: 10px; color: var(--neon-green); font-size: 12px;
         }
-
-        @media (max-width: 900px) { .dashboard { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -80,8 +82,9 @@
     <div class="header">
         <h1 style="margin:0; letter-spacing:5px; color:var(--neon-blue)">AL KIMYOGAR <span style="color:var(--neon-green)">PRO</span></h1>
         <div class="search-box">
-            <input type="text" id="mol-input" placeholder="Modda nomi (masalan: Ethanol)...">
-            <button onclick="runAnalysis()">TAHLIL QILISH</button>
+            <input type="text" id="mol-input" placeholder="Modda nomi yoki mikrofondan foydalaning...">
+            <button class="btn btn-voice" onclick="startVoice()" title="Ovozli qidiruv">🎤</button>
+            <button class="btn btn-analyze" onclick="runAnalysis()">TAHLIL</button>
         </div>
     </div>
 
@@ -92,15 +95,15 @@
         </div>
 
         <div class="info-panel">
-            <div style="grid-column: 1 / -1; color: var(--neon-green); text-align: center; font-weight: bold; border-bottom: 1px solid;">XOSSALARI</div>
+            <div style="grid-column: 1 / -1; color: var(--neon-green); text-align: center; font-weight: bold;">KIMYOVIY ANALIZ</div>
             
             <div class="stat-card"><div class="label">Molyar Massa</div><div id="res-mw" class="value">--</div></div>
             <div class="stat-card"><div class="label">Formula</div><div id="res-f" class="value">--</div></div>
-            <div class="stat-card"><div class="label">Zichlik</div><div id="res-d" class="value">Ma'lumot yo'q</div></div>
+            <div class="stat-card"><div class="label">Zichlik</div><div id="res-d" class="value">--</div></div>
             <div class="stat-card"><div class="label">Erish harorati</div><div id="res-mp" class="value">--</div></div>
             <div class="stat-card"><div class="label">Qaynash harorati</div><div id="res-bp" class="value">--</div></div>
-            <div class="stat-card"><div class="label">pH ko'rsatkich</div><div id="res-ph" class="value">Analiz...</div></div>
-            <div class="stat-card"><div class="label">pOH</div><div id="res-poh" class="value">Analiz...</div></div>
+            <div class="stat-card"><div class="label">pH muhiti</div><div id="res-ph" class="value">--</div></div>
+            <div class="stat-card"><div class="label">pOH</div><div id="res-poh" class="value">--</div></div>
             <div class="stat-card"><div class="label">Xossasi</div><div id="res-prop" class="value">--</div></div>
         </div>
     </div>
@@ -108,67 +111,50 @@
     <script>
         let viewer = null;
 
+        // OVOZLI BOSHQARUV FUNKSIYASI
+        function startVoice() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Brauzeringiz ovozni tanishni qo'llab-quvvatlamaydi.");
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            document.getElementById('loading').innerText = "Sizni eshityapman...";
+
+            recognition.start();
+
+            recognition.onresult = (event) => {
+                const word = event.results[0][0].transcript;
+                document.getElementById('mol-input').value = word;
+                runAnalysis(); // Ovozdan keyin avtomatik tahlilni boshlaydi
+            };
+        }
+
         async function runAnalysis() {
             const query = document.getElementById('mol-input').value.trim();
             if(!query) return;
-            document.getElementById('loading').innerText = "Yuklanmoqda...";
+            document.getElementById('loading').innerText = "Tahlil qilinmoqda...";
 
             try {
-                // 1. CID va Asosiy xususiyatlar
-                const r1 = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${query}/property/MolecularWeight,MolecularFormula,IUPACName/JSON`);
+                const r1 = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${query}/property/MolecularWeight,MolecularFormula,IUPACName,CID/JSON`);
                 const d1 = await r1.json();
                 const p = d1.PropertyTable.Properties[0];
-                const cid = p.CID;
 
                 document.getElementById('res-mw').innerText = p.MolecularWeight + " g/mol";
                 document.getElementById('res-f').innerText = p.MolecularFormula;
 
-                // 2. Fizikaviy xossalar (Density, MP, BP)
-                const r2 = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/view/data/compound/${cid}/JSON`);
-                const d2 = await r2.json();
-
-                // Ma'lumotlarni qidirish funksiyasi
-                const findVal = (label) => {
-                    try {
-                        let sections = d2.Record.Section;
-                        for(let s of sections) {
-                            if(s.TOCHeading === "Chemical and Physical Properties") {
-                                for(let ss of s.Section) {
-                                    if(ss.TOCHeading === label) return ss.Information[0].Value.StringWithMarkup[0].String;
-                                }
-                            }
-                        }
-                    } catch(e) { return "--"; }
-                    return "--";
-                };
-
-                const mp = findVal("Melting Point");
-                const bp = findVal("Boiling Point");
-                const density = findVal("Density");
-
-                document.getElementById('res-mp').innerText = mp;
-                document.getElementById('res-bp').innerText = bp;
-                document.getElementById('res-d').innerText = density;
-
-                // 3. pH va pOH hisoblash (Mantiqiy yondashuv)
-                let name = p.IUPACName.toLowerCase();
+                // pH va Xossa mantiqi
                 let acidity = "Neytral";
-                if(name.includes("acid") || name.includes("kislota")) {
-                    acidity = "Kislotali";
-                    document.getElementById('res-ph').innerText = "< 7";
-                    document.getElementById('res-poh').innerText = "> 7";
-                } else if(name.includes("hydroxide") || name.includes("ishqor")) {
-                    acidity = "Ishqoriy";
-                    document.getElementById('res-ph').innerText = "> 7";
-                    document.getElementById('res-poh').innerText = "< 7";
-                } else {
-                    document.getElementById('res-ph').innerText = "7";
-                    document.getElementById('res-poh').innerText = "7";
-                }
+                let name = p.IUPACName.toLowerCase();
+                if(name.includes("acid")) { acidity = "Kislota"; document.getElementById('res-ph').innerText = "< 7"; }
+                else if(name.includes("hydroxide")) { acidity = "Ishqor"; document.getElementById('res-ph').innerText = "> 7"; }
+                else { document.getElementById('res-ph').innerText = "7"; }
                 document.getElementById('res-prop').innerText = acidity;
 
-                // 4. 3D Model
-                const r3 = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/SDF?record_type=3d`);
+                // 3D Model yuklash
+                const r3 = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${p.CID}/SDF?record_type=3d`);
                 const sdf = await r3.text();
                 const vDiv = document.getElementById('v-canvas');
                 vDiv.innerHTML = '';
@@ -177,7 +163,7 @@
                 viewer.setStyle({}, { stick: { radius:0.15 }, sphere: { scale:0.25 } });
                 viewer.zoomTo(); viewer.render(); viewer.spin(true);
 
-                document.getElementById('loading').innerText = "Online";
+                document.getElementById('loading').innerText = "Tahlil yakunlandi ✓";
             } catch(e) {
                 document.getElementById('loading').innerText = "Xato: Topilmadi";
             }
