@@ -22,7 +22,7 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 0; /* To'liq ekran uchun chekka bo'shliqlari olib tashlandi */
+            padding: 0; 
         }
 
         .card {
@@ -30,15 +30,14 @@
             backdrop-filter: blur(20px);
             border: 2px solid rgba(0, 255, 0, 0.2);
             width: 100%;
-            max-width: 100%; /* 500px cheklovi olib tashlandi */
-            min-height: 100vh; /* Ekran balandligini to'liq egallaydi */
-            border-radius: 0; /* Burchaklar to'g'rilandi */
+            max-width: 100%; 
+            min-height: 100vh; 
+            border-radius: 0; 
             padding: 25px;
             box-shadow: 0 0 40px rgba(0, 255, 0, 0.15);
-            box-sizing: border-box; /* Padding ekrandan chiqib ketmasligi uchun */
+            box-sizing: border-box; 
         }
 
-        /* Mode Switcher Styles */
         .mode-switcher {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -81,7 +80,6 @@
             word-break: break-all;
         }
 
-        /* Keyboard Input Style */
         #kb-input-container {
             display: none;
             margin-bottom: 15px;
@@ -159,13 +157,12 @@
             font-size: 13px;
         }
 
-        /* Suzib yuruvchi tugma CSS */
         .molar-btn-container {
             position: fixed;
             top: 20px;
             right: 20px;
             z-index: 10000;
-            touch-action: none; /* Telefonda tirtishayotganda ekran qimirlamasligi uchun */
+            touch-action: none; 
             cursor: grab;
         }
 
@@ -183,8 +180,21 @@
             font-weight: bold;
             font-size: 20px;
             box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
-            /* Animatsiya o'chirib qo'yildi, chunki sudrashga xalaqit berishi mumkin */
-            pointer-events: none; /* Faqat konteyner bosilishini ushlaydi */
+            pointer-events: none; 
+        }
+
+        /* --- YANGI QO'SHILGAN SIMULYATSIYA MAYDONI --- */
+        #visual-container {
+            display: none;
+            margin-top: 20px;
+            position: relative;
+            width: 100%;
+            height: 200px;
+            background: radial-gradient(circle, #0f172a 0%, #000 100%);
+            border-radius: 20px;
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            overflow: hidden;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
         }
     </style>
 </head>
@@ -205,11 +215,6 @@
         <div id="status" style="font-size: 10px; color: var(--a); margin-top: 10px;">TAYYOR</div>
     </div>
 
-    <div id="visual-container" style="display:none; margin-top: 20px; position: relative; width: 100%; height: 180px; background: radial-gradient(circle, #0f172a 0%, #000 100%); border-radius: 20px; border: 1px solid rgba(34, 211, 238, 0.3); overflow: hidden; box-shadow: inset 0 0 20px rgba(34, 211, 238, 0.1);">
-    <canvas id="reactionCanvas"></canvas>
-    <div id="reaction-status-tag" style="position: absolute; top: 10px; right: 15px; font-size: 9px; color: var(--a); letter-spacing: 2px; text-transform: uppercase; opacity: 0.8;">Simulyatsiya: Aktiv</div>
-    </div>
-
     <div id="kb-input-container">
         <input type="text" id="manual-input" placeholder="Masalan: NaOH + HCl" oninput="syncInput()">
     </div>
@@ -228,6 +233,7 @@
     </div>
 
     <div id="res-box"></div>
+    <div id="visual-container"><canvas id="reactionCanvas"></canvas></div>
 </div>
 
 <script>
@@ -240,180 +246,31 @@
         isDragging = false;
         startX = e.clientX;
         startY = e.clientY;
-        
         const rect = dragEl.getBoundingClientRect();
         dragEl.dataset.offsetX = e.clientX - rect.left;
         dragEl.dataset.offsetY = e.clientY - rect.top;
-        
         dragEl.setPointerCapture(e.pointerId);
         dragEl.addEventListener('pointermove', onDragMove);
     });
 
     function onDragMove(e) {
-        if (Math.abs(e.clientX - startX) > 5 || Math.abs(e.clientY - startY) > 5) {
-            isDragging = true;
-        }
+        if (Math.abs(e.clientX - startX) > 5 || Math.abs(e.clientY - startY) > 5) { isDragging = true; }
         if (isDragging) {
             const offX = parseFloat(dragEl.dataset.offsetX);
             const offY = parseFloat(dragEl.dataset.offsetY);
             dragEl.style.left = (e.clientX - offX) + 'px';
             dragEl.style.top = (e.clientY - offY) + 'px';
-            dragEl.style.right = 'auto'; // O'ng tomon bog'lamini uzish
+            dragEl.style.right = 'auto';
         }
     }
 
     dragEl.addEventListener('pointerup', (e) => {
         dragEl.removeEventListener('pointermove', onDragMove);
         dragEl.releasePointerCapture(e.pointerId);
-        
-        // Agar sudrab olib kelinmagan bo'lsa, uni "click" deb qabul qilamiz
-        if (!isDragging) {
-            window.open('molar.html', '_blank');
-        }
+        if (!isDragging) { window.open('molar.html', '_blank'); }
         setTimeout(() => { isDragging = false; }, 10);
     });
 
-    // --- VIZUALIZATSIYA KODI ---
-let canvas = document.getElementById('reactionCanvas');
-let ctx = canvas.getContext('2d');
-let particles = [];
-let animationId;
-
-class Particle {
-    constructor(x, y, color) {
-        this.x = x;
-        this.y = y;
-        this.color = color;
-        this.radius = Math.random() * 3 + 2;
-        this.vx = (Math.random() - 0.5) * 4; 
-        this.vy = (Math.random() - 0.5) * 4; 
-    }
-
-    draw() {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = this.color;
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = this.color;
-        ctx.fill();
-    }
-
-    update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
-    }
-}
-
-function startReactionVisual() {
-    // --- KUCHAYTIRILGAN, ZICH BULUT SIMULYATSIYASI ---
-function startReactionVisual(type, color) {
-    const container = document.getElementById('visual-container');
-    container.style.display = "block";
-    canvas.width = container.offsetWidth;
-    canvas.height = container.offsetHeight;
-    particles = [];
-    cancelAnimationFrame(animationId);
-
-    // Reaksiya turiga ko'ra default ranglar
-    if (type === "gas") {
-        color = "rgba(230, 230, 230, 0.8)"; // Zich, translucent och kulrang/oq bulut
-    } else if (type === "precipitate") {
-        color = "#ffffff"; // Cho'kma uchun qattiq oq
-    }
-
-    if (type === "gas") {
-        // ENHANCED GAS SIMULATION: Zich bulut ko'rinishida
-        for (let i = 0; i < 150; i++) { // Zarrachalar sonini sezilarli darajada ko'paytiramiz (30-dan 150-ga)
-            let p = new Particle(Math.random() * canvas.width, Math.random() * canvas.height, color);
-            
-            // Boshlanish nuqtasi: Ekranining pastki markazidan (reaksiya manbai)
-            p.x = canvas.width / 2 + (Math.random() - 0.5) * 30; // Markaz atrofida spread
-            p.y = canvas.height * 0.9 + (Math.random() - 0.5) * 10; // Tubiga yaqin
-
-            // Asosiy tepaga yo'naltirilgan tezlik, biroz chetga yoyilish bilan
-            p.vx = (Math.random() - 0.5) * 2;
-            p.vy = -Math.random() * 4 - 1; // Tepaga tezroq uchish
-            p.radius = Math.random() * 3 + 2; // Dastlabki kichik hajm
-
-            // Bulut kabi yoyilish va yo'qolish xususiyatlari
-            p.fadeRate = 0.005 + Math.random() * 0.01; // Yo'qolish tezligi
-            p.expansionRate = 0.05 + Math.random() * 0.1; // Kengayish tezligi
-            p.opacity = 0.8; // Dastlabki shaffoflik
-            p.maxRadius = Math.random() * 15 + 10; // Maksimal hajm
-
-            particles.push(p);
-        }
-    } else if (type === "precipitate") {
-        // ... (oldingi cho'kma kodi - zarrachalar pastga tushadi)
-    } else {
-        // ... (oldingi normal/boshqa turlar kodi - tartibsiz floating)
-    }
-
-    // Yangi zarracha xususiyatlarini boshqarish uchun animateParticles-ni ham yangilash kerak
-    animateParticles(type);
-}
-
-// Bulut effektini boshqarish uchun animateParticles funksiyasini ham yangilaymiz
-function animateParticles(type) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    for (let i = particles.length - 1; i >= 0; i--) {
-        let p = particles[i];
-        p.update();
-
-        // Gaz buluti uchun maxsus logika
-        if (type === "gas") {
-            // Zarrachani kengaytirish
-            if (p.radius < p.maxRadius) {
-                p.radius += p.expansionRate;
-            }
-            
-            // Shaffoflikni kamaytirish va tezlikni sekinlashtirish (havoda tarqalish efekti)
-            p.opacity -= p.fadeRate;
-            p.vy += 0.02; // Sekinlashtiruvchi kuch
-
-            // Yangi shaffof rangni o'rnatish
-            p.color = `rgba(230, 230, 230, ${p.opacity})`;
-
-            // Agar zarracha butunlay shaffof bo'lib ketsa, uni o'chirib tashlash
-            if (p.opacity <= 0) {
-                particles.splice(i, 1);
-                continue; 
-            }
-        }
-
-        p.draw(); 
-    }
-    
-    animationId = requestAnimationFrame(() => animateParticles(type));
-}
-
-function animateParticles() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    particles.forEach((p, index) => {
-        p.update();
-        p.draw();
-        for (let j = index + 1; j < particles.length; j++) {
-            let dx = p.x - particles[j].x;
-            let dy = p.y - particles[j].y;
-            let dist = Math.sqrt(dx*dx + dy*dy);
-            if (dist < 60) {
-                ctx.beginPath();
-                ctx.strokeStyle = p.color;
-                ctx.globalAlpha = 1 - (dist / 60);
-                ctx.lineWidth = 0.8;
-                ctx.moveTo(p.x, p.y);
-                ctx.lineTo(particles[j].x, particles[j].y);
-                ctx.stroke();
-                ctx.globalAlpha = 1;
-            }
-        }
-    });
-    animationId = requestAnimationFrame(animateParticles);
-                            }
-    
     // --- ASOSIY KOD ---
     const KEY = "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";
     const URL = "https://api.groq.com/openai/v1/chat/completions";
@@ -440,7 +297,6 @@ function animateParticles() {
         currentMode = mode;
         document.getElementById('mode-kb').classList.toggle('active', mode === 'kb');
         document.getElementById('mode-grid').classList.toggle('active', mode === 'grid');
-        
         document.getElementById('kb-input-container').style.display = (mode === 'kb') ? 'block' : 'none';
         document.getElementById('grid-container').style.display = (mode === 'grid') ? 'block' : 'none';
     }
@@ -462,36 +318,82 @@ function animateParticles() {
         document.getElementById('display').innerText = "...";
         document.getElementById('manual-input').value = "";
         document.getElementById('res-box').style.display = "none";
+        document.getElementById('visual-container').style.display = "none";
         document.getElementById('display').style.color = "var(--s)";
+        cancelAnimationFrame(animationId);
+    }
+
+    // --- ZICH BULUT SIMULYATSIYASI ---
+    let canvas = document.getElementById('reactionCanvas');
+    let ctx = canvas.getContext('2d');
+    let particles = [];
+    let animationId;
+
+    class Particle {
+        constructor(x, y, type) {
+            this.x = x;
+            this.y = y;
+            this.radius = Math.random() * 3 + 2;
+            this.vx = (Math.random() - 0.5) * 2;
+            this.vy = -Math.random() * 4 - 1;
+            this.opacity = 0.8;
+            this.maxRadius = Math.random() * 15 + 10;
+        }
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(230, 230, 230, ${this.opacity})`;
+            ctx.fill();
+        }
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            if (this.radius < this.maxRadius) this.radius += 0.1;
+            this.opacity -= 0.008;
+            this.vy += 0.02;
+        }
+    }
+
+    function startVisual() {
+        const container = document.getElementById('visual-container');
+        container.style.display = "block";
+        canvas.width = container.offsetWidth;
+        canvas.height = container.offsetHeight;
+        particles = [];
+        function loop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (particles.length < 150) {
+                particles.push(new Particle(canvas.width / 2 + (Math.random() - 0.5) * 40, canvas.height * 0.9));
+            }
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].opacity <= 0) particles.splice(i, 1);
+            }
+            animationId = requestAnimationFrame(loop);
+        }
+        loop();
     }
 
     async function askAI() {
         if(!currentInput) return;
         const st = document.getElementById('status');
         st.innerText = "TAHLIL KETMOQDA...";
-        // AI javobini chiqarib bo'lgach, vizualni yoqamiz
-startReactionVisual();
-    
         try {
             const response = await fetch(URL, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${KEY}`,
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Authorization': `Bearer ${KEY}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     model: "llama-3.3-70b-versatile",
                     messages: [{
                         role: "user", 
-                        content: `Sen kimyogarsan. Reaksiyani tugalla: ${currentInput}. FAQAT JSON qaytar: {"t": "equation", "i": "explanation", "possible": true}. Agar reaksiya bormasa "possible": false qaytar.`
+                        content: `Sen kimyogarsan. Reaksiyani tugalla: ${currentInput}. FAQAT JSON qaytar: {"t": "equation", "i": "explanation", "possible": true, "gas": true}. Agar gaz chiqsa "gas": true qaytar.`
                     }],
                     response_format: { type: "json_object" }
                 })
             });
-
             const data = await response.json();
             const res = JSON.parse(data.choices[0].message.content);
-
             if (!res.possible) {
                 document.getElementById('display').innerText = "BU REAKSIYA BORMAYDI";
                 document.getElementById('display').style.color = "var(--d)";
@@ -502,10 +404,9 @@ startReactionVisual();
                 st.innerText = "TAYYOR";
                 document.getElementById('res-box').innerHTML = `<b>Xulosa:</b> ${res.i}`;
                 document.getElementById('res-box').style.display = "block";
+                if(res.gas) startVisual();
             }
-        } catch (e) {
-            st.innerText = "Xatolik yuz berdi";
-        }
+        } catch (e) { st.innerText = "Xatolik yuz berdi"; }
     }
 </script>
 </body>
