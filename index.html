@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PARADOX Smart Chem AI v2</title>
+    <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
     <style>
         :root {
             --p: #0a0f1e; 
@@ -23,10 +24,9 @@
             min-height: 100vh;
             margin: 0;
             padding: 0; 
-            transition: box-shadow 0.5s ease; /* Issiqlik effekti uchun */
+            transition: box-shadow 0.5s ease;
         }
 
-        /* --- O'zMU YONIB O'CHUVCHI YON PANEL --- */
         .ozmu-header {
             text-align: center;
             font-size: 24px;
@@ -58,7 +58,6 @@
             transition: all 0.5s ease;
         }
 
-        /* Issiqlik effektlari uchun klasslar */
         .exothermic { box-shadow: inset 0 0 100px rgba(248, 113, 113, 0.4) !important; border-color: var(--d) !important; }
         .endothermic { box-shadow: inset 0 0 100px rgba(59, 130, 246, 0.4) !important; border-color: #3b82f6 !important; }
 
@@ -80,11 +79,7 @@
             transition: 0.3s;
         }
 
-        .btn-mode.active {
-            background: var(--a);
-            color: var(--p);
-            box-shadow: 0 0 15px var(--a);
-        }
+        .btn-mode.active { background: var(--a); color: var(--p); box-shadow: 0 0 15px var(--a); }
 
         .screen {
             background: #000;
@@ -96,18 +91,9 @@
             box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
         }
 
-        #display {
-            font-size: 28px;
-            color: var(--s);
-            text-shadow: 0 0 10px var(--s);
-            min-height: 40px;
-            word-break: break-all;
-        }
+        #display { font-size: 28px; color: var(--s); text-shadow: 0 0 10px var(--s); min-height: 40px; word-break: break-all; }
 
-        #kb-input-container {
-            display: none;
-            margin-bottom: 15px;
-        }
+        #kb-input-container { display: none; margin-bottom: 15px; }
 
         #manual-input {
             width: 100%;
@@ -129,45 +115,17 @@
             background: rgba(0, 0, 0, 0.4);
             padding: 12px;
             border-radius: 20px;
-            max-height: 300px;
+            max-height: 250px;
             overflow-y: auto;
             border: 1px solid rgba(0, 255, 0, 0.1);
             margin-bottom: 15px;
         }
 
-        button {
-            border: none;
-            border-radius: 12px;
-            padding: 15px 5px;
-            cursor: pointer;
-            color: #fff;
-            font-weight: bold;
-            transition: 0.2s;
-        }
-
-        .btn-el {
-            background: var(--key-bg);
-            border: 1px solid rgba(0, 255, 0, 0.3);
-            font-size: 14px;
-        }
-
+        button { border: none; border-radius: 12px; padding: 15px 5px; cursor: pointer; color: #fff; font-weight: bold; transition: 0.2s; }
+        .btn-el { background: var(--key-bg); border: 1px solid rgba(0, 255, 0, 0.3); font-size: 14px; }
         .btn-el span { display: block; font-size: 8px; opacity: 0.5; }
-
-        .btn-ai {
-            background: var(--a);
-            color: var(--p);
-            width: 100%;
-            font-size: 18px;
-            margin-bottom: 10px;
-            box-shadow: 0 0 20px var(--a);
-        }
-
-        .controls-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-        }
-
+        .btn-ai { background: var(--a); color: var(--p); width: 100%; font-size: 18px; margin-bottom: 10px; box-shadow: 0 0 20px var(--a); }
+        .controls-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
         .btn-op { background: #475569; border: 1px solid var(--s); }
         .btn-res { background: var(--d); box-shadow: 0 0 15px var(--d); }
 
@@ -179,6 +137,17 @@
             display: none;
             border-left: 4px solid var(--s);
             font-size: 13px;
+        }
+
+        /* 3D MOLEKULA OYNASI */
+        #mol-3d-view {
+            display: none;
+            width: 100%;
+            height: 250px;
+            margin-top: 10px;
+            border-radius: 20px;
+            border: 1px solid var(--a);
+            background: #000;
         }
 
         #visual-container {
@@ -193,38 +162,10 @@
             overflow: hidden;
         }
 
-        #ph-tag {
-            position: absolute;
-            top: 10px;
-            left: 15px;
-            font-size: 9px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: bold;
-            display: none;
-        }
+        #ph-tag { position: absolute; top: 10px; left: 15px; font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: bold; display: none; }
 
-        .molar-btn-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 10000;
-            touch-action: none; 
-            cursor: grab;
-        }
-
-        .btn-molar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: #0f172a;
-            border: 2px solid #00ff00;
-            color: #00ff00;
-            font-weight: bold;
-            font-size: 20px;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
-            pointer-events: none; 
-        }
+        .molar-btn-container { position: fixed; top: 20px; right: 20px; z-index: 10000; touch-action: none; cursor: grab; }
+        .btn-molar { width: 60px; height: 60px; border-radius: 50%; background: #0f172a; border: 2px solid #00ff00; color: #00ff00; font-weight: bold; font-size: 20px; box-shadow: 0 0 15px rgba(0, 255, 0, 0.4); pointer-events: none; }
     </style>
 </head>
 <body>
@@ -264,6 +205,8 @@
     </div>
 
     <div id="res-box"></div>
+    <div id="mol-3d-view"></div>
+    
     <div id="visual-container">
         <canvas id="reactionCanvas"></canvas>
         <div id="ph-tag"></div>
@@ -271,21 +214,18 @@
 </div>
 
 <script>
+    // --- DRAG LOGIC (O'zgarmadi) ---
     const dragEl = document.getElementById('draggable-mr');
     let isDragging = false;
     let startX, startY;
-
     dragEl.addEventListener('pointerdown', (e) => {
-        isDragging = false;
-        startX = e.clientX;
-        startY = e.clientY;
+        isDragging = false; startX = e.clientX; startY = e.clientY;
         const rect = dragEl.getBoundingClientRect();
         dragEl.dataset.offsetX = e.clientX - rect.left;
         dragEl.dataset.offsetY = e.clientY - rect.top;
         dragEl.setPointerCapture(e.pointerId);
         dragEl.addEventListener('pointermove', onDragMove);
     });
-
     function onDragMove(e) {
         if (Math.abs(e.clientX - startX) > 5 || Math.abs(e.clientY - startY) > 5) { isDragging = true; }
         if (isDragging) {
@@ -296,12 +236,10 @@
             dragEl.style.right = 'auto';
         }
     }
-
     dragEl.addEventListener('pointerup', (e) => {
         dragEl.removeEventListener('pointermove', onDragMove);
         dragEl.releasePointerCapture(e.pointerId);
         if (!isDragging) { window.open('molar.html', '_blank'); }
-        setTimeout(() => { isDragging = false; }, 10);
     });
 
     const KEY = "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";
@@ -351,9 +289,30 @@
         document.getElementById('manual-input').value = "";
         document.getElementById('res-box').style.display = "none";
         document.getElementById('visual-container').style.display = "none";
+        document.getElementById('mol-3d-view').style.display = "none";
         document.getElementById('display').style.color = "var(--s)";
-        document.getElementById('mainCard').className = "card"; // Effektni o'chirish
+        document.getElementById('mainCard').className = "card";
         cancelAnimationFrame(animationId);
+    }
+
+    // --- 3D MOLEKULA CHIZISH ---
+    function show3D(smiles) {
+        if(!smiles) return;
+        const view = document.getElementById('mol-3d-view');
+        view.style.display = "block";
+        view.innerHTML = "";
+        let viewer = $3Dmol.createViewer(view, { backgroundColor: 'black' });
+        
+        // AI'dan kelgan SMILES kodini molekulaga aylantirish
+        fetch(`https://cactus.nci.nih.gov/chemical/structure/${smiles}/sdf`)
+            .then(res => res.text())
+            .then(data => {
+                viewer.addModel(data, "sdf");
+                viewer.setStyle({}, { stick: { radius: 0.2 }, sphere: { scale: 0.3 } });
+                viewer.zoomTo();
+                viewer.render();
+                viewer.spin(true);
+            });
     }
 
     let canvas = document.getElementById('reactionCanvas');
@@ -372,10 +331,8 @@
             this.maxRadius = Math.random() * 25 + 15;
         }
         draw() {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-            ctx.fillStyle = this.color.replace('0.8', this.opacity);
-            ctx.fill();
+            ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fillStyle = this.color.replace('0.8', this.opacity); ctx.fill();
         }
         update() {
             this.x += this.vx; this.y += this.vy;
@@ -393,19 +350,13 @@
         const phTag = document.getElementById('ph-tag');
         const card = document.getElementById('mainCard');
         container.style.display = "block";
-        canvas.width = container.offsetWidth;
-        canvas.height = container.offsetHeight;
+        canvas.width = container.offsetWidth; canvas.height = container.offsetHeight;
         particles = [];
-        
-        // ISSIQLIK EFFEKTI
         card.className = "card " + (heat === "exothermic" ? "exothermic" : (heat === "endothermic" ? "endothermic" : ""));
-
         if(env) {
-            phTag.style.display = "block";
-            phTag.innerText = "MUHIT: " + env.toUpperCase();
+            phTag.style.display = "block"; phTag.innerText = "MUHIT: " + env.toUpperCase();
             phTag.style.background = env === 'kislotali' ? '#f87171' : (env === 'ishqoriy' ? '#3b82f6' : '#10b981');
         }
-
         function loop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if(particles.length < 400) {
@@ -436,7 +387,7 @@
                     model: "llama-3.3-70b-versatile",
                     messages: [{
                         role: "user", 
-                        content: `Sen kimyogarsan. Reaksiyani tugalla: ${currentInput}. FAQAT JSON qaytar: {"t": "equation", "i": "explanation", "possible": true, "gas": true, "precipitate": true, "color": "hex_code", "env": "kislotali|ishqoriy|neytral", "heat": "exothermic|endothermic|none"}.`
+                        content: `Sen kimyogarsan. Reaksiyani tugalla: ${currentInput}. FAQAT JSON qaytar: {"t": "equation", "i": "explanation", "possible": true, "gas": true, "precipitate": true, "color": "hex_code", "env": "kislotali|ishqoriy|neytral", "heat": "exothermic|endothermic|none", "smiles": "SMILES_code_of_main_product"}.`
                     }],
                     response_format: { type: "json_object" }
                 })
@@ -454,6 +405,9 @@
                 document.getElementById('res-box').innerHTML = `<b>Xulosa:</b> ${res.i}`;
                 document.getElementById('res-box').style.display = "block";
                 
+                // 3D MOLEKULANI CHIQARISH
+                if(res.smiles) show3D(res.smiles);
+
                 if(res.gas) startVisual('gas', 'rgba(255,255,255,0.8)', res.env, res.heat);
                 else if(res.precipitate) startVisual('precipitate', res.color, res.env, res.heat);
                 else startVisual('none', null, res.env, res.heat);
