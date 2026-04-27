@@ -4,8 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PARADOX Smart Chem AI v2</title>
-    <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
     <style>
+        .neon-hex-btn {
+    width: 100%;
+    margin: 20px 0;
+    padding: 16px;
+    background: #0f172a; /* To'q fon */
+    border: 2px solid #00ff00; /* Neon yashil chegara */
+    border-radius: 15px;
+    color: #00ff00;
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    cursor: pointer;
+    display: flex; /* Doimiy ko'rinish */
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.2), inset 0 0 5px rgba(0, 255, 0, 0.1);
+    text-transform: uppercase;
+}
+
+/* Tugma bosilganda va sichqoncha kelganda effekt */
+.neon-hex-btn:hover {
+    background: rgba(0, 255, 0, 0.05);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.4), inset 0 0 10px rgba(0, 255, 0, 0.2);
+    transform: scale(1.02);
+}
+
+.neon-hex-btn:active {
+    transform: scale(0.98);
+}
+
+/* Aylanuvchi oltiburchak ikonka */
+.hex-spinner {
+    font-size: 22px;
+    display: inline-block;
+    animation: rotateHex 4s linear infinite;
+    filter: drop-shadow(0 0 5px #00ff00);
+}
+
+@keyframes rotateHex {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Neon chegara "puls" effekti */
+.neon-hex-btn {
+    animation: borderPulse 2s infinite alternate;
+}
+
+@keyframes borderPulse {
+    from { border-color: #00ff00; box-shadow: 0 0 10px rgba(0, 255, 0, 0.2); }
+    to { border-color: #22d3ee; box-shadow: 0 0 20px rgba(34, 211, 238, 0.4); }
+}
+        
         :root {
             --p: #0a0f1e; 
             --a: #22d3ee; 
@@ -24,9 +80,10 @@
             min-height: 100vh;
             margin: 0;
             padding: 0; 
-            transition: box-shadow 0.5s ease;
+            transition: box-shadow 0.5s ease; /* Issiqlik effekti uchun */
         }
 
+        /* --- O'zMU YONIB O'CHUVCHI YON PANEL --- */
         .ozmu-header {
             text-align: center;
             font-size: 24px;
@@ -58,6 +115,7 @@
             transition: all 0.5s ease;
         }
 
+        /* Issiqlik effektlari uchun klasslar */
         .exothermic { box-shadow: inset 0 0 100px rgba(248, 113, 113, 0.4) !important; border-color: var(--d) !important; }
         .endothermic { box-shadow: inset 0 0 100px rgba(59, 130, 246, 0.4) !important; border-color: #3b82f6 !important; }
 
@@ -203,50 +261,6 @@
             display: none;
         }
 
-        /* YANGI QO'SHILGAN STIL: VIZUAL TUGMALAR UCHUN */
-        #visual-btns-container {
-            display: none;
-            grid-template-columns: 1fr;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .btn-viz {
-            background: linear-gradient(45deg, #22d3ee, #00ff00);
-            color: #000;
-            padding: 12px;
-            font-size: 14px;
-            text-transform: uppercase;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
-        }
-
-        /* 3D MODAL OYNASI */
-        #mol-modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 20000;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #mol-viewer {
-            width: 90%;
-            height: 70%;
-            background: #000;
-            border-radius: 20px;
-            border: 1px solid var(--a);
-        }
-
-        .close-modal {
-            margin-top: 20px;
-            background: var(--d);
-            padding: 10px 30px;
-            border-radius: 10px;
-        }
-
         .molar-btn-container {
             position: fixed;
             top: 20px;
@@ -300,6 +314,10 @@
     <button class="btn-ai" onclick="askAI()">⚗️</button>
 
     <div class="controls-row">
+        <button id="custom-action-btn" class="neon-hex-btn" onclick="handleCustomAction()">
+    <div class="hex-spinner">⬢</div>
+    <span class="btn-text">3D VIZUAL KO'RINISH</span>
+        </button>
         <button class="btn-op" onclick="addChar(' + ')">+</button>
         <button class="btn-op" onclick="addChar('2')">2</button>
         <button class="btn-op" onclick="addChar('3')">3</button>
@@ -307,18 +325,10 @@
     </div>
 
     <div id="res-box"></div>
-
-    <div id="visual-btns-container"></div>
-
     <div id="visual-container">
         <canvas id="reactionCanvas"></canvas>
         <div id="ph-tag"></div>
     </div>
-</div>
-
-<div id="mol-modal">
-    <div id="mol-viewer"></div>
-    <button class="close-modal" onclick="closeMol()">YOPISH</button>
 </div>
 
 <script>
@@ -402,38 +412,9 @@
         document.getElementById('manual-input').value = "";
         document.getElementById('res-box').style.display = "none";
         document.getElementById('visual-container').style.display = "none";
-        document.getElementById('visual-btns-container').style.display = "none";
         document.getElementById('display').style.color = "var(--s)";
-        document.getElementById('mainCard').className = "card";
+        document.getElementById('mainCard').className = "card"; // Effektni o'chirish
         cancelAnimationFrame(animationId);
-    }
-
-    // YANGI FUNKSIYA: 3D MODALNI OCHISH VA CHIZISH
-    function open3D(molName) {
-        const modal = document.getElementById('mol-modal');
-        const viewerDiv = document.getElementById('mol-viewer');
-        modal.style.display = 'flex';
-        viewerDiv.innerHTML = ''; 
-
-        let viewer = $3Dmol.createViewer(viewerDiv, { backgroundColor: 'black' });
-        
-        // Ism orqali modelni yuklash (PubChem API orqali)
-        fetch(`https://cactus.nci.nih.gov/chemical/structure/${molName}/sdf`)
-            .then(res => res.text())
-            .then(data => {
-                viewer.addModel(data, "sdf");
-                viewer.setStyle({}, { stick: { radius: 0.15 }, sphere: { scale: 0.25 } });
-                viewer.zoomTo();
-                viewer.render();
-                viewer.spin(true);
-            })
-            .catch(err => {
-                viewerDiv.innerHTML = '<p style="color:red; text-align:center; padding-top:50px;">Modelni yuklab bo\'lmadi</p>';
-            });
-    }
-
-    function closeMol() {
-        document.getElementById('mol-modal').style.display = 'none';
     }
 
     let canvas = document.getElementById('reactionCanvas');
@@ -477,6 +458,7 @@
         canvas.height = container.offsetHeight;
         particles = [];
         
+        // ISSIQLIK EFFEKTI
         card.className = "card " + (heat === "exothermic" ? "exothermic" : (heat === "endothermic" ? "endothermic" : ""));
 
         if(env) {
@@ -515,8 +497,7 @@
                     model: "llama-3.3-70b-versatile",
                     messages: [{
                         role: "user", 
-                        // Promptga "products" listini qo'shdik
-                        content: `Sen kimyogarsan. Reaksiyani tugalla: ${currentInput}. FAQAT JSON qaytar: {"t": "equation", "i": "explanation", "possible": true, "gas": true, "precipitate": true, "color": "hex_code", "env": "kislotali|ishqoriy|neytral", "heat": "exothermic|endothermic|none", "products": ["Product1", "Product2"]}.`
+                        content: `Sen kimyogarsan. Reaksiyani tugalla: ${currentInput}. FAQAT JSON qaytar: {"t": "equation", "i": "explanation", "possible": true, "gas": true, "precipitate": true, "color": "hex_code", "env": "kislotali|ishqoriy|neytral", "heat": "exothermic|endothermic|none"}.`
                     }],
                     response_format: { type: "json_object" }
                 })
@@ -534,20 +515,6 @@
                 document.getElementById('res-box').innerHTML = `<b>Xulosa:</b> ${res.i}`;
                 document.getElementById('res-box').style.display = "block";
                 
-                // YANGI: VIZUAL TUGMALARNI YARATISH
-                const btnContainer = document.getElementById('visual-btns-container');
-                btnContainer.innerHTML = '';
-                if(res.products && res.products.length > 0) {
-                    btnContainer.style.display = 'grid';
-                    res.products.forEach(p => {
-                        const b = document.createElement('button');
-                        b.className = 'btn-viz';
-                        b.innerText = `${p} Vizual Ko'rinishi`;
-                        b.onclick = () => open3D(p);
-                        btnContainer.appendChild(b);
-                    });
-                }
-
                 if(res.gas) startVisual('gas', 'rgba(255,255,255,0.8)', res.env, res.heat);
                 else if(res.precipitate) startVisual('precipitate', res.color, res.env, res.heat);
                 else startVisual('none', null, res.env, res.heat);
