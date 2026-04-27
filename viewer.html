@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Molekula Vizualizatori | O'zMU SC</title>
+    <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
+    <style>
+        :root {
+            --p: #0a0f1e; 
+            --a: #22d3ee; /* Moviy neon */
+            --s: #00ff00; /* Yashil neon */
+            --d: #f87171; /* Qizil neon */
+            --key-bg: #1e293b;
+        }
+
+        body {
+            background-color: var(--p);
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(0, 255, 0, 0.2);
+            padding-bottom: 10px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            color: #fff;
+            text-shadow: 0 0 10px var(--s), 0 0 20px var(--a);
+            text-transform: uppercase;
+        }
+
+        .search-container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(15, 23, 42, 0.9);
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid rgba(0, 255, 0, 0.2);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+        }
+
+        #molecule-input {
+            flex-grow: 1;
+            background: #000;
+            border: 2px solid var(--a);
+            color: var(--s);
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: 0.3s;
+            text-align: center;
+        }
+
+        #molecule-input:focus {
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.5);
+            border-color: var(--s);
+        }
+
+        #search-btn {
+            background: var(--a);
+            color: var(--p);
+            border: none;
+            border-radius: 10px;
+            padding: 0 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+
+        #search-btn:hover {
+            background: var(--s);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
+        }
+
+        .info-panel {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+
+        /* 3D VIZUAL OYNA */
+        #3d-container {
+            width: 100%;
+            max-width: 800px;
+            height: 60vh; /* Ekran balandligining 60 foizi */
+            background: radial-gradient(circle, #0f172a 0%, #000000 100%);
+            border-radius: 20px;
+            border: 2px solid var(--s);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
+            overflow: hidden;
+            position: relative;
+        }
+
+        #mol-viewer {
+            width: 100%;
+            height: 100%;
+        }
+
+        #status-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #555;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Al Kimyogar 3Dmol</h1>
+</div>
+
+<div class="search-container">
+    <input type="text" id="molecule-input" placeholder="Modda nomi yoki formulasi (masalan, H2O, Benzene)" onkeypress="handleKeyPress(event)">
+    <button id="search-btn" onclick="searchMolecule()">Qidirish</button>
+</div>
+
+<div class="info-panel">
+    PubChem bazasidan qidirish...
+</div>
+
+<div id="3d-container">
+    <div id="mol-viewer"></div>
+    <div id="status-text">Modda kiritilishini kutyapman...</div>
+</div>
+
+<script>
+    let viewer = null;
+
+    // Enter bosilganda ham qidirish
+    function handleKeyPress(e) {
+        if (e.key === 'Enter') {
+            searchMolecule();
+        }
+    }
+
+    function searchMolecule() {
+        const input = document.getElementById('molecule-input').value.trim();
+        const viewerDiv = document.getElementById('mol-viewer');
+        const statusText = document.getElementById('status-text');
+        
+        if (!input) return;
+
+        statusText.innerText = `"${input}" qidirilmoqda...`;
+        statusText.style.color = "var(--a)";
+        viewerDiv.innerHTML = ''; // Eski modelni tozalash
+
+        // Viewer yaratish
+        viewer = $3Dmol.createViewer(viewerDiv, { backgroundColor: 'black' });
+        
+        // PubChem orqali modelni tortish
+        fetch(`https://cactus.nci.nih.gov/chemical/structure/${input}/sdf`)
+            .then(res => {
+                if(!res.ok) throw new Error("Topilmadi");
+                return res.text();
+            })
+            .then(data => {
+                statusText.style.display = 'none'; // Matnni yashirish
+                viewer.addModel(data, "sdf");
+                // Vizual stil
+                viewer.setStyle({}, { stick: { radius: 0.15 }, sphere: { scale: 0.25 } });
+                viewer.zoomTo(); // Modelni ekranga moslash
+                viewer.render(); // Chizish
+                viewer.spin(true); // Aylantirish
+            })
+            .catch(err => {
+                console.error(err);
+                statusText.style.display = 'block';
+                statusText.innerText = `Xatolik: "${input}" bazadan topilmadi. Ism yoki formulani inglizcha kiritib ko'ring (H2O, Ethanol).`;
+                statusText.style.color = "var(--d)";
+            });
+    }
+</script>
+</body>
+</html>
