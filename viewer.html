@@ -3,114 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Molekula Vizualizatori | O'zMU SC</title>
-    <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
+    <title>Al Kimyogar 3Dmol | O'zMU</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/3Dmol/2.0.4/3Dmol-min.js"></script>
     <style>
         :root {
             --p: #0a0f1e; 
-            --a: #22d3ee; /* Moviy neon */
-            --s: #00ff00; /* Yashil neon */
-            --d: #f87171; /* Qizil neon */
-            --key-bg: #1e293b;
+            --a: #22d3ee; 
+            --s: #00ff00; 
+            --d: #f87171;
         }
 
         body {
             background-color: var(--p);
             color: #fff;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
             margin: 0;
             padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid rgba(0, 255, 0, 0.2);
-            padding-bottom: 10px;
-            width: 100%;
-            max-width: 800px;
+            min-height: 100vh;
         }
 
         .header h1 {
-            font-size: 28px;
-            font-weight: 900;
-            letter-spacing: 3px;
-            color: #fff;
-            text-shadow: 0 0 10px var(--s), 0 0 20px var(--a);
+            font-size: 24px;
             text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #fff;
+            text-shadow: 0 0 15px var(--a);
+            margin-bottom: 25px;
         }
 
-        .search-container {
-            width: 100%;
-            max-width: 600px;
+        .search-box {
             display: flex;
+            width: 100%;
+            max-width: 500px;
             gap: 10px;
-            margin-bottom: 20px;
-            background: rgba(15, 23, 42, 0.9);
-            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
             border-radius: 15px;
-            border: 1px solid rgba(0, 255, 0, 0.2);
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            margin-bottom: 20px;
         }
 
         #molecule-input {
-            flex-grow: 1;
-            background: #000;
-            border: 2px solid var(--a);
+            flex: 1;
+            background: transparent;
+            border: none;
             color: var(--s);
-            padding: 12px;
-            border-radius: 10px;
             font-size: 16px;
+            padding: 10px;
             outline: none;
-            transition: 0.3s;
             text-align: center;
         }
 
-        #molecule-input:focus {
-            box-shadow: 0 0 15px rgba(34, 211, 238, 0.5);
-            border-color: var(--s);
-        }
-
         #search-btn {
-            background: var(--a);
-            color: var(--p);
+            background: var(--s);
+            color: #000;
             border: none;
+            padding: 10px 20px;
             border-radius: 10px;
-            padding: 0 20px;
             font-weight: bold;
             cursor: pointer;
             transition: 0.3s;
-            text-transform: uppercase;
         }
 
         #search-btn:hover {
-            background: var(--s);
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
+            box-shadow: 0 0 15px var(--s);
+            transform: scale(1.05);
         }
 
-        .info-panel {
-            font-size: 14px;
-            color: #aaa;
-            margin-bottom: 10px;
-        }
-
-        /* 3D VIZUAL OYNA */
-        #3d-container {
+        /* VIZUAL KONTEYNER */
+        #container-3d {
             width: 100%;
-            max-width: 800px;
-            height: 60vh; /* Ekran balandligining 60 foizi */
-            background: radial-gradient(circle, #0f172a 0%, #000000 100%);
+            max-width: 600px;
+            height: 400px;
+            background: #000;
             border-radius: 20px;
-            border: 2px solid var(--s);
-            box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
-            overflow: hidden;
+            border: 2px solid var(--a);
             position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(34, 211, 238, 0.2);
         }
 
         #mol-viewer {
@@ -118,80 +91,80 @@
             height: 100%;
         }
 
-        #status-text {
+        #status {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #555;
-            font-size: 18px;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .hint {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #888;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>Al Kimyogar 3Dmol</h1>
+    <h1>AL KIMYOGAR 3Dmol</h1>
 </div>
 
-<div class="search-container">
-    <input type="text" id="molecule-input" placeholder="Modda nomi yoki formulasi (masalan, H2O, Benzene)" onkeypress="handleKeyPress(event)">
-    <button id="search-btn" onclick="searchMolecule()">Qidirish</button>
+<div class="search-box">
+    <input type="text" id="molecule-input" placeholder="Formula yoki nom (H2O, Caffeine...)" onkeypress="if(event.key==='Enter') searchMolecule()">
+    <button id="search-btn" onclick="searchMolecule()">QIDIRISH</button>
 </div>
 
-<div class="info-panel">
-    PubChem bazasidan qidirish...
-</div>
-
-<div id="3d-container">
+<div id="container-3d">
     <div id="mol-viewer"></div>
-    <div id="status-text">Modda kiritilishini kutyapman...</div>
+    <div id="status">Modda kiritilishini kutyapman...</div>
 </div>
+
+<p class="hint">Maslahat: Inglizcha nomlardan foydalaning (masalan: <b>Ethanol</b>, <b>Benzene</b>)</p>
 
 <script>
-    let viewer = null;
-
-    // Enter bosilganda ham qidirish
-    function handleKeyPress(e) {
-        if (e.key === 'Enter') {
-            searchMolecule();
-        }
-    }
+    let glviewer = null;
 
     function searchMolecule() {
         const input = document.getElementById('molecule-input').value.trim();
+        const status = document.getElementById('status');
         const viewerDiv = document.getElementById('mol-viewer');
-        const statusText = document.getElementById('status-text');
-        
+
         if (!input) return;
 
-        statusText.innerText = `"${input}" qidirilmoqda...`;
-        statusText.style.color = "var(--a)";
-        viewerDiv.innerHTML = ''; // Eski modelni tozalash
+        status.innerText = `"${input}" yuklanmoqda...`;
+        status.style.color = "var(--a)";
 
-        // Viewer yaratish
-        viewer = $3Dmol.createViewer(viewerDiv, { backgroundColor: 'black' });
-        
-        // PubChem orqali modelni tortish
-        fetch(`https://cactus.nci.nih.gov/chemical/structure/${input}/sdf`)
+        // PubChem dan SDF formatida modelni olish (3D record bilan)
+        const url = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${input}/SDF?record_type=3d`;
+
+        fetch(url)
             .then(res => {
                 if(!res.ok) throw new Error("Topilmadi");
                 return res.text();
             })
             .then(data => {
-                statusText.style.display = 'none'; // Matnni yashirish
-                viewer.addModel(data, "sdf");
-                // Vizual stil
-                viewer.setStyle({}, { stick: { radius: 0.15 }, sphere: { scale: 0.25 } });
-                viewer.zoomTo(); // Modelni ekranga moslash
-                viewer.render(); // Chizish
-                viewer.spin(true); // Aylantirish
+                status.innerText = "Muvaffaqiyatli yuklandi ✓";
+                status.style.color = "var(--s)";
+
+                // Viewer-ni tozalash va yangilash
+                viewerDiv.innerHTML = '';
+                glviewer = $3Dmol.createViewer(viewerDiv, { backgroundColor: "black" });
+                
+                glviewer.addModel(data, "sdf");
+                glviewer.setStyle({}, { stick: { radius: 0.2 }, sphere: { scale: 0.3 } });
+                glviewer.zoomTo();
+                glviewer.render();
+                glviewer.spin(true);
             })
             .catch(err => {
                 console.error(err);
-                statusText.style.display = 'block';
-                statusText.innerText = `Xatolik: "${input}" bazadan topilmadi. Ism yoki formulani inglizcha kiritib ko'ring (H2O, Ethanol).`;
-                statusText.style.color = "var(--d)";
+                status.innerText = "Xato: Modda topilmadi yoki 3D modeli mavjud emas.";
+                status.style.color = "var(--d)";
             });
     }
 </script>
