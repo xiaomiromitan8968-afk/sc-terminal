@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al Kimyogar | AR Mode</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/3Dmol/2.0.4/3Dmol-min.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; }
+        #webcam { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        #v-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; }
+        .ui-overlay { position: fixed; top: 20px; width: 100%; z-index: 10; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        input { background: rgba(0,0,0,0.7); border: 2px solid #22d3ee; color: #00ff00; padding: 10px; border-radius: 10px; width: 250px; }
+        .back-btn { position: fixed; bottom: 20px; left: 20px; z-index: 10; background: red; color: white; padding: 10px; border-radius: 10px; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <video id="webcam" autoplay playsinline></video>
+    <div id="v-canvas"></div>
+
+    <div class="ui-overlay">
+        <input type="text" id="ar-input" placeholder="Modda nomi (masalan: Caffeine)">
+        <button onclick="loadAR()" style="padding: 10px 20px; border-radius: 10px; background: #00ff00; border: none; font-weight: bold;">KO'RSATISH</button>
+    </div>
+
+    <a href="index.html" class="back-btn">⬅ ORQAGA QAYTISH</a>
+
+    <script>
+        let viewer = null;
+
+        // Kamerani avtomatik yoqish
+        async function initCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                document.getElementById('webcam').srcObject = stream;
+            } catch (err) {
+                alert("Kameraga ruxsat berilmadi!");
+            }
+        }
+
+        async function loadAR() {
+            const name = document.getElementById('ar-input').value;
+            if(!name) return;
+
+            try {
+                const r = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${name}/cids/JSON`);
+                const d = await r.json();
+                const cid = d.IdentifierList.CID[0];
+
+                const vDiv = document.getElementById('v-canvas');
+                vDiv.innerHTML = "";
+                viewer = $3Dmol.createViewer(vDiv, { backgroundColor: 'black', alpha: true });
+                viewer.setBackgroundColor(0x000000, 0); // TO'LIQ SHAFFOF
+
+                const sdf = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/SDF?record_type=3d`).then(res => res.text());
+                viewer.addModel(sdf, "sdf");
+                viewer.setStyle({}, { stick: {radius:0.2}, sphere: {scale:0.3} });
+                viewer.zoomTo(); viewer.render(); viewer.spin(true);
+            } catch (e) {
+                alert("Modda topilmadi!");
+            }
+        }
+
+        initCamera();
+    </script>
+</body>
+</html>
