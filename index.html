@@ -157,6 +157,30 @@
             font-size: 13px;
         }
 
+        /* VIZUAL KONTEYNER */
+        #visual-container {
+            display: none;
+            margin-top: 15px;
+            position: relative;
+            width: 100%;
+            height: 200px;
+            background: radial-gradient(circle, #0f172a 0%, #000 100%);
+            border-radius: 20px;
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            overflow: hidden;
+        }
+
+        #ph-tag {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: none;
+        }
+
         .molar-btn-container {
             position: fixed;
             top: 20px;
@@ -181,20 +205,6 @@
             font-size: 20px;
             box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
             pointer-events: none; 
-        }
-
-        /* --- YANGI QO'SHILGAN SIMULYATSIYA MAYDONI --- */
-        #visual-container {
-            display: none;
-            margin-top: 20px;
-            position: relative;
-            width: 100%;
-            height: 200px;
-            background: radial-gradient(circle, #0f172a 0%, #000 100%);
-            border-radius: 20px;
-            border: 1px solid rgba(34, 211, 238, 0.3);
-            overflow: hidden;
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
         }
     </style>
 </head>
@@ -233,11 +243,13 @@
     </div>
 
     <div id="res-box"></div>
-    <div id="visual-container"><canvas id="reactionCanvas"></canvas></div>
+    <div id="visual-container">
+        <canvas id="reactionCanvas"></canvas>
+        <div id="ph-tag"></div>
+    </div>
 </div>
 
 <script>
-    // --- SUZIB YURUVCHI TUGMA LOGIKASI ---
     const dragEl = document.getElementById('draggable-mr');
     let isDragging = false;
     let startX, startY;
@@ -271,7 +283,6 @@
         setTimeout(() => { isDragging = false; }, 10);
     });
 
-    // --- ASOSIY KOD ---
     const KEY = "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";
     const URL = "https://api.groq.com/openai/v1/chat/completions";
 
@@ -323,47 +334,65 @@
         cancelAnimationFrame(animationId);
     }
 
-    // --- ZICH BULUT SIMULYATSIYASI ---
+    // --- VIZUALIZATSIYA ---
     let canvas = document.getElementById('reactionCanvas');
     let ctx = canvas.getContext('2d');
     let particles = [];
     let animationId;
 
     class Particle {
-        constructor(x, y, type) {
+        constructor(x, y, mode, color) {
             this.x = x;
             this.y = y;
+            this.mode = mode;
+            this.color = color || "rgba(255,255,255,0.8)";
             this.radius = Math.random() * 3 + 2;
-            this.vx = (Math.random() - 0.5) * 2;
-            this.vy = -Math.random() * 4 - 1;
-            this.opacity = 0.8;
-            this.maxRadius = Math.random() * 15 + 10;
+            this.vx = (Math.random() - 0.5) * 4;
+            this.vy = mode === 'gas' ? (-Math.random() * 5 - 2) : (Math.random() * 2 + 1);
+            this.opacity = 1;
+            this.maxRadius = Math.random() * 20 + 10;
         }
         draw() {
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(230, 230, 230, ${this.opacity})`;
+            ctx.fillStyle = this.color.replace('0.8', this.opacity);
             ctx.fill();
         }
         update() {
             this.x += this.vx;
             this.y += this.vy;
-            if (this.radius < this.maxRadius) this.radius += 0.1;
-            this.opacity -= 0.008;
-            this.vy += 0.02;
+            if(this.mode === 'gas') {
+                if(this.radius < this.maxRadius) this.radius += 0.2;
+                this.opacity -= 0.005;
+                this.vy += 0.01;
+            } else {
+                if(this.y > canvas.height - 5) { this.vy = 0; this.vx = 0; this.opacity -= 0.005; }
+            }
         }
     }
 
-    function startVisual() {
+    function startVisual(mode, color, env) {
         const container = document.getElementById('visual-container');
+        const phTag = document.getElementById('ph-tag');
         container.style.display = "block";
         canvas.width = container.offsetWidth;
         canvas.height = container.offsetHeight;
         particles = [];
+        
+        if(env) {
+            phTag.style.display = "block";
+            phTag.innerText = "MUHIT: " + env.toUpperCase();
+            phTag.style.background = env === 'kislotali' ? '#f87171' : (env === 'ishqoriy' ? '#3b82f6' : '#10b981');
+        }
+
         function loop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if (particles.length < 550) {
-                particles.push(new Particle(canvas.width / 2 + (Math.random() - 0.5) * 40, canvas.height * 0.9));
+            if(particles.length < 300) {
+                for(let i=0; i<6; i++) {
+                    let px = mode === 'gas' ? (canvas.width/2 + (Math.random()-0.5)*40) : (Math.random()*canvas.width);
+                    let py = mode === 'gas' ? (canvas.height*0.9) : 0;
+                    particles.push(new Particle(px, py, mode, color));
+                }
             }
             for (let i = particles.length - 1; i >= 0; i--) {
                 particles[i].update();
@@ -387,7 +416,7 @@
                     model: "llama-3.3-70b-versatile",
                     messages: [{
                         role: "user", 
-                        content: `Sen kimyogarsan. Reaksiyani tugalla: ${currentInput}. FAQAT JSON qaytar: {"t": "equation", "i": "explanation", "possible": true, "gas": true}. Agar gaz chiqsa "gas": true qaytar.`
+                        content: `Sen kimyogarsan. Reaksiyani tugalla: ${currentInput}. FAQAT JSON qaytar: {"t": "equation", "i": "explanation", "possible": true, "gas": true, "precipitate": true, "color": "hex_code", "env": "kislotali|ishqoriy|neytral"}.`
                     }],
                     response_format: { type: "json_object" }
                 })
@@ -404,7 +433,10 @@
                 st.innerText = "TAYYOR";
                 document.getElementById('res-box').innerHTML = `<b>Xulosa:</b> ${res.i}`;
                 document.getElementById('res-box').style.display = "block";
-                if(res.gas) startVisual();
+                
+                if(res.gas) startVisual('gas', 'rgba(255,255,255,0.8)', res.env);
+                else if(res.precipitate) startVisual('precipitate', res.color, res.env);
+                else if(res.env) startVisual('none', null, res.env);
             }
         } catch (e) { st.innerText = "Xatolik yuz berdi"; }
     }
