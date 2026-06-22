@@ -1,0 +1,3059 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Al Kimyogar Pro v4</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/3Dmol/2.0.4/3Dmol-min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════
+   GLOBAL TOKENS
+═══════════════════════════════════════════════ */
+:root {
+  --bg: #04060f;
+  --font: 'Segoe UI', system-ui, sans-serif;
+  --mono: 'Courier New', monospace;
+  --tab-h: 68px;
+  --blue: #22d3ee;
+  --green: #00ff9d;
+  --red: #ff4d6d;
+  --purple: #c084fc;
+  --gold: #fbbf24;
+  --white: #f0f6ff;
+  --muted: #4a5568;
+  --sidebar-w: 280px;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--white);font-family:var(--font)}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:2px}
+
+/* ═══════════════════════════════════════════════
+   GLOBAL CANVAS BG
+═══════════════════════════════════════════════ */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.12}
+
+/* ═══════════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════════ */
+#app{position:fixed;inset:0;z-index:1;display:flex;flex-direction:column}
+#topbar{
+  height:52px;flex-shrink:0;
+  display:flex;align-items:center;gap:12px;
+  padding:0 14px;z-index:20;
+  position:relative;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+#topbar::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--page-accent,var(--blue)),transparent);
+  opacity:0.5;
+}
+#pages{flex:1;overflow:hidden;position:relative}
+.page{
+  position:absolute;inset:0;overflow-y:auto;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.3s ease,transform 0.3s ease;
+  transform:translateY(16px);
+}
+.page.active{opacity:1;pointer-events:all;transform:translateY(0)}
+
+/* Tab bar */
+#tabbar{
+  height:var(--tab-h);flex-shrink:0;display:flex;
+  position:relative;z-index:20;
+  background:rgba(4,6,15,0.97);
+  border-top:1px solid rgba(255,255,255,0.06);
+  backdrop-filter:blur(20px);
+}
+.tab-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;border:none;background:none;cursor:pointer;
+  color:rgba(255,255,255,0.3);font-size:8px;font-weight:700;letter-spacing:0.8px;
+  text-transform:uppercase;transition:color 0.2s;
+  -webkit-tap-highlight-color:transparent;
+  padding-bottom:4px;
+}
+.tab-btn.active{color:var(--page-accent,var(--blue))}
+.tab-icon-wrap{
+  width:32px;height:32px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;transition:background 0.25s,transform 0.25s cubic-bezier(.34,1.56,.64,1);
+}
+.tab-btn.active .tab-icon-wrap{
+  transform:scale(1.2) translateY(-2px);
+  background:rgba(255,255,255,0.08);
+}
+.tab-dot{
+  width:4px;height:4px;border-radius:50%;
+  background:var(--page-accent,var(--blue));
+  transform:scale(0);transition:transform 0.2s;
+}
+.tab-btn.active .tab-dot{transform:scale(1)}
+
+/* Sidebar */
+#sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99;opacity:0;pointer-events:none;transition:opacity 0.3s}
+#sidebar-overlay.show{opacity:1;pointer-events:all}
+#sidebar{
+  position:fixed;top:0;bottom:0;left:0;width:var(--sidebar-w);
+  background:rgba(8,12,28,0.98);border-right:1px solid rgba(255,255,255,0.06);
+  z-index:100;transform:translateX(-100%);transition:transform 0.35s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;backdrop-filter:blur(30px);
+}
+#sidebar.open{transform:translateX(0)}
+.sb-head{
+  padding:24px 20px 16px;
+  background:linear-gradient(135deg,rgba(34,211,238,0.08),rgba(168,85,247,0.08));
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+}
+.sb-avatar-wrap{position:relative;width:68px;height:68px;cursor:pointer}
+.sb-avatar{
+  width:68px;height:68px;border-radius:50%;object-fit:cover;
+  border:2px solid rgba(34,211,238,0.4);background:#111;display:block;
+}
+.sb-avatar-edit{
+  position:absolute;bottom:0;right:0;width:20px;height:20px;border-radius:50%;
+  background:var(--blue);color:#000;display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:900;
+}
+#avatar-input{display:none}
+.sb-name{font-size:15px;font-weight:800;letter-spacing:1px}
+.sb-tg{font-size:11px;color:var(--blue);opacity:0.8}
+.sb-nav{flex:1;overflow-y:auto;padding:10px 0}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--muted);padding:14px 18px 4px;text-transform:uppercase}
+.sb-item{
+  display:flex;align-items:center;gap:12px;padding:11px 18px;
+  color:rgba(255,255,255,0.45);font-size:13px;font-weight:600;cursor:pointer;
+  border-left:3px solid transparent;transition:all 0.2s;
+}
+.sb-item:hover,.sb-item.active{color:#fff;background:rgba(255,255,255,0.05);border-left-color:var(--blue)}
+.sb-item-ico{font-size:17px;width:22px;text-align:center}
+.sb-footer{padding:14px 18px;border-top:1px solid rgba(255,255,255,0.06)}
+.sb-version{font-size:9px;color:var(--muted);text-align:center;margin-top:8px;letter-spacing:1px}
+.sb-tg-btn{
+  display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;
+  background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.2);
+  color:var(--blue);font-size:12px;font-weight:700;cursor:pointer;
+  text-decoration:none;transition:background 0.2s;width:100%;
+}
+.sb-tg-btn:hover{background:rgba(34,211,238,0.14)}
+
+/* History */
+.hist-item{display:flex;align-items:center;gap:8px;padding:8px 18px;font-size:11px;color:var(--muted);border-bottom:1px solid rgba(255,255,255,0.03)}
+.hist-text{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.hist-del{background:none;border:none;color:var(--red);opacity:0.5;cursor:pointer;font-size:13px;padding:2px 4px}
+.hist-del:hover{opacity:1}
+.hist-clear{width:calc(100%-36px);margin:8px 18px;padding:8px;border-radius:10px;background:rgba(255,77,109,0.08);border:1px solid rgba(255,77,109,0.25);color:var(--red);font-size:11px;cursor:pointer;display:block}
+
+/* Loader */
+#loader{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(4,6,15,0.88);backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;flex-direction:column;gap:16px;
+}
+#loader.show{display:flex}
+.loader-ring{
+  width:56px;height:56px;position:relative;
+}
+.loader-ring::before,.loader-ring::after{
+  content:'';position:absolute;inset:0;border-radius:50%;border:2px solid transparent;
+}
+.loader-ring::before{border-top-color:var(--blue);animation:spin 1s linear infinite}
+.loader-ring::after{border-bottom-color:var(--green);animation:spin 1.4s linear infinite reverse;inset:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--blue);
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  box-shadow:0 0 12px var(--blue);
+}
+.loader-txt{font-size:11px;letter-spacing:3px;color:var(--blue);font-weight:700}
+
+/* Toast */
+#toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(12px);
+  background:rgba(34,211,238,0.1);backdrop-filter:blur(12px);
+  border:1px solid rgba(34,211,238,0.25);color:var(--blue);
+  padding:9px 20px;border-radius:24px;font-size:12px;font-weight:700;
+  z-index:400;opacity:0;transition:opacity 0.3s,transform 0.3s;pointer-events:none;white-space:nowrap;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Topbar */
+#menu-btn{
+  width:34px;height:34px;border-radius:10px;
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);
+  color:rgba(255,255,255,0.6);font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+#topbar-title{flex:1;font-size:13px;font-weight:900;letter-spacing:3px;color:var(--white)}
+#topbar-badge{font-size:9px;padding:3px 9px;border-radius:20px;font-weight:700;letter-spacing:1px}
+
+/* Element popup */
+#el-popup{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);align-items:center;justify-content:center}
+#el-popup.show{display:flex}
+.el-popup-card{
+  background:rgba(10,16,36,0.97);border:1.5px solid rgba(34,211,238,0.3);
+  border-radius:22px;padding:24px 22px;max-width:300px;width:90%;position:relative;text-align:center;
+}
+.ep-sym{font-size:62px;font-weight:900;line-height:1}
+.ep-close{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer}
+.ep-canvas-wrap{width:100%;height:100px;margin:10px 0;border-radius:12px;overflow:hidden;background:#000}
+
+/* ═══════════════════════════════════════════════
+   PAGE 0 — REACTION LAB
+   Theme: Lab bench with glassware feel
+   Accent: #00ff9d (green)
+═══════════════════════════════════════════════ */
+#page-0{
+  --page-accent:#00ff9d;
+  padding:0;background:linear-gradient(180deg,#020d0a 0%,#04060f 100%);
+}
+.rxn-header{
+  padding:14px 16px 10px;
+  background:linear-gradient(135deg,rgba(0,255,157,0.06) 0%,transparent 60%);
+  border-bottom:1px solid rgba(0,255,157,0.12);
+  position:relative;overflow:hidden;
+}
+.rxn-header::before{
+  content:'⚗';position:absolute;right:-10px;top:-10px;font-size:80px;opacity:0.04;
+  transform:rotate(-20deg);
+}
+.rxn-lab-label{font-size:9px;font-weight:700;letter-spacing:3px;color:rgba(0,255,157,0.6);margin-bottom:4px}
+.rxn-title{font-size:20px;font-weight:900;color:#fff;letter-spacing:1px}
+.rxn-sub{font-size:10px;color:rgba(0,255,157,0.5);margin-top:2px}
+
+/* Oscilloscope display */
+.rxn-screen{
+  margin:12px 14px;
+  background:#000;border-radius:16px;
+  border:2px solid rgba(0,255,157,0.25);
+  padding:14px 16px;
+  position:relative;overflow:hidden;
+  box-shadow:inset 0 0 40px rgba(0,0,0,0.8),0 0 0 1px rgba(0,255,157,0.05);
+}
+.rxn-screen::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 19px,rgba(0,255,157,0.04) 20px),
+             repeating-linear-gradient(90deg,transparent,transparent 19px,rgba(0,255,157,0.04) 20px);
+  pointer-events:none;
+}
+.rxn-formula{
+  font-family:var(--mono);font-size:20px;color:#00ff9d;
+  min-height:32px;word-break:break-all;
+  text-shadow:0 0 12px rgba(0,255,157,0.6);position:relative;z-index:1;
+}
+.rxn-formula.cursor::after{content:'|';animation:blink 0.8s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+.rxn-status-bar{
+  display:flex;align-items:center;justify-content:space-between;margin-top:8px;
+  position:relative;z-index:1;
+}
+.rxn-status-dot{width:6px;height:6px;border-radius:50%;background:#00ff9d;box-shadow:0 0 6px #00ff9d;animation:statusPulse 2s ease-in-out infinite}
+@keyframes statusPulse{0%,100%{opacity:1;box-shadow:0 0 6px #00ff9d}50%{opacity:0.4;box-shadow:0 0 2px #00ff9d}}
+.rxn-status-txt{font-size:9px;letter-spacing:2px;color:rgba(0,255,157,0.5);font-weight:700}
+
+/* Mode toggle — lab style */
+.rxn-mode-wrap{display:flex;gap:8px;padding:0 14px;margin-bottom:10px}
+.rxn-mode-btn{
+  flex:1;padding:9px;border-radius:10px;border:1.5px solid rgba(0,255,157,0.2);
+  background:rgba(0,255,157,0.04);color:rgba(0,255,157,0.5);
+  font-size:11px;font-weight:800;letter-spacing:1px;cursor:pointer;
+  transition:all 0.2s;text-align:center;
+}
+.rxn-mode-btn.active{background:rgba(0,255,157,0.12);border-color:rgba(0,255,157,0.5);color:#00ff9d;box-shadow:0 0 12px rgba(0,255,157,0.15)}
+
+/* Keyboard input */
+.rxn-kb-input{
+  margin:0 14px 10px;
+  background:#000;border:1.5px solid rgba(0,255,157,0.3);border-radius:12px;
+  padding:12px 14px;color:#00ff9d;font-size:16px;font-family:var(--mono);
+  outline:none;width:calc(100%-28px);
+}
+.rxn-kb-input::placeholder{color:rgba(0,255,157,0.25)}
+.rxn-kb-input:focus{border-color:rgba(0,255,157,0.6);box-shadow:0 0 0 3px rgba(0,255,157,0.08)}
+
+/* Element grid — periodic style */
+.rxn-el-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(48px,1fr));gap:5px;
+  padding:10px 14px;max-height:190px;overflow-y:auto;
+  background:rgba(0,0,0,0.3);margin:0 14px;border-radius:14px;
+  border:1px solid rgba(0,255,157,0.08);
+}
+.rxn-el-btn{
+  background:rgba(0,255,157,0.04);border:1px solid rgba(0,255,157,0.15);
+  border-radius:8px;padding:8px 4px;text-align:center;cursor:pointer;
+  transition:all 0.15s;
+}
+.rxn-el-btn:hover,.rxn-el-btn:active{background:rgba(0,255,157,0.14);border-color:rgba(0,255,157,0.5);transform:scale(1.06)}
+.rxn-el-sym{font-size:14px;font-weight:800;color:#00ff9d;display:block;line-height:1.2}
+.rxn-el-name{font-size:6px;color:rgba(0,255,157,0.4);display:block;margin-top:1px}
+
+/* Control row */
+.rxn-ctrl-row{display:grid;grid-template-columns:1fr auto auto auto;gap:7px;padding:10px 14px}
+.rxn-btn-3d{
+  background:rgba(34,211,238,0.07);border:1.5px solid rgba(34,211,238,0.25);
+  color:var(--blue);border-radius:10px;padding:12px 8px;font-size:11px;font-weight:800;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
+  letter-spacing:1px;transition:all 0.2s;
+}
+.rxn-btn-3d:hover{background:rgba(34,211,238,0.15);box-shadow:0 0 16px rgba(34,211,238,0.2)}
+.rxn-op-btn{
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  color:#fff;border-radius:10px;padding:12px 14px;font-size:15px;font-weight:800;cursor:pointer;
+}
+.rxn-clr-btn{
+  background:rgba(255,77,109,0.12);border:1px solid rgba(255,77,109,0.3);
+  color:var(--red);border-radius:10px;padding:12px 14px;font-size:13px;font-weight:800;cursor:pointer;
+}
+
+/* Analyze button */
+.rxn-analyze-btn{
+  display:block;margin:4px 14px 10px;
+  background:linear-gradient(135deg,rgba(0,255,157,0.15),rgba(0,200,120,0.08));
+  border:2px solid rgba(0,255,157,0.4);border-radius:14px;
+  color:#00ff9d;font-size:15px;font-weight:900;letter-spacing:2px;
+  padding:15px;cursor:pointer;text-align:center;
+  box-shadow:0 0 24px rgba(0,255,157,0.12);
+  transition:all 0.2s;position:relative;overflow:hidden;
+}
+.rxn-analyze-btn::before{
+  content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(circle at 50% 50%,rgba(0,255,157,0.15),transparent 60%);
+  opacity:0;transition:opacity 0.3s;
+}
+.rxn-analyze-btn:hover::before{opacity:1}
+.rxn-analyze-btn:hover{box-shadow:0 0 40px rgba(0,255,157,0.25);border-color:rgba(0,255,157,0.7)}
+
+/* Result area */
+.rxn-result{
+  margin:0 14px 10px;padding:14px;
+  background:rgba(0,0,0,0.4);border-radius:14px;
+  border-left:3px solid #00ff9d;font-size:13px;line-height:1.7;
+  display:none;
+}
+
+/* Visual canvas — real beaker scene */
+.rxn-visual{
+  margin:0 14px 16px;border-radius:16px;overflow:hidden;
+  border:1px solid rgba(0,255,157,0.15);
+  background:#000;position:relative;display:none;
+  box-shadow:0 0 0 1px rgba(0,255,157,0.04);
+}
+#reactionCanvas{display:block;width:100%;height:250px}
+.rxn-visual-type{
+  position:absolute;top:8px;left:10px;
+  font-size:9px;font-weight:700;letter-spacing:2px;
+  color:rgba(0,255,157,0.5);background:rgba(0,0,0,0.6);
+  padding:3px 8px;border-radius:6px;
+}
+#ph-tag{position:absolute;top:8px;right:10px;font-size:9px;padding:3px 10px;border-radius:6px;font-weight:700;display:none}
+
+/* ═══════════════════════════════════════════════
+   PAGE 1 — 3D MOLECULE VIEWER
+   Theme: Space observatory / dark matter
+   Accent: #22d3ee (cyan)
+═══════════════════════════════════════════════ */
+#page-1{
+  --page-accent:#22d3ee;
+  background:radial-gradient(ellipse at 50% 0%,rgba(34,211,238,0.06) 0%,#04060f 50%);
+  padding:0;
+}
+.mol-header{
+  padding:14px 16px;
+  display:flex;flex-direction:column;
+  background:linear-gradient(180deg,rgba(34,211,238,0.07) 0%,transparent 100%);
+  border-bottom:1px solid rgba(34,211,238,0.1);
+}
+.mol-eyebrow{font-size:9px;font-weight:700;letter-spacing:3px;color:rgba(34,211,238,0.5);margin-bottom:4px}
+.mol-title{font-size:20px;font-weight:900;color:#fff}
+.mol-sub{font-size:10px;color:rgba(34,211,238,0.4);margin-top:2px}
+
+/* Search input — space console style */
+.mol-search-wrap{
+  margin:12px 14px 0;position:relative;
+}
+.mol-search-ico{
+  position:absolute;left:14px;top:50%;transform:translateY(-50%);
+  font-size:16px;pointer-events:none;
+}
+.mol-search-input{
+  width:100%;padding:13px 14px 13px 42px;
+  background:rgba(34,211,238,0.04);border:1.5px solid rgba(34,211,238,0.2);
+  border-radius:14px;color:#fff;font-size:15px;outline:none;
+  transition:all 0.2s;
+}
+.mol-search-input::placeholder{color:rgba(255,255,255,0.2)}
+.mol-search-input:focus{border-color:rgba(34,211,238,0.5);background:rgba(34,211,238,0.07);box-shadow:0 0 0 3px rgba(34,211,238,0.06)}
+
+/* Atom orbital showcase */
+.mol-orbit-stage{
+  margin:12px 14px;border-radius:16px;overflow:hidden;
+  background:#000;border:1px solid rgba(34,211,238,0.15);
+  position:relative;
+}
+#orbitCanvas{display:block;width:100%;height:140px}
+.mol-orbit-info{
+  position:absolute;top:0;left:0;right:0;bottom:0;
+  display:flex;flex-direction:column;justify-content:flex-end;padding:10px 14px;
+  pointer-events:none;
+}
+.mol-orbit-formula{font-size:22px;font-weight:900;color:#fff;text-shadow:0 0 20px rgba(34,211,238,0.6)}
+.mol-orbit-shells{font-size:9px;color:rgba(34,211,238,0.5);letter-spacing:1px;margin-top:2px}
+
+/* Scan button */
+.mol-scan-btn{
+  margin:10px 14px;display:flex;align-items:center;justify-content:center;gap:10px;
+  background:linear-gradient(135deg,rgba(34,211,238,0.12),rgba(34,211,238,0.04));
+  border:1.5px solid rgba(34,211,238,0.35);border-radius:14px;
+  color:var(--blue);font-size:14px;font-weight:900;letter-spacing:2px;
+  padding:14px;cursor:pointer;transition:all 0.2s;
+}
+.mol-scan-btn:hover{background:rgba(34,211,238,0.18);border-color:rgba(34,211,238,0.6);box-shadow:0 0 30px rgba(34,211,238,0.15)}
+.mol-scan-spin{animation:scanSpin 3s linear infinite;font-size:18px;display:inline-block}
+@keyframes scanSpin{to{transform:rotate(360deg)}}
+
+/* 3D viewer */
+#v3d-canvas{
+  margin:0 14px;border-radius:16px;overflow:hidden;
+  background:#000;border:1px solid rgba(34,211,238,0.12);height:300px;
+}
+.mol-status{text-align:center;font-size:10px;letter-spacing:2px;color:rgba(34,211,238,0.4);padding:8px;font-weight:700}
+
+/* Properties panel — instrument readout style */
+.mol-props{
+  margin:10px 14px;border-radius:16px;overflow:hidden;
+  border:1px solid rgba(34,211,238,0.12);display:none;
+}
+.mol-props-head{
+  padding:10px 14px;background:rgba(34,211,238,0.06);
+  font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(34,211,238,0.6);
+  border-bottom:1px solid rgba(34,211,238,0.1);
+}
+.mol-props-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.mol-prop{
+  padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.04);
+  border-right:1px solid rgba(255,255,255,0.04);
+}
+.mol-prop:nth-child(even){border-right:none}
+.mol-prop-label{font-size:8px;color:var(--blue);text-transform:uppercase;letter-spacing:1.5px;font-weight:700}
+.mol-prop-val{font-size:14px;font-weight:800;color:#fff;margin-top:4px;word-break:break-word}
+
+/* ═══════════════════════════════════════════════
+   PAGE 2 — AR VIEW
+   Theme: Camera HUD / targeting system
+   Accent: #c084fc (purple)
+═══════════════════════════════════════════════ */
+#page-2{
+  --page-accent:#c084fc;
+  background:#04060f;padding:0;
+}
+.ar-header{
+  padding:14px 16px;
+  background:linear-gradient(135deg,rgba(192,132,252,0.07) 0%,transparent 60%);
+  border-bottom:1px solid rgba(192,132,252,0.12);
+}
+.ar-eyebrow{font-size:9px;font-weight:700;letter-spacing:3px;color:rgba(192,132,252,0.5);margin-bottom:4px}
+.ar-title{font-size:20px;font-weight:900;color:#fff}
+
+/* Camera viewfinder */
+.ar-viewfinder{
+  margin:12px 14px;border-radius:16px;overflow:hidden;
+  position:relative;background:#000;
+  border:1.5px solid rgba(192,132,252,0.2);
+}
+#webcam{width:100%;height:230px;object-fit:cover;display:block;opacity:0.9}
+/* HUD overlays */
+.ar-hud{position:absolute;inset:0;pointer-events:none}
+.ar-corner{
+  position:absolute;width:18px;height:18px;
+  border-color:rgba(192,132,252,0.8);border-style:solid;
+}
+.ar-corner-tl{top:8px;left:8px;border-width:2px 0 0 2px}
+.ar-corner-tr{top:8px;right:8px;border-width:2px 2px 0 0}
+.ar-corner-bl{bottom:8px;left:8px;border-width:0 0 2px 2px}
+.ar-corner-br{bottom:8px;right:8px;border-width:0 2px 2px 0}
+.ar-scan-line{
+  position:absolute;left:0;right:0;height:1.5px;
+  background:linear-gradient(90deg,transparent,rgba(192,132,252,0.7),transparent);
+  animation:arScan 2.5s linear infinite;top:0;
+}
+@keyframes arScan{0%{top:0%;opacity:0.8}50%{opacity:1}100%{top:100%;opacity:0.8}}
+.ar-crosshair{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:30px;height:30px;
+}
+.ar-crosshair::before,.ar-crosshair::after{
+  content:'';position:absolute;background:rgba(192,132,252,0.5);
+}
+.ar-crosshair::before{width:1.5px;height:100%;left:50%;transform:translateX(-50%)}
+.ar-crosshair::after{height:1.5px;width:100%;top:50%;transform:translateY(-50%)}
+.ar-status-badge{
+  position:absolute;top:8px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,0.75);border:1px solid rgba(192,132,252,0.4);
+  color:rgba(192,132,252,0.9);font-size:8px;font-weight:700;letter-spacing:2px;
+  padding:3px 10px;border-radius:20px;white-space:nowrap;
+}
+
+/* AR Molecule overlay canvas */
+#ar-mol-canvas{
+  position:absolute;inset:0;pointer-events:none;
+  width:100%;height:100%;
+}
+#ar-canvas{width:100%;height:230px;border-radius:16px;margin-top:-230px;position:relative;z-index:2}
+
+/* Search input */
+.ar-search-wrap{margin:10px 14px;display:flex;gap:8px}
+.ar-search-input{
+  flex:1;padding:12px 14px;
+  background:rgba(192,132,252,0.05);border:1.5px solid rgba(192,132,252,0.2);
+  border-radius:12px;color:#fff;font-size:14px;outline:none;
+}
+.ar-search-input::placeholder{color:rgba(255,255,255,0.2)}
+.ar-search-input:focus{border-color:rgba(192,132,252,0.5);background:rgba(192,132,252,0.08)}
+
+.ar-load-btn{
+  padding:12px 16px;border-radius:12px;
+  background:rgba(192,132,252,0.12);border:1.5px solid rgba(192,132,252,0.3);
+  color:var(--purple);font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;
+  transition:all 0.2s;
+}
+.ar-load-btn:hover{background:rgba(192,132,252,0.2);box-shadow:0 0 20px rgba(192,132,252,0.15)}
+
+/* AR info card */
+.ar-info-card{
+  margin:0 14px 12px;padding:14px;border-radius:14px;
+  background:rgba(192,132,252,0.06);border:1px solid rgba(192,132,252,0.18);
+  font-size:12px;line-height:1.8;display:none;
+}
+.ar-info-card.show{display:block}
+.ar-info-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.ar-info-label{font-size:9px;color:var(--purple);font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.ar-info-val{font-size:13px;font-weight:800;color:#fff}
+
+/* ═══════════════════════════════════════════════
+   PAGE 3 — MOLAR MASS
+   Theme: Analytical balance / precision lab
+   Accent: #fbbf24 (gold)
+═══════════════════════════════════════════════ */
+#page-3{
+  --page-accent:#fbbf24;
+  background:linear-gradient(180deg,#0a0800 0%,#04060f 100%);
+  padding:0;
+}
+.mr-header{
+  padding:14px 16px;
+  background:linear-gradient(135deg,rgba(251,191,36,0.07) 0%,transparent 60%);
+  border-bottom:1px solid rgba(251,191,36,0.12);
+}
+.mr-eyebrow{font-size:9px;font-weight:700;letter-spacing:3px;color:rgba(251,191,36,0.5);margin-bottom:4px}
+.mr-title{font-size:20px;font-weight:900;color:#fff}
+
+/* Balance animation stage */
+.mr-balance-stage{
+  margin:12px 14px;height:110px;
+  background:#000;border-radius:16px;overflow:hidden;
+  border:1px solid rgba(251,191,36,0.15);position:relative;
+}
+#balanceCanvas{display:block;width:100%;height:110px}
+
+/* Formula input — ticker tape style */
+.mr-input-wrap{
+  margin:10px 14px;position:relative;
+}
+.mr-formula-label{
+  font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(251,191,36,0.5);
+  margin-bottom:6px;display:block;
+}
+.mr-formula-input{
+  width:100%;padding:13px 16px;
+  background:rgba(251,191,36,0.04);border:1.5px solid rgba(251,191,36,0.25);
+  border-radius:12px;color:#fbbf24;font-size:18px;font-family:var(--mono);
+  font-weight:700;letter-spacing:1px;outline:none;
+  box-shadow:inset 0 0 20px rgba(0,0,0,0.5);
+}
+.mr-formula-input::placeholder{color:rgba(251,191,36,0.2)}
+.mr-formula-input:focus{border-color:rgba(251,191,36,0.5);box-shadow:0 0 0 3px rgba(251,191,36,0.07)}
+
+/* Calc button */
+.mr-calc-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin:10px 14px;padding:14px;border-radius:14px;
+  background:linear-gradient(135deg,rgba(251,191,36,0.15),rgba(251,191,36,0.05));
+  border:1.5px solid rgba(251,191,36,0.35);
+  color:#fbbf24;font-size:14px;font-weight:900;letter-spacing:2px;
+  cursor:pointer;transition:all 0.2s;
+}
+.mr-calc-btn:hover{background:rgba(251,191,36,0.2);box-shadow:0 0 28px rgba(251,191,36,0.12);border-color:rgba(251,191,36,0.6)}
+
+/* Molecule animation canvas */
+.mr-mol-stage{
+  margin:0 14px;border-radius:16px;overflow:hidden;
+  background:#000;border:1px solid rgba(251,191,36,0.1);
+  display:none;
+}
+#molCanvas{display:block;width:100%;height:120px}
+
+/* Result card — readout panel */
+.mr-result{
+  margin:10px 14px;border-radius:16px;overflow:hidden;
+  border:1px solid rgba(251,191,36,0.15);display:none;
+}
+.mr-result-head{
+  padding:10px 14px;
+  background:rgba(251,191,36,0.06);
+  border-bottom:1px solid rgba(251,191,36,0.1);
+  font-size:12px;font-weight:800;color:rgba(251,191,36,0.7);
+  letter-spacing:1px;
+}
+.mr-compound-name{
+  padding:14px;font-size:17px;font-weight:900;color:#fff;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  background:rgba(0,0,0,0.3);text-align:center;
+}
+.mr-elements-list{padding:12px 14px;font-family:var(--mono);font-size:12px;line-height:2;color:rgba(255,255,255,0.7)}
+.mr-elem-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0}
+.mr-elem-sym{font-weight:900;font-size:14px}
+.mr-elem-math{color:rgba(255,255,255,0.4);font-size:11px}
+.mr-elem-mass{font-weight:800}
+.mr-total-bar{
+  padding:16px 14px;text-align:center;
+  background:linear-gradient(135deg,rgba(251,191,36,0.1),rgba(251,191,36,0.03));
+  border-top:1px solid rgba(251,191,36,0.15);
+}
+.mr-total-label{font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(251,191,36,0.5)}
+.mr-total-val{font-size:36px;font-weight:900;color:#fbbf24;text-shadow:0 0 20px rgba(251,191,36,0.4);line-height:1.1}
+
+/* ═══════════════════════════════════════════════
+   PAGE 4 — PERIODIC TABLE
+   Theme: Glowing energy grid
+   Accent: #22d3ee (cyan-multi)
+═══════════════════════════════════════════════ */
+#page-4{
+  --page-accent:#22d3ee;
+  background:#04060f;padding:0;
+}
+.pt-header{
+  padding:14px 16px;
+  background:linear-gradient(135deg,rgba(34,211,238,0.06),transparent 60%);
+  border-bottom:1px solid rgba(34,211,238,0.1);
+}
+.pt-eyebrow{font-size:9px;font-weight:700;letter-spacing:3px;color:rgba(34,211,238,0.5);margin-bottom:4px}
+.pt-title-row{display:flex;align-items:center;gap:8px}
+.pt-title{font-size:20px;font-weight:900;color:#fff}
+.pt-gift{font-size:9px;padding:3px 8px;border-radius:8px;background:rgba(34,211,238,0.1);color:var(--blue);font-weight:700}
+
+.pt-search-bar{
+  margin:10px 14px;display:flex;align-items:center;gap:6px;
+  background:rgba(0,0,0,0.3);border:1px solid rgba(34,211,238,0.1);
+  border-radius:10px;padding:8px 12px;
+}
+.pt-search-bar input{flex:1;background:none;border:none;color:#fff;font-size:13px;outline:none}
+.pt-search-bar input::placeholder{color:var(--muted)}
+.pt-search-ico{font-size:14px;opacity:0.4}
+
+/* Periodic grid — glowing cells */
+.pt-scroll-wrap{overflow-x:auto;padding:0 14px 8px;margin-top:8px}
+.pt-grid{
+  display:grid;grid-template-columns:repeat(18,34px);gap:2px;min-width:630px;
+}
+.pt-cell{
+  width:34px;height:36px;border-radius:5px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:8.5px;cursor:pointer;
+  border:1px solid rgba(255,255,255,0.06);
+  transition:transform 0.15s,box-shadow 0.15s,filter 0.15s;
+  line-height:1.1;position:relative;overflow:hidden;
+}
+.pt-cell::after{content:'';position:absolute;inset:0;opacity:0;background:rgba(255,255,255,0.12);transition:opacity 0.15s}
+.pt-cell:hover::after{opacity:1}
+.pt-cell:hover{transform:scale(1.35);z-index:10;position:relative;filter:brightness(1.4)}
+.pt-cell .num{font-size:7px;opacity:0.6}
+.pt-cell .sym{font-size:12px;font-weight:800}
+.pt-cell .pname{font-size:5.5px;opacity:0.55}
+.pt-empty{width:34px;height:36px}
+
+/* Category colors — vivid version */
+.cat-alkali{background:rgba(255,80,80,0.18);border-color:rgba(255,80,80,0.35)}
+.cat-alkaline{background:rgba(255,180,30,0.18);border-color:rgba(255,180,30,0.35)}
+.cat-transition{background:rgba(34,211,238,0.12);border-color:rgba(34,211,238,0.25)}
+.cat-other{background:rgba(160,230,50,0.14);border-color:rgba(160,230,50,0.28)}
+.cat-metalloid{background:rgba(52,200,140,0.14);border-color:rgba(52,200,140,0.28)}
+.cat-nonmetal{background:rgba(100,160,255,0.18);border-color:rgba(100,160,255,0.35)}
+.cat-halogen{background:rgba(160,110,255,0.18);border-color:rgba(160,110,255,0.35)}
+.cat-noble{background:rgba(255,100,180,0.18);border-color:rgba(255,100,180,0.35)}
+.cat-lanthanide{background:rgba(255,140,50,0.14);border-color:rgba(255,140,50,0.28)}
+.cat-actinide{background:rgba(70,220,120,0.14);border-color:rgba(70,220,120,0.28)}
+
+/* Element glow animation */
+@keyframes elemFlash{
+  0%{box-shadow:0 0 0 rgba(255,255,255,0)}
+  40%{box-shadow:0 0 18px 6px rgba(255,255,255,0.6),0 0 35px 12px rgba(34,211,238,0.4);transform:scale(1.45);filter:brightness(1.8)}
+  100%{box-shadow:0 0 0;transform:scale(1)}
+}
+.pt-cell.flash{animation:elemFlash 0.55s ease-out forwards;z-index:15}
+
+/* Legend */
+.pt-legend{display:flex;flex-wrap:wrap;gap:5px;padding:10px 14px 4px}
+.pt-legend-item{font-size:8px;padding:3px 8px;border-radius:6px;font-weight:700}
+
+/* ═══════════════════════════════════════════════
+   PAGE 5 — QUIZ / GAME
+   Theme: Game console / reactor chamber
+   Accent: #ff4d6d (red/pink)
+═══════════════════════════════════════════════ */
+#page-5{
+  --page-accent:#ff4d6d;
+  background:#04060f;padding:0;overflow:hidden;
+}
+.quiz-bg{position:absolute;inset:0;z-index:0}
+#quizBgCanvas{display:block;width:100%;height:100%}
+.quiz-content{position:relative;z-index:1;height:100%;overflow-y:auto;padding-bottom:20px}
+
+.quiz-header{
+  padding:14px 16px;
+  background:linear-gradient(135deg,rgba(255,77,109,0.08) 0%,transparent 60%);
+  border-bottom:1px solid rgba(255,77,109,0.12);
+}
+.quiz-eyebrow{font-size:9px;font-weight:700;letter-spacing:3px;color:rgba(255,77,109,0.5);margin-bottom:4px}
+.quiz-title{font-size:20px;font-weight:900;color:#fff}
+
+/* Score HUD */
+.quiz-hud{
+  margin:12px 14px;display:flex;align-items:center;gap:10px;
+  padding:12px 16px;border-radius:14px;
+  background:rgba(255,77,109,0.06);border:1px solid rgba(255,77,109,0.15);
+}
+.quiz-score-num{font-size:36px;font-weight:900;color:var(--red);line-height:1;text-shadow:0 0 20px rgba(255,77,109,0.5)}
+.quiz-score-label{font-size:9px;color:rgba(255,77,109,0.5);font-weight:700;letter-spacing:1px;margin-top:2px}
+.quiz-progress-wrap{flex:1}
+.quiz-progress-label{font-size:9px;color:var(--muted);margin-bottom:5px}
+.quiz-progress-bar{height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
+.quiz-progress-fill{height:100%;background:var(--red);border-radius:2px;transition:width 0.4s}
+
+/* Question card */
+.quiz-q-card{
+  margin:0 14px 12px;padding:18px 16px;border-radius:16px;
+  background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.07);
+  position:relative;overflow:hidden;
+}
+.quiz-q-card::before{
+  content:'"';position:absolute;top:-10px;left:10px;font-size:80px;
+  color:rgba(255,77,109,0.07);font-weight:900;line-height:1;pointer-events:none;
+}
+.quiz-q-num{font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(255,77,109,0.5);margin-bottom:8px}
+.quiz-q-text{font-size:16px;font-weight:700;line-height:1.5;color:#fff}
+
+/* Answer options */
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 14px 10px}
+.quiz-opt{
+  padding:13px 10px;border-radius:12px;text-align:center;
+  background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.08);
+  color:rgba(255,255,255,0.75);font-size:13px;font-weight:700;cursor:pointer;
+  transition:all 0.2s;
+}
+.quiz-opt:hover{background:rgba(255,77,109,0.08);border-color:rgba(255,77,109,0.3);color:#fff}
+.quiz-opt.correct{background:rgba(0,255,157,0.1);border-color:rgba(0,255,157,0.4);color:#00ff9d}
+.quiz-opt.wrong{background:rgba(255,77,109,0.1);border-color:rgba(255,77,109,0.4);color:var(--red)}
+.quiz-opt.correct-mark::after{content:' ✓';font-size:12px}
+.quiz-opt.wrong-mark::after{content:' ✗';font-size:12px}
+
+/* Feedback */
+.quiz-feedback{text-align:center;font-size:12px;font-weight:700;min-height:18px;margin:0 14px 10px}
+.quiz-next-btn{
+  display:none;margin:0 14px 8px;padding:13px;border-radius:12px;
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  color:#fff;font-size:13px;font-weight:800;cursor:pointer;width:calc(100%-28px);
+  transition:all 0.2s;
+}
+.quiz-next-btn:hover{background:rgba(255,255,255,0.1)}
+
+/* End screen */
+.quiz-end{
+  display:none;text-align:center;padding:20px 14px;
+}
+.quiz-end-trophy{font-size:60px;margin-bottom:10px;animation:trophyBounce 0.6s ease-out}
+@keyframes trophyBounce{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+.quiz-end-score{font-size:56px;font-weight:900;color:var(--red);text-shadow:0 0 30px rgba(255,77,109,0.5)}
+.quiz-end-label{font-size:12px;color:var(--muted);margin:4px 0 14px}
+.quiz-end-badge{display:inline-block;padding:6px 18px;border-radius:20px;font-size:13px;font-weight:800;border:1.5px solid}
+.quiz-restart-btn{
+  display:block;margin:16px auto 0;padding:13px 30px;border-radius:14px;
+  background:rgba(255,77,109,0.12);border:1.5px solid rgba(255,77,109,0.3);
+  color:var(--red);font-size:14px;font-weight:900;letter-spacing:1px;cursor:pointer;
+  transition:all 0.2s;
+}
+.quiz-restart-btn:hover{background:rgba(255,77,109,0.2);box-shadow:0 0 24px rgba(255,77,109,0.2)}
+
+/* ═══════════════════════════════════════════════
+   PAGE 6 — SETTINGS
+   Theme: Control panel / reactor settings
+   Accent: rgba(255,255,255,0.4)
+═══════════════════════════════════════════════ */
+#page-6{padding:0;background:#04060f}
+.sett-header{
+  padding:14px 16px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.sett-eyebrow{font-size:9px;font-weight:700;letter-spacing:3px;color:var(--muted);margin-bottom:4px}
+.sett-title{font-size:20px;font-weight:900;color:#fff}
+
+/* Setting panels */
+.sett-group{margin:12px 14px;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.07)}
+.sett-group-head{
+  padding:10px 14px;background:rgba(255,255,255,0.03);
+  font-size:9px;font-weight:700;letter-spacing:2px;color:var(--muted);
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.sett-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 14px;border-bottom:1px solid rgba(255,255,255,0.04);
+  background:rgba(0,0,0,0.2);
+}
+.sett-row:last-child{border-bottom:none}
+.sett-label{font-size:13px;font-weight:700;color:rgba(255,255,255,0.75)}
+.sett-sub{font-size:10px;color:var(--muted);margin-top:2px}
+
+.sett-input{
+  width:130px;padding:7px 10px;background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.1);border-radius:8px;
+  color:#fff;font-size:12px;outline:none;
+}
+.sett-input:focus{border-color:rgba(255,255,255,0.25)}
+
+.toggle{
+  width:42px;height:23px;border-radius:12px;
+  background:rgba(255,255,255,0.1);position:relative;cursor:pointer;
+  transition:background 0.25s;flex-shrink:0;
+}
+.toggle.on{background:var(--blue)}
+.toggle::after{
+  content:'';position:absolute;top:3px;left:3px;
+  width:17px;height:17px;border-radius:9px;background:#fff;
+  transition:transform 0.25s;
+}
+.toggle.on::after{transform:translateX(19px)}
+
+.theme-dots{display:flex;gap:7px}
+.theme-dot{
+  width:26px;height:26px;border-radius:50%;cursor:pointer;
+  border:2px solid transparent;transition:border-color 0.2s,transform 0.2s;
+}
+.theme-dot.active{border-color:#fff;transform:scale(1.15)}
+
+.lang-select{
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);
+  color:#fff;padding:6px 10px;border-radius:8px;font-size:12px;outline:none;cursor:pointer;
+}
+
+.sett-danger-btn{
+  width:calc(100%-28px);margin:8px 14px;padding:12px;border-radius:12px;
+  background:rgba(255,77,109,0.07);border:1px solid rgba(255,77,109,0.2);
+  color:var(--red);font-size:13px;font-weight:700;cursor:pointer;display:block;
+}
+.sett-tg-link{
+  display:flex;align-items:center;gap:8px;
+  margin:12px 14px;padding:12px 14px;border-radius:14px;
+  background:rgba(34,211,238,0.05);border:1px solid rgba(34,211,238,0.15);
+  color:var(--blue);font-size:12px;font-weight:700;cursor:pointer;
+  text-decoration:none;transition:background 0.2s;
+}
+.sett-tg-link:hover{background:rgba(34,211,238,0.12)}
+.sett-footer{text-align:center;color:var(--muted);font-size:10px;padding:16px 14px 6px;letter-spacing:1px}
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- ═══ SIDEBAR ═══ -->
+<div id="sidebar">
+  <div class="sb-head">
+    <div class="sb-avatar-wrap" onclick="document.getElementById('avatar-input').click()">
+      <img id="sb-avatar-img" class="sb-avatar" src="" alt="">
+      <div class="sb-avatar-edit">✎</div>
+    </div>
+    <input type="file" id="avatar-input" accept="image/*">
+    <div>
+      <div class="sb-name" id="sb-username" contenteditable="true">Kimyogar</div>
+      <div class="sb-tg" id="sb-tg-id">@username</div>
+    </div>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-section">Bo'limlar</div>
+    <div class="sb-item active" onclick="navigateTo(0);closeSidebar()"><span class="sb-item-ico">⚗️</span>Reaksiya Lab</div>
+    <div class="sb-item" onclick="navigateTo(1);closeSidebar()"><span class="sb-item-ico">🔬</span>3D Molekula</div>
+    <div class="sb-item" onclick="navigateTo(2);closeSidebar()"><span class="sb-item-ico">📡</span>AR Ko'rinish</div>
+    <div class="sb-item" onclick="navigateTo(3);closeSidebar()"><span class="sb-item-ico">⚖️</span>Mr Kalkulyator</div>
+    <div class="sb-item" onclick="navigateTo(4);closeSidebar()"><span class="sb-item-ico">🧫</span>Davriy Jadval</div>
+    <div class="sb-item" onclick="navigateTo(5);closeSidebar()"><span class="sb-item-ico">🎮</span>Kimyo O'yini</div>
+    <div class="sb-section">Tarix</div>
+    <div id="hist-list"></div>
+    <button class="hist-clear" onclick="clearHistory()">🗑 Tarixni tozalash</button>
+  </div>
+  <div class="sb-footer">
+    <a class="sb-tg-btn" href="https://t.me/+O8q7VBCkZE4xOGZi" target="_blank">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.285c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.936z"/></svg>
+      Admin bilan bog'lanish
+    </a>
+    <div class="sb-version">AL KIMYOGAR PRO v4.0 • O'zMU</div>
+  </div>
+</div>
+
+<!-- ═══ ELEMENT POPUP ═══ -->
+<div id="el-popup">
+  <div class="el-popup-card">
+    <button class="ep-close" onclick="closeElPopup()">✕</button>
+    <div class="ep-sym" id="ep-sym" style="color:var(--blue);text-shadow:0 0 20px var(--blue)"></div>
+    <div style="font-size:19px;font-weight:800;color:#fff;margin:4px 0" id="ep-name"></div>
+    <div class="ep-canvas-wrap"><canvas id="ep-orbit-canvas" width="276" height="100"></canvas></div>
+    <div style="font-size:11px;color:var(--muted)" id="ep-num"></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:2px" id="ep-mass"></div>
+    <div style="font-size:11px;color:var(--blue);margin-top:6px" id="ep-cat"></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:3px" id="ep-conf"></div>
+    <button onclick="useElementInReaction()" style="margin-top:14px;width:100%;padding:12px;border-radius:12px;background:rgba(0,255,157,0.1);border:1.5px solid rgba(0,255,157,0.3);color:#00ff9d;font-size:13px;font-weight:800;cursor:pointer;">⚗️ Reaksiyaga qo'shish</button>
+  </div>
+</div>
+
+<!-- ═══ LOADER ═══ -->
+<div id="loader">
+  <div class="loader-ring"><div class="loader-dot"></div></div>
+  <div class="loader-txt" id="loader-txt">TAHLIL KETMOQDA</div>
+</div>
+<div id="toast"></div>
+
+<!-- ═══ APP ═══ -->
+<div id="app">
+  <div id="topbar">
+    <button id="menu-btn" onclick="openSidebar()">☰</button>
+    <div id="topbar-title">AL KIMYOGAR <span id="topbar-page" style="color:var(--page-accent,#00ff9d)">LAB</span></div>
+    <div id="topbar-badge" style="font-size:9px;padding:3px 9px;border-radius:20px;background:rgba(0,255,157,0.1);border:1px solid rgba(0,255,157,0.25);color:#00ff9d;font-weight:700;letter-spacing:1px">ONLINE</div>
+  </div>
+
+  <div id="pages">
+
+    <!-- ═══ PAGE 0: REACTION LAB ═══ -->
+    <div class="page active" id="page-0">
+      <div class="rxn-header">
+        <div class="rxn-lab-label">⚗ KIMYO LABORATORIYASI</div>
+        <div class="rxn-title">Reaksiya Tahlilchi</div>
+        <div class="rxn-sub">Formulani kiriting va real animatsiyani ko'ring</div>
+      </div>
+
+      <!-- Oscilloscope display -->
+      <div class="rxn-screen" id="mainCard">
+        <div class="rxn-formula" id="display">...</div>
+        <div class="rxn-status-bar">
+          <div style="display:flex;align-items:center;gap:6px">
+            <div class="rxn-status-dot" id="status-dot"></div>
+            <div class="rxn-status-txt" id="status">TAYYOR</div>
+          </div>
+          <div style="font-size:9px;color:rgba(0,255,157,0.3);font-family:var(--mono)">Al Kimyogar PRO</div>
+        </div>
+      </div>
+
+      <!-- Mode -->
+      <div class="rxn-mode-wrap">
+        <button id="mode-kb" class="rxn-mode-btn" onclick="switchMode('kb')">⌨ KLAVIATURA</button>
+        <button id="mode-grid" class="rxn-mode-btn active" onclick="switchMode('grid')">🧪 ELEMENT JADVAL</button>
+      </div>
+
+      <div id="kb-wrap" style="display:none">
+        <input class="rxn-kb-input" id="manual-input" placeholder="Masalan: NaOH + HCl ..." oninput="syncInput()">
+      </div>
+
+      <div id="grid-wrap">
+        <div class="rxn-el-grid" id="el-keys"></div>
+      </div>
+
+      <div class="rxn-ctrl-row" style="margin-top:8px">
+        <button class="rxn-btn-3d" onclick="navigateTo(1)">⬡ 3D</button>
+        <button class="rxn-op-btn" onclick="addChar(' + ')">+</button>
+        <button class="rxn-op-btn" onclick="addChar('→')">→</button>
+        <button class="rxn-clr-btn" onclick="resetRxn()">CLR</button>
+      </div>
+
+      <button class="rxn-analyze-btn" onclick="askAI()">⚗ TAHLIL QILISH</button>
+
+      <div class="rxn-result" id="res-box"></div>
+      <div class="rxn-visual" id="visual-container">
+        <canvas id="reactionCanvas"></canvas>
+        <div class="rxn-visual-type" id="rxn-type-label"></div>
+        <div id="ph-tag"></div>
+      </div>
+    </div>
+
+    <!-- ═══ PAGE 1: 3D VIEWER ═══ -->
+    <div class="page" id="page-1">
+      <div class="mol-header">
+        <div class="mol-eyebrow">🔬 SPEKTROSKOPIYA MODULI</div>
+        <div class="mol-title">3D Molekula Ko'rinishi</div>
+        <div class="mol-sub">PubChem ma'lumotlar bazasidan real 3D struktura</div>
+      </div>
+
+      <div class="mol-orbit-stage">
+        <canvas id="orbitCanvas"></canvas>
+        <div class="mol-orbit-info">
+          <div class="mol-orbit-formula" id="orbit-formula">— formulani kiriting —</div>
+          <div class="mol-orbit-shells" id="orbit-shells"></div>
+        </div>
+      </div>
+
+      <div class="mol-search-wrap">
+        <span class="mol-search-ico">🔍</span>
+        <input class="mol-search-input" id="mol-input" placeholder="Modda nomi (masalan: Ethanol, Water, Caffeine...)" type="text">
+      </div>
+
+      <button class="mol-scan-btn" onclick="run3DAnalysis()">
+        <span class="mol-scan-spin">⚙</span> MOLEKULANI SKANERLASH
+      </button>
+
+      <div id="v3d-canvas"></div>
+      <div class="mol-status" id="v3d-loading">Tizim tayyor</div>
+
+      <div class="mol-props" id="prop-panel">
+        <div class="mol-props-head">📊 FIZIK-KIMYOVIY XOSSALAR</div>
+        <div class="mol-props-grid">
+          <div class="mol-prop"><div class="mol-prop-label">Molyar Massa</div><div class="mol-prop-val" id="r-mw">--</div></div>
+          <div class="mol-prop"><div class="mol-prop-label">Kimyoviy Formula</div><div class="mol-prop-val" id="r-f">--</div></div>
+          <div class="mol-prop"><div class="mol-prop-label">Zichlik</div><div class="mol-prop-val" id="r-d">--</div></div>
+          <div class="mol-prop"><div class="mol-prop-label">Erish harorati</div><div class="mol-prop-val" id="r-mp">--</div></div>
+          <div class="mol-prop"><div class="mol-prop-label">Qaynash harorati</div><div class="mol-prop-val" id="r-bp">--</div></div>
+          <div class="mol-prop"><div class="mol-prop-label">Xossasi</div><div class="mol-prop-val" id="r-prop">--</div></div>
+          <div class="mol-prop"><div class="mol-prop-label">pH</div><div class="mol-prop-val" id="r-ph">--</div></div>
+          <div class="mol-prop"><div class="mol-prop-label">pOH</div><div class="mol-prop-val" id="r-poh">--</div></div>
+        </div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+
+    <!-- ═══ PAGE 2: AR VIEW ═══ -->
+    <div class="page" id="page-2">
+      <div class="ar-header">
+        <div class="ar-eyebrow">📡 KENGAYTIRILGAN REALLIK</div>
+        <div class="ar-title">AR Molekula Ko'rinishi</div>
+      </div>
+
+      <div class="ar-viewfinder">
+        <video id="webcam" autoplay playsinline></video>
+        <canvas id="ar-mol-canvas"></canvas>
+        <div class="ar-hud">
+          <div class="ar-corner ar-corner-tl"></div>
+          <div class="ar-corner ar-corner-tr"></div>
+          <div class="ar-corner ar-corner-bl"></div>
+          <div class="ar-corner ar-corner-br"></div>
+          <div class="ar-scan-line"></div>
+          <div class="ar-crosshair"></div>
+          <div class="ar-status-badge" id="ar-badge">● KAMERA TAYYOR</div>
+        </div>
+      </div>
+      <div id="ar-canvas"></div>
+
+      <div class="ar-search-wrap">
+        <input class="ar-search-input" id="ar-input" placeholder="Modda nomi (masalan: Caffeine)">
+        <button class="ar-load-btn" onclick="loadAR()">📡 Ko'rsat</button>
+      </div>
+
+      <div class="ar-info-card" id="ar-mol-info">
+        <div class="ar-info-row"><span class="ar-info-label">Holat</span><span class="ar-info-val" id="ar-status-val">—</span></div>
+        <div class="ar-info-row"><span class="ar-info-label">Formula</span><span class="ar-info-val" id="ar-formula-val">—</span></div>
+        <div class="ar-info-row"><span class="ar-info-label">Molyar massa</span><span class="ar-info-val" id="ar-mass-val">—</span></div>
+        <div class="ar-info-row" style="border:none"><span class="ar-info-label">Nomi (IUPAC)</span><span class="ar-info-val" id="ar-name-val" style="font-size:10px">—</span></div>
+      </div>
+      <div style="height:16px"></div>
+    </div>
+
+    <!-- ═══ PAGE 3: MOLAR MASS ═══ -->
+    <div class="page" id="page-3">
+      <div class="mr-header">
+        <div class="mr-eyebrow">⚖ ANALITIK MODUL</div>
+        <div class="mr-title">Mr Kalkulyator</div>
+      </div>
+
+      <!-- Balance animation -->
+      <div class="mr-balance-stage">
+        <canvas id="balanceCanvas"></canvas>
+      </div>
+
+      <div class="mr-input-wrap">
+        <span class="mr-formula-label">Kimyoviy formula yoki modda nomi:</span>
+        <input class="mr-formula-input" id="molar-input" placeholder="H₂SO₄  yoki  Glucose  yoki  NaCl" type="text">
+      </div>
+
+      <button class="mr-calc-btn" onclick="calcMolar()">
+        🧮 HISOBLASH
+      </button>
+
+      <div class="mr-mol-stage" id="mol-stage">
+        <canvas id="molCanvas"></canvas>
+      </div>
+
+      <div class="mr-result" id="molar-res">
+        <div class="mr-result-head">📊 TAHLIL NATIJALARI</div>
+        <div class="mr-compound-name" id="molar-name"></div>
+        <div class="mr-elements-list" id="molar-details"></div>
+        <div class="mr-total-bar">
+          <div class="mr-total-label">MOLYAR MASSA</div>
+          <div class="mr-total-val" id="molar-total"></div>
+        </div>
+      </div>
+      <div style="height:16px"></div>
+    </div>
+
+    <!-- ═══ PAGE 4: PERIODIC TABLE ═══ -->
+    <div class="page" id="page-4">
+      <div class="pt-header">
+        <div class="pt-eyebrow">🧫 MENDELEEV JADVAL MODULI</div>
+        <div class="pt-title-row">
+          <div class="pt-title">Davriy Jadval</div>
+          <span class="pt-gift">● INTERAKTIV</span>
+        </div>
+      </div>
+
+      <div class="pt-search-bar">
+        <span class="pt-search-ico">🔍</span>
+        <input type="text" id="pt-search" placeholder="Element qidirish..." oninput="filterPT(this.value)">
+      </div>
+
+      <div class="pt-scroll-wrap">
+        <div class="pt-grid" id="pt-grid"></div>
+      </div>
+
+      <div class="pt-legend">
+        <span class="pt-legend-item" style="background:rgba(255,80,80,0.18);color:#ff8080">Ishqoriy metal</span>
+        <span class="pt-legend-item" style="background:rgba(255,180,30,0.18);color:#ffb41e">Ishqoriy-yer</span>
+        <span class="pt-legend-item" style="background:rgba(34,211,238,0.12);color:#22d3ee">O'tish metali</span>
+        <span class="pt-legend-item" style="background:rgba(100,160,255,0.18);color:#64a0ff">Ametall</span>
+        <span class="pt-legend-item" style="background:rgba(160,110,255,0.18);color:#a06eff">Galogen</span>
+        <span class="pt-legend-item" style="background:rgba(255,100,180,0.18);color:#ff64b4">Nodir gaz</span>
+      </div>
+      <div style="height:16px"></div>
+    </div>
+
+    <!-- ═══ PAGE 5: QUIZ ═══ -->
+    <div class="page" id="page-5">
+      <div class="quiz-bg"><canvas id="quizBgCanvas"></canvas></div>
+      <div class="quiz-content">
+        <div class="quiz-header">
+          <div class="quiz-eyebrow">🎮 REAKTOR SINOV MODULI</div>
+          <div class="quiz-title">Kimyo O'yini</div>
+        </div>
+
+        <div class="quiz-hud">
+          <div>
+            <div class="quiz-score-num" id="quiz-score">0</div>
+            <div class="quiz-score-label">BALL</div>
+          </div>
+          <div class="quiz-progress-wrap">
+            <div class="quiz-progress-label" style="font-size:9px;color:var(--muted)">SAVOL <span id="quiz-q-num">1</span> / 10</div>
+            <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-progress" style="width:10%"></div></div>
+          </div>
+        </div>
+
+        <div id="quiz-area">
+          <div class="quiz-q-card">
+            <div class="quiz-q-num">SAVOL <span id="quiz-q-num2">01</span></div>
+            <div class="quiz-q-text" id="quiz-q"></div>
+          </div>
+          <div class="quiz-opts" id="quiz-opts"></div>
+          <div class="quiz-feedback" id="quiz-fb"></div>
+          <button class="quiz-next-btn" id="quiz-next" onclick="nextQuestion()">Keyingi savol ➜</button>
+        </div>
+
+        <div class="quiz-end" id="quiz-end">
+          <div class="quiz-end-trophy">🏆</div>
+          <div class="quiz-end-score" id="quiz-final-score"></div>
+          <div class="quiz-end-label">ball to'pladingiz!</div>
+          <div class="quiz-end-badge" id="quiz-badge"></div>
+          <button class="quiz-restart-btn" onclick="startQuiz()">♻ Qayta o'ynash</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PAGE 6: SETTINGS ═══ -->
+    <div class="page" id="page-6">
+      <div class="sett-header">
+        <div class="sett-eyebrow">⚙ SOZLAMA PANELI</div>
+        <div class="sett-title">Sozlamalar</div>
+      </div>
+
+      <div class="sett-group">
+        <div class="sett-group-head">PROFIL</div>
+        <div class="sett-row">
+          <div><div class="sett-label">👤 Ism</div></div>
+          <input class="sett-input" id="sett-name" oninput="updateProfileName(this.value)">
+        </div>
+        <div class="sett-row">
+          <div><div class="sett-label">📱 Telegram</div></div>
+          <input class="sett-input" id="sett-tg" placeholder="@username" oninput="updateTgId(this.value)">
+        </div>
+      </div>
+
+      <div class="sett-group">
+        <div class="sett-group-head">KO'RINISH</div>
+        <div class="sett-row">
+          <div><div class="sett-label">🎨 Rang rejimi</div></div>
+          <div class="theme-dots">
+            <div class="theme-dot active" style="background:linear-gradient(135deg,#22d3ee,#00ff9d)" onclick="setTheme('default')" title="Standart"></div>
+            <div class="theme-dot" style="background:linear-gradient(135deg,#a855f7,#ec4899)" onclick="setTheme('purple')" title="Binafsha"></div>
+            <div class="theme-dot" style="background:linear-gradient(135deg,#f97316,#fbbf24)" onclick="setTheme('orange')" title="Olov"></div>
+            <div class="theme-dot" style="background:linear-gradient(135deg,#10b981,#3b82f6)" onclick="setTheme('ocean')" title="Okean"></div>
+          </div>
+        </div>
+        <div class="sett-row">
+          <div><div class="sett-label">🌍 Til</div></div>
+          <select class="lang-select" onchange="saveSetting('lang',this.value)">
+            <option value="uz">O'zbekcha</option>
+            <option value="ru">Русский</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        <div class="sett-row">
+          <div><div class="sett-label">✨ Animatsiya</div><div class="sett-sub">Fon effektlari</div></div>
+          <div class="toggle on" id="tog-anim" onclick="toggleAnim()"></div>
+        </div>
+        <div class="sett-row">
+          <div><div class="sett-label">🔊 Tovush</div></div>
+          <div class="toggle" id="tog-sound" onclick="toggleSetting('tog-sound','sound')"></div>
+        </div>
+      </div>
+
+      <div class="sett-group">
+        <div class="sett-group-head">BOG'LANISH</div>
+        <div class="sett-row" style="flex-direction:column;align-items:stretch;gap:8px">
+          <a class="sett-tg-link" href="https://t.me/+O8q7VBCkZE4xOGZi" target="_blank">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.285c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.936z"/></svg>
+            Admin bilan Telegram orqali bog'lanish
+          </a>
+        </div>
+      </div>
+
+      <div class="sett-group">
+        <div class="sett-group-head">MA'LUMOTLAR</div>
+        <div class="sett-row">
+          <button class="sett-danger-btn" onclick="clearHistory()" style="margin:0;width:100%">🗑 Tarixni o'chirish</button>
+        </div>
+        <div class="sett-row">
+          <button class="sett-danger-btn" onclick="resetApp()" style="margin:0;width:100%">🔄 Ilovani qayta sozlash</button>
+        </div>
+      </div>
+
+      <div class="sett-footer">Al Kimyogar Pro v4.0 • O'zMU Digital Lab<br><span style="color:rgba(255,255,255,0.1)">Made with ⚗️</span></div>
+      <div style="height:16px"></div>
+    </div>
+
+  </div><!-- /pages -->
+
+  <!-- Tab bar -->
+  <div id="tabbar">
+    <button class="tab-btn active" id="tab-0" onclick="navigateTo(0)">
+      <div class="tab-icon-wrap">⚗️</div>
+      <span>Reaksiya</span>
+      <div class="tab-dot"></div>
+    </button>
+    <button class="tab-btn" id="tab-1" onclick="navigateTo(1)">
+      <div class="tab-icon-wrap">🔬</div>
+      <span>3D Viewer</span>
+      <div class="tab-dot"></div>
+    </button>
+    <button class="tab-btn" id="tab-2" onclick="navigateTo(2)">
+      <div class="tab-icon-wrap">📡</div>
+      <span>AR</span>
+      <div class="tab-dot"></div>
+    </button>
+    <button class="tab-btn" id="tab-3" onclick="navigateTo(3)">
+      <div class="tab-icon-wrap">⚖️</div>
+      <span>Mr Hisob</span>
+      <div class="tab-dot"></div>
+    </button>
+    <button class="tab-btn" id="tab-4" onclick="navigateTo(4)">
+      <div class="tab-icon-wrap">🧫</div>
+      <span>Jadval</span>
+      <div class="tab-dot"></div>
+    </button>
+    <button class="tab-btn" id="tab-5" onclick="navigateTo(5)">
+      <div class="tab-icon-wrap">🎮</div>
+      <span>O'yin</span>
+      <div class="tab-dot"></div>
+    </button>
+    <button class="tab-btn" id="tab-6" onclick="navigateTo(6)" style="flex:0;width:50px;border-left:1px solid rgba(255,255,255,0.05)">
+      <div class="tab-icon-wrap" style="font-size:16px">⚙️</div>
+      <div class="tab-dot"></div>
+    </button>
+  </div>
+</div><!-- /app -->
+
+<script>
+// ════════════════════════════════════════════════
+// CONSTANTS
+// ════════════════════════════════════════════════
+const GROQ_KEY = "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";
+const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+
+const PAGE_META = [
+  {name:'LAB',    accent:'#00ff9d', bg:'rgba(0,255,157,0.1)',  border:'rgba(0,255,157,0.25)'},
+  {name:'3D',     accent:'#22d3ee', bg:'rgba(34,211,238,0.1)', border:'rgba(34,211,238,0.25)'},
+  {name:'AR',     accent:'#c084fc', bg:'rgba(192,132,252,0.1)',border:'rgba(192,132,252,0.25)'},
+  {name:'Mr',     accent:'#fbbf24', bg:'rgba(251,191,36,0.1)', border:'rgba(251,191,36,0.25)'},
+  {name:'JADVAL', accent:'#22d3ee', bg:'rgba(34,211,238,0.1)', border:'rgba(34,211,238,0.25)'},
+  {name:"O'YIN",  accent:'#ff4d6d', bg:'rgba(255,77,109,0.1)', border:'rgba(255,77,109,0.25)'},
+  {name:'SOZLAMA',accent:'rgba(255,255,255,0.4)',bg:'rgba(255,255,255,0.06)',border:'rgba(255,255,255,0.12)'}
+];
+
+let activePage = 0, currentInput = '', currentMode = 'grid';
+let history = JSON.parse(localStorage.getItem('chem_history')||'[]');
+let settings = JSON.parse(localStorage.getItem('chem_settings')||'{}');
+let animEnabled = settings.anim !== false;
+let selectedElement = null;
+let animId, particles = [], canvas, ctx;
+
+// ════════════════════════════════════════════════
+// AMBIENT BACKGROUND
+// ════════════════════════════════════════════════
+const bgCanvas = document.getElementById('bg-canvas');
+const bgCtx = bgCanvas.getContext('2d');
+let bgAtoms = [];
+
+function resizeBg(){bgCanvas.width=innerWidth;bgCanvas.height=innerHeight}
+function initBg(){
+  bgAtoms=[];
+  for(let i=0;i<14;i++) bgAtoms.push({
+    x:Math.random()*bgCanvas.width, y:Math.random()*bgCanvas.height,
+    r:25+Math.random()*45, er:3+Math.random()*4,
+    angle:Math.random()*Math.PI*2,
+    speed:(0.25+Math.random()*0.35)*(Math.random()<0.5?1:-1),
+    col:Math.random()<0.6?'#22d3ee':'#00ff9d',
+    vx:(Math.random()-0.5)*0.25, vy:(Math.random()-0.5)*0.25
+  });
+}
+function drawBg(){
+  if(!animEnabled){bgCtx.clearRect(0,0,bgCanvas.width,bgCanvas.height);return}
+  bgCtx.clearRect(0,0,bgCanvas.width,bgCanvas.height);
+  bgAtoms.forEach(a=>{
+    a.x+=a.vx; a.y+=a.vy;
+    if(a.x<-70)a.x=bgCanvas.width+70; if(a.x>bgCanvas.width+70)a.x=-70;
+    if(a.y<-70)a.y=bgCanvas.height+70; if(a.y>bgCanvas.height+70)a.y=-70;
+    a.angle+=a.speed*0.012;
+    bgCtx.beginPath(); bgCtx.arc(a.x,a.y,a.r,0,Math.PI*2);
+    bgCtx.strokeStyle=a.col; bgCtx.lineWidth=0.5; bgCtx.stroke();
+    const ex=a.x+Math.cos(a.angle)*a.r, ey=a.y+Math.sin(a.angle)*a.r;
+    bgCtx.beginPath(); bgCtx.arc(ex,ey,a.er/2,0,Math.PI*2);
+    bgCtx.fillStyle=a.col; bgCtx.fill();
+    bgCtx.beginPath(); bgCtx.arc(a.x,a.y,1.5,0,Math.PI*2);
+    bgCtx.fillStyle=a.col; bgCtx.fill();
+  });
+  requestAnimationFrame(drawBg);
+}
+resizeBg(); initBg(); drawBg();
+window.addEventListener('resize',()=>{resizeBg();initBg()});
+
+// ════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════
+function navigateTo(n){
+  if(n===activePage)return;
+  const pages=document.querySelectorAll('.page');
+  pages[activePage].classList.remove('active');
+  pages[activePage].style.transform='translateY(-10px)';
+  setTimeout(()=>{
+    pages[activePage].style.transform='';
+    activePage=n;
+    pages[n].classList.add('active');
+    updateTopbar(n);
+    updateTabs(n);
+    updateSidebar(n);
+    onPageEnter(n);
+  },200);
+  updateTabs(n);
+}
+
+const PAGE_CSS_VARS = {
+  0:'#00ff9d',1:'#22d3ee',2:'#c084fc',3:'#fbbf24',4:'#22d3ee',5:'#ff4d6d',6:'rgba(255,255,255,0.5)'
+};
+const PAGE_NAMES = ['LAB','3D VIEWER','AR KO\'RINISH','Mr HISOB','DAVRIY JADVAL','KIMYO O\'YINI','SOZLAMALAR'];
+
+function updateTopbar(n){
+  const m = PAGE_META[n];
+  document.getElementById('topbar-page').textContent = PAGE_NAMES[n];
+  document.getElementById('topbar-page').style.color = m.accent;
+  document.getElementById('topbar-badge').style.background = m.bg;
+  document.getElementById('topbar-badge').style.borderColor = m.border;
+  document.getElementById('topbar-badge').style.color = m.accent;
+  document.documentElement.style.setProperty('--page-accent', m.accent);
+}
+
+function updateTabs(n){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===n));
+}
+function updateSidebar(n){
+  document.querySelectorAll('.sb-item').forEach((b,i)=>b.classList.toggle('active',i===n));
+}
+function onPageEnter(n){
+  if(n===1) startOrbitIdle();
+  if(n===3) startBalanceAnim();
+  if(n===5) startQuizBg();
+  if(n===2) initCamera();
+}
+
+// ════════════════════════════════════════════════
+// SIDEBAR
+// ════════════════════════════════════════════════
+function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sidebar-overlay').classList.add('show')}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebar-overlay').classList.remove('show')}
+
+// ════════════════════════════════════════════════
+// PROFILE
+// ════════════════════════════════════════════════
+(function initProfile(){
+  const name=settings.name||'Kimyogar', tg=settings.tg||'@username';
+  document.getElementById('sb-username').innerText=name;
+  document.getElementById('sb-tg-id').innerText=tg;
+  document.getElementById('sett-name').value=name;
+  document.getElementById('sett-tg').value=tg;
+  const av=settings.avatar||'';
+  if(av) document.getElementById('sb-avatar-img').src=av;
+  else document.getElementById('sb-avatar-img').src=genAvatar(name);
+})();
+
+function genAvatar(n){
+  const c=document.createElement('canvas');c.width=c.height=68;
+  const x=c.getContext('2d');
+  x.fillStyle='#0d1528';x.fillRect(0,0,68,68);
+  x.fillStyle='#22d3ee';x.font='bold 30px Segoe UI';
+  x.textAlign='center';x.textBaseline='middle';
+  x.fillText((n||'K')[0].toUpperCase(),34,34);return c.toDataURL();
+}
+
+document.getElementById('avatar-input').addEventListener('change',function(e){
+  const file=e.target.files[0]; if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const src=ev.target.result;
+    document.getElementById('sb-avatar-img').src=src;
+    settings.avatar=src; saveSettings(); showToast('Avatar yangilandi ✓');
+  };
+  r.readAsDataURL(file);
+});
+document.getElementById('sb-username').addEventListener('input',function(){updateProfileName(this.innerText)});
+function updateProfileName(v){settings.name=v;document.getElementById('sett-name').value=v;if(!settings.avatar)document.getElementById('sb-avatar-img').src=genAvatar(v);saveSettings()}
+function updateTgId(v){settings.tg=v;document.getElementById('sb-tg-id').innerText=v||'@username';saveSettings()}
+
+// ════════════════════════════════════════════════
+// SETTINGS
+// ════════════════════════════════════════════════
+function saveSettings(){localStorage.setItem('chem_settings',JSON.stringify(settings))}
+function saveSetting(k,v){settings[k]=v;saveSettings()}
+function toggleAnim(){animEnabled=!animEnabled;settings.anim=animEnabled;document.getElementById('tog-anim').classList.toggle('on',animEnabled);saveSettings();if(animEnabled)drawBg();showToast(animEnabled?'Animatsiya yoqildi ✓':'O\'chirildi')}
+function toggleSetting(id,key){const t=document.getElementById(id);const on=t.classList.toggle('on');settings[key]=on;saveSettings();showToast(on?'Yoqildi ✓':'O\'chirildi')}
+
+const THEMES={default:{blue:'#22d3ee',green:'#00ff9d'},purple:{blue:'#a855f7',green:'#ec4899'},orange:{blue:'#f97316',green:'#fbbf24'},ocean:{blue:'#3b82f6',green:'#10b981'}};
+function setTheme(n){const t=THEMES[n];document.documentElement.style.setProperty('--blue',t.blue);document.documentElement.style.setProperty('--green',t.green);settings.theme=n;saveSettings();document.querySelectorAll('.theme-dot').forEach((d,i)=>d.classList.toggle('active',['default','purple','orange','ocean'][i]===n));showToast('Rang o\'zgartirildi ✓')}
+if(settings.theme)setTheme(settings.theme);
+if(settings.anim===false){document.getElementById('tog-anim').classList.remove('on');animEnabled=false}
+
+function resetApp(){if(confirm('Barcha ma\'lumotlar o\'chadi. Davom etasizmi?')){localStorage.clear();location.reload()}}
+
+// ════════════════════════════════════════════════
+// HISTORY
+// ════════════════════════════════════════════════
+function addHistory(type,text){
+  if(settings.hist===false)return;
+  const icons={reaction:'⚗️',mol3d:'🔬',molar:'⚖️',ar:'📡'};
+  history.unshift({type,text,ico:icons[type]||'📝',time:Date.now()});
+  if(history.length>30)history.pop();
+  localStorage.setItem('chem_history',JSON.stringify(history));
+  renderHistory();
+}
+function renderHistory(){
+  const el=document.getElementById('hist-list');
+  if(!history.length){el.innerHTML='<div style="padding:8px 18px;font-size:11px;color:var(--muted)">Tarix bo\'sh</div>';return}
+  el.innerHTML=history.slice(0,15).map((h,i)=>`
+    <div class="hist-item">
+      <span>${h.ico}</span>
+      <span class="hist-text" onclick="useHistory(${i})">${h.text}</span>
+      <button class="hist-del" onclick="delHistory(${i})">✕</button>
+    </div>`).join('');
+}
+function useHistory(i){const h=history[i];if(h.type==='reaction'){navigateTo(0);closeSidebar();currentInput=h.text;document.getElementById('display').textContent=h.text;document.getElementById('manual-input').value=h.text}else if(h.type==='mol3d'){navigateTo(1);closeSidebar();document.getElementById('mol-input').value=h.text}else if(h.type==='molar'){navigateTo(3);closeSidebar();document.getElementById('molar-input').value=h.text}}
+function delHistory(i){history.splice(i,1);localStorage.setItem('chem_history',JSON.stringify(history));renderHistory()}
+function clearHistory(){history=[];localStorage.setItem('chem_history','[]');renderHistory();showToast('Tarix tozalandi ✓')}
+renderHistory();
+
+// ════════════════════════════════════════════════
+// TOAST & LOADER
+// ════════════════════════════════════════════════
+let toastT=null;
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2500)}
+function showLoader(msg){document.getElementById('loader-txt').textContent=msg||'TAHLIL KETMOQDA';document.getElementById('loader').classList.add('show')}
+function hideLoader(){document.getElementById('loader').classList.remove('show')}
+
+// ════════════════════════════════════════════════
+// PAGE 0: REACTION LAB
+// ════════════════════════════════════════════════
+const ELEMENTS=[
+  {s:'H',n:'Vodorod'},{s:'He',n:'Geliy'},{s:'Li',n:'Litiy'},{s:'Be',n:'Berilliy'},
+  {s:'B',n:'Bor'},{s:'C',n:'Uglerod'},{s:'N',n:'Azot'},{s:'O',n:'Kislorod'},
+  {s:'F',n:'Ftor'},{s:'Ne',n:'Neon'},{s:'Na',n:'Natriy'},{s:'Mg',n:'Magniy'},
+  {s:'Al',n:'Alyuminiy'},{s:'Si',n:'Kremniy'},{s:'P',n:'Fosfor'},{s:'S',n:'Oltingugurt'},
+  {s:'Cl',n:'Xlor'},{s:'Ar',n:'Argon'},{s:'K',n:'Kaliy'},{s:'Ca',n:'Kalsiy'},
+  {s:'Fe',n:'Temir'},{s:'Cu',n:'Mis'},{s:'Zn',n:'Rux'},{s:'Ag',n:'Kumush'},
+  {s:'Au',n:'Oltin'},{s:'Hg',n:'Simob'},{s:'Pb',n:'Qo\'rg\'oshin'},{s:'Br',n:'Brom'},
+  {s:'I',n:'Yod'},{s:'Mn',n:'Marganes'},{s:'Cr',n:'Xrom'},{s:'Ni',n:'Nikel'},
+  {s:'Ti',n:'Titan'},{s:'Ba',n:'Bariy'},{s:'Sr',n:'Stronsiy'},{s:'Pt',n:'Platin'}
+];
+(function buildElKeys(){
+  const d=document.getElementById('el-keys');
+  ELEMENTS.forEach(el=>{
+    const b=document.createElement('button');
+    b.className='rxn-el-btn';
+    b.innerHTML=`<span class="rxn-el-sym">${el.s}</span><span class="rxn-el-name">${el.n}</span>`;
+    b.onclick=()=>addChar(el.s);
+    d.appendChild(b);
+  });
+})();
+
+function switchMode(m){
+  currentMode=m;
+  document.getElementById('mode-kb').classList.toggle('active',m==='kb');
+  document.getElementById('mode-grid').classList.toggle('active',m==='grid');
+  document.getElementById('kb-wrap').style.display=m==='kb'?'block':'none';
+  document.getElementById('grid-wrap').style.display=m==='grid'?'block':'none';
+}
+function syncInput(){currentInput=document.getElementById('manual-input').value;document.getElementById('display').textContent=currentInput||'...'}
+function addChar(v){
+  if(currentInput.includes('→'))currentInput='';
+  currentInput+=v;
+  document.getElementById('display').textContent=currentInput;
+  document.getElementById('manual-input').value=currentInput;
+}
+function resetRxn(){
+  currentInput='';
+  document.getElementById('display').textContent='...';
+  document.getElementById('display').style.color='';
+  document.getElementById('manual-input').value='';
+  document.getElementById('res-box').style.display='none';
+  document.getElementById('visual-container').style.display='none';
+  document.getElementById('mainCard').className='rxn-screen';
+  document.getElementById('status').textContent='TAYYOR';
+  cancelAnimationFrame(animId);
+}
+
+// ══════════════════════════════════════════════════════════
+// REAL PHYSICS REACTION ANIMATION ENGINE v2.0
+// Har bir reaksiya turi uchun haqiqiy fizika simulyatsiyasi
+// ══════════════════════════════════════════════════════════
+
+function detectRxnType(f){
+  const s=f.toLowerCase();
+  if(s.includes('o2')&&(s.includes('ch')||s.includes('c2h')||s.includes('c3h')||s.includes('c4h')||s.includes('ch4')||s.includes('c2h5')))return'combustion';
+  if((s.includes('hcl')||s.includes('h2so4')||s.includes('hno3'))&&(s.includes('naoh')||s.includes('koh')||s.includes('ca(oh)')||s.includes('baoh')))return'acid_base';
+  if(s.includes('hcl')||s.includes('h2so4')||s.includes('hno3')||s.includes('hf')||s.includes('hbr')||s.includes('hi'))return'acid';
+  if(s.includes('naoh')||s.includes('koh')||s.includes('ca(oh)2')||s.includes('nh3'))return'base';
+  if(s.includes('agno3')||s.includes('bacl2')||s.includes('pbno3')||s.includes('fecl3')||s.includes('cuso4')||s.includes('caco3'))return'precipitate';
+  if((s.includes('zn')||s.includes('fe')||s.includes('mg')||s.includes('al'))&&(s.includes('hcl')||s.includes('h2so4')))return'metal_acid';
+  if((s.includes('na')||s.includes('k')||s.includes('li'))&&s.includes('h2o'))return'metal_water';
+  if(s.includes('electrolysis')||s.includes('elektroliz'))return'electrolysis';
+  if(s.includes('o2')&&!s.includes('h2o'))return'oxidation';
+  return'generic';
+}
+
+// ── Fizika konstantalari ──
+const GRAVITY=0.12;
+const SURFACE_TENSION=0.92;
+const VISCOSITY=0.985;
+const AIR_RESISTANCE=0.99;
+
+// ── Beaker fizik obyekti ──
+let beakerState={
+  x:0,y:0,w:0,h:0,
+  liquidY:0,liquidH:0,
+  wavePoints:[],waveTime:0,
+  temperature:20,
+  bubbleNuclei:[],
+  sediment:[]
+};
+
+function initBeaker(W,H,rxnType,heat){
+  const bW=Math.min(160,W*0.52);
+  const bH=Math.min(110,H*0.58);
+  const bX=(W-bW)/2;
+  const bY=H-bH-18;
+  const liqFrac=(rxnType==='combustion')?0:0.62;
+  const liqH=bH*liqFrac;
+  // To'lqin nuqtalari hosil qilish - suyuqlik yuzasi simulyatsiyasi
+  const nWave=24;
+  const wavePoints=Array.from({length:nWave},(_,i)=>({
+    x:bX+(i/(nWave-1))*bW,
+    y:bY+bH-liqH,
+    vy:0,
+    dy:0
+  }));
+  // Pufakcha yadrolari (sirtdan chiqish nuqtalari)
+  const nuclei=Array.from({length:6},()=>({
+    x:bX+10+Math.random()*(bW-20),
+    y:bY+bH-10,
+    rate:0.3+Math.random()*0.4
+  }));
+  beakerState={
+    x:bX,y:bY,w:bW,h:bH,
+    liquidY:bY+bH-liqH,
+    liquidH:liqH,
+    wavePoints,waveTime:0,
+    temperature:heat==='exothermic'?85:heat==='endothermic'?5:22,
+    bubbleNuclei:nuclei,
+    sediment:[]
+  };
+}
+
+// ── Suyuqlik to'lqini fizikasi (spring chain) ──
+function updateWaves(disturbance,strength){
+  const pts=beakerState.wavePoints;
+  const N=pts.length;
+  beakerState.waveTime+=0.04;
+  // Tashqi ta'sir (pufakchalar va reaksiya)
+  if(disturbance>=0&&disturbance<N){
+    pts[disturbance].vy+=strength;
+  }
+  // Spring dinamikasi
+  for(let i=0;i<N;i++){
+    const restY=beakerState.liquidY;
+    const force=(restY-pts[i].y)*0.035;
+    pts[i].vy+=force;
+    pts[i].vy*=0.88;
+    pts[i].y+=pts[i].vy;
+  }
+  // Qo'shni nuqtalar o'rtasida propagatsiya
+  for(let iter=0;iter<2;iter++){
+    for(let i=1;i<N-1;i++){
+      const avg=(pts[i-1].y+pts[i+1].y)/2;
+      pts[i].y+=(avg-pts[i].y)*0.15;
+    }
+    pts[0].y+=(pts[1].y-pts[0].y)*0.15;
+    pts[N-1].y+=(pts[N-2].y-pts[N-1].y)*0.15;
+  }
+}
+
+// ── Suyuqlik ko'rgazmasi ──
+function drawLiquid(c,liqColor,rxnType,env,heat,frame){
+  const {x,y,w,h,wavePoints,liquidH,liquidY,temperature,sediment}=beakerState;
+  if(liquidH<=0)return;
+  const bot=y+h;
+  const pts=wavePoints;
+  const N=pts.length;
+
+  // Suyuqlik gradient (chuqurlik effekti)
+  const grad=c.createLinearGradient(x,liquidY,x,bot);
+  if(env==='kislotali'){
+    grad.addColorStop(0,'rgba(255,90,90,0.55)');
+    grad.addColorStop(0.4,'rgba(220,50,60,0.45)');
+    grad.addColorStop(1,'rgba(180,20,40,0.65)');
+  }else if(env==='ishqoriy'){
+    grad.addColorStop(0,'rgba(80,140,255,0.5)');
+    grad.addColorStop(0.4,'rgba(50,100,230,0.45)');
+    grad.addColorStop(1,'rgba(30,60,200,0.65)');
+  }else if(rxnType==='precipitate'){
+    grad.addColorStop(0,'rgba(180,220,200,0.45)');
+    grad.addColorStop(0.5,'rgba(140,190,170,0.5)');
+    grad.addColorStop(1,'rgba(80,140,120,0.7)');
+  }else if(heat==='exothermic'||rxnType==='combustion'){
+    grad.addColorStop(0,'rgba(255,140,30,0.5)');
+    grad.addColorStop(0.5,'rgba(220,80,10,0.5)');
+    grad.addColorStop(1,'rgba(180,30,0,0.7)');
+  }else if(rxnType==='metal_acid'||rxnType==='acid'){
+    grad.addColorStop(0,'rgba(255,200,50,0.45)');
+    grad.addColorStop(0.5,'rgba(200,150,30,0.5)');
+    grad.addColorStop(1,'rgba(150,100,10,0.65)');
+  }else{
+    grad.addColorStop(0,'rgba(60,160,240,0.4)');
+    grad.addColorStop(0.5,'rgba(40,120,210,0.45)');
+    grad.addColorStop(1,'rgba(20,80,180,0.65)');
+  }
+
+  // Suyuqlikni chizish - to'lqin yuzasi bilan
+  c.beginPath();
+  c.moveTo(x,bot);
+  c.lineTo(pts[0].x,pts[0].y);
+  for(let i=1;i<N;i++){
+    const mx=(pts[i-1].x+pts[i].x)/2;
+    const my=(pts[i-1].y+pts[i].y)/2;
+    c.quadraticCurveTo(pts[i-1].x,pts[i-1].y,mx,my);
+  }
+  c.lineTo(pts[N-1].x,pts[N-1].y);
+  c.lineTo(x+w,bot);
+  c.closePath();
+  c.fillStyle=grad;
+  c.fill();
+
+  // Yuzasi yaltiroq chiziq (surface specular)
+  c.beginPath();
+  c.moveTo(pts[0].x,pts[0].y);
+  for(let i=1;i<N;i++){
+    const mx=(pts[i-1].x+pts[i-1].x+pts[i].x)/3;
+    const my=(pts[i-1].y+pts[i].y)/2;
+    c.quadraticCurveTo(pts[i-1].x,pts[i-1].y,mx,my);
+  }
+  c.strokeStyle=env==='kislotali'?'rgba(255,150,150,0.6)':
+    env==='ishqoriy'?'rgba(150,200,255,0.6)':
+    heat==='exothermic'?'rgba(255,200,100,0.6)':
+    'rgba(200,235,255,0.6)';
+  c.lineWidth=1.5;c.stroke();
+
+  // Harorat chiziqchasi (issiqlik konveksiyasi - sinusoidal)
+  if(temperature>40){
+    for(let i=0;i<3;i++){
+      const t=frame*0.015+i*2.1;
+      const cx=x+w*0.2+w*0.6*(i/2.5);
+      c.beginPath();
+      for(let j=0;j<20;j++){
+        const ty=liquidY+(j/19)*liquidH*0.8;
+        const tx=cx+Math.sin(t+j*0.5)*3*(temperature/100);
+        if(j===0)c.moveTo(tx,ty);else c.lineTo(tx,ty);
+      }
+      c.strokeStyle=`rgba(255,${180-i*30},${50-i*10},${0.08+i*0.02})`;
+      c.lineWidth=1.5+i;c.stroke();
+    }
+  }
+
+  // Cho'kma qatlam (precipitate sediment)
+  if(sediment.length>0){
+    const sedH=Math.min(20,sediment.length*0.15);
+    const sedGrad=c.createLinearGradient(x,bot-sedH,x,bot);
+    sedGrad.addColorStop(0,'rgba(200,220,200,0.3)');
+    sedGrad.addColorStop(1,'rgba(160,190,160,0.8)');
+    c.beginPath();c.rect(x+2,bot-sedH,w-4,sedH);
+    c.fillStyle=sedGrad;c.fill();
+  }
+}
+
+// ── Haqiqiy shisha idish (beaker) ko'rgazmasi ──
+function drawRealisticBeaker(c,W,H){
+  const{x,y,w,h}=beakerState;
+  const bot=y+h;
+  // Shisha quyruq (taper) - pastda kengayish
+  const taper=8;
+
+  // Orqa qatlam (shisha qalinligi)
+  c.beginPath();
+  c.moveTo(x+3,y);
+  c.lineTo(x-taper+3,bot);
+  c.lineTo(x+w+taper-3,bot);
+  c.lineTo(x+w-3,y);
+  c.strokeStyle='rgba(34,211,238,0.12)';c.lineWidth=4;c.stroke();
+
+  // Shisha yuzasi (gradient - yorug'lik)
+  const glassGrad=c.createLinearGradient(x,y,x+w,y);
+  glassGrad.addColorStop(0,'rgba(255,255,255,0.15)');
+  glassGrad.addColorStop(0.08,'rgba(255,255,255,0.04)');
+  glassGrad.addColorStop(0.85,'rgba(255,255,255,0.02)');
+  glassGrad.addColorStop(1,'rgba(255,255,255,0.12)');
+  c.beginPath();
+  c.moveTo(x,y);c.lineTo(x-taper,bot);c.lineTo(x+w+taper,bot);c.lineTo(x+w,y);
+  c.fillStyle=glassGrad;c.fill();
+
+  // Shisha chegarasi
+  c.beginPath();
+  c.moveTo(x,y);c.lineTo(x-taper,bot);
+  c.strokeStyle='rgba(34,211,238,0.65)';c.lineWidth=1.5;c.stroke();
+  c.beginPath();
+  c.moveTo(x+w,y);c.lineTo(x+w+taper,bot);
+  c.strokeStyle='rgba(34,211,238,0.65)';c.lineWidth=1.5;c.stroke();
+
+  // Tub
+  c.beginPath();c.moveTo(x-taper,bot);c.lineTo(x+w+taper,bot);
+  c.strokeStyle='rgba(34,211,238,0.7)';c.lineWidth=2;c.stroke();
+
+  // O'lchov chiziqlari (graduated markings)
+  for(let i=1;i<=4;i++){
+    const ly=y+h*(1-i*0.2);
+    const lx1=x+w-14+taper*(i*0.2);
+    const lx2=x+w+taper*(i*0.2);
+    c.beginPath();c.moveTo(lx1,ly);c.lineTo(lx2,ly);
+    c.strokeStyle='rgba(34,211,238,0.3)';c.lineWidth=1;c.stroke();
+    c.fillStyle='rgba(34,211,238,0.25)';c.font='8px monospace';
+    c.textAlign='right';c.fillText(`${i*25}%`,lx1-2,ly+3);
+  }
+
+  // Rim (og'iz chekkasi)
+  c.beginPath();
+  c.moveTo(x-5,y-2);c.lineTo(x+w+5,y-2);
+  c.strokeStyle='rgba(34,211,238,0.8)';c.lineWidth=2.5;c.stroke();
+  // Rim highlight
+  c.beginPath();
+  c.moveTo(x-3,y-3);c.lineTo(x+w*0.6,y-3);
+  c.strokeStyle='rgba(255,255,255,0.3)';c.lineWidth=1;c.stroke();
+
+  // Chap yorug'lik reflexi (shisha effekti)
+  c.beginPath();
+  c.moveTo(x+5,y+5);c.lineTo(x-taper+5,bot-8);
+  c.strokeStyle='rgba(255,255,255,0.18)';c.lineWidth=2.5;c.stroke();
+}
+
+// ══════════════════════════════════════════════════════════
+// ZARRALAR TIZIMI - Har tur uchun alohida fizika
+// ══════════════════════════════════════════════════════════
+
+class PhysicsParticle{
+  constructor(type,x,y,W,H,options={}){
+    this.type=type;this.x=x;this.y=y;this.W=W;this.H=H;
+    this.life=1;this.age=0;
+
+    switch(type){
+      case'bubble':{
+        // Haqiqiy pufakcha: bosim bilan kattalashadi, sirt kuchiga ega
+        this.r=0.8+Math.random()*3.5;
+        this.targetR=this.r*(1.4+Math.random()*0.8);
+        this.vx=(Math.random()-0.5)*0.4;
+        this.vy=-(0.6+Math.random()*1.8);
+        this.wobble=Math.random()*Math.PI*2;
+        this.wobbleAmp=0.4+Math.random()*0.3;
+        this.decay=0.004+Math.random()*0.003;
+        this.opacity=0.7+Math.random()*0.3;
+        break;
+      }
+      case'flame':{
+        // Yalqin: issiq gaz, yuqoriga ko'tariladi, rangi haroratga qarab
+        const t=Math.random();
+        this.r=2+Math.random()*10;
+        this.vx=(Math.random()-0.5)*1.5;
+        this.vy=-(2.5+Math.random()*4);
+        this.ax=(Math.random()-0.5)*0.08;
+        this.life=0.85+Math.random()*0.15;
+        this.decay=0.018+Math.random()*0.012;
+        // Harorat: 1800K-800K (sariq=yuqori, qizil=past)
+        this.temp=0.3+t*0.7;
+        break;
+      }
+      case'smoke':{
+        // Tutun: havoga tarqaladi, soviydi, kulrang bo'ladi
+        this.r=3+Math.random()*8;
+        this.vx=(Math.random()-0.5)*0.5;
+        this.vy=-(0.3+Math.random()*0.7);
+        this.grow=0.25+Math.random()*0.15;
+        this.decay=0.003+Math.random()*0.002;
+        this.gray=160+Math.random()*60;
+        this.opacity=0.4+Math.random()*0.2;
+        break;
+      }
+      case'spark':{
+        // Uchqun: real ballistik trayektoriya, yer tortishishi
+        const ang=options.ang||(-Math.PI/2+(Math.random()-0.5)*Math.PI*0.8);
+        const spd=options.spd||(4+Math.random()*6);
+        this.vx=Math.cos(ang)*spd;
+        this.vy=Math.sin(ang)*spd;
+        this.r=1+Math.random()*1.5;
+        this.decay=0.022+Math.random()*0.015;
+        this.trail=[];
+        this.trailLen=6+Math.floor(Math.random()*4);
+        this.col=options.col||`${255},${180+Math.random()*75|0},20`;
+        break;
+      }
+      case'droplet':{
+        // Suyuqlik tomchi (metal + suv reaksiyasida uchadi)
+        const ang2=options.ang||(-Math.PI/2+(Math.random()-0.5)*0.6);
+        const spd2=options.spd||(3+Math.random()*5);
+        this.vx=Math.cos(ang2)*spd2;
+        this.vy=Math.sin(ang2)*spd2;
+        this.r=2+Math.random()*3;
+        this.decay=0.012;
+        this.trail=[];
+        this.col=options.col||'100,200,255';
+        break;
+      }
+      case'steam':{
+        // Bug': yuqoriga ko'tariladi, kengayadi, yo'qoladi
+        this.r=4+Math.random()*6;
+        this.vx=(Math.random()-0.5)*0.6;
+        this.vy=-(0.8+Math.random()*1.2);
+        this.grow=0.4;
+        this.decay=0.006;
+        this.opacity=0.5;
+        break;
+      }
+      case'crystal':{
+        // Kristall cho'kma: og'irlik bilan tushadi, to'planadi
+        const cr=1.5+Math.random()*4;
+        this.r=cr;
+        this.vx=(Math.random()-0.5)*0.6;
+        this.vy=0.5+Math.random()*1.5;
+        this.decay=0.001;
+        this.angle=Math.random()*Math.PI*2;
+        this.rot=(Math.random()-0.5)*0.06;
+        this.settleY=options.settleY||H-8;
+        this.settled=false;
+        this.col=options.col||'120,220,180';
+        this.sides=3+Math.floor(Math.random()*3);// 3-5 qirrali kristall
+        break;
+      }
+      case'electron':{
+        // Elektron orbital harakati
+        this.orR=15+Math.random()*30;
+        this.ang=Math.random()*Math.PI*2;
+        this.spd=(0.04+Math.random()*0.05)*(Math.random()<0.5?1:-1);
+        this.cx=x;this.cy=y;
+        this.r=2.5;
+        this.decay=0.002;
+        this.orbitTilt=Math.random()*Math.PI;
+        break;
+      }
+      case'glow':{
+        // Yorug'lik effekti (metal/suv reaksiyasi)
+        this.r=options.r||20;
+        this.decay=0.04;
+        this.col=options.col||'255,120,0';
+        break;
+      }
+      case'sizzle':{
+        // Metall sirtidagi kichik uchqunlar
+        this.r=0.8+Math.random()*1.5;
+        this.vx=(Math.random()-0.5)*3;
+        this.vy=-(0.5+Math.random()*2);
+        this.decay=0.04;
+        this.col=options.col||'255,240,100';
+        this.trail=[];
+        break;
+      }
+    }
+  }
+
+  update(){
+    this.age++;
+    this.life-=this.decay||(this.type==='electron'?0.001:0.01);
+
+    switch(this.type){
+      case'bubble':{
+        // Sirt kuchi - wobble, yuqoriga ko'tarilish
+        this.wobble+=0.12;
+        this.x+=this.vx+Math.sin(this.wobble)*this.wobbleAmp;
+        this.y+=this.vy;
+        this.vy*=0.998;// kichik qarshilik
+        // Pufakcha kattalashadi (bosim kamayishi bilan)
+        if(this.r<this.targetR)this.r+=0.04;
+        // Beaker devoridan saqlanish
+        if(this.x<beakerState.x+5)this.x=beakerState.x+5;
+        if(this.x>beakerState.x+beakerState.w-5)this.x=beakerState.x+beakerState.w-5;
+        break;
+      }
+      case'flame':{
+        this.vx+=this.ax;
+        this.vx*=0.96;
+        this.x+=this.vx;
+        this.y+=this.vy;
+        this.vy*=0.96;
+        this.r*=0.97;
+        break;
+      }
+      case'smoke':{
+        this.x+=this.vx;
+        this.y+=this.vy;
+        this.r+=this.grow;
+        this.vx*=0.99;
+        break;
+      }
+      case'spark':{
+        this.trail.push({x:this.x,y:this.y,a:this.life});
+        if(this.trail.length>this.trailLen)this.trail.shift();
+        this.x+=this.vx;
+        this.y+=this.vy;
+        this.vy+=GRAVITY;// tortishish kuchi
+        this.vx*=AIR_RESISTANCE;
+        // Yerga tegsa o'chadi
+        if(this.y>this.H-5)this.life=0;
+        break;
+      }
+      case'droplet':{
+        this.trail.push({x:this.x,y:this.y});
+        if(this.trail.length>4)this.trail.shift();
+        this.x+=this.vx;
+        this.y+=this.vy;
+        this.vy+=GRAVITY*0.6;
+        this.vx*=AIR_RESISTANCE;
+        if(this.y>this.H-5)this.life=0;
+        break;
+      }
+      case'steam':{
+        this.x+=this.vx+(Math.random()-0.5)*0.3;
+        this.y+=this.vy;
+        this.r+=this.grow;
+        this.opacity*=0.995;
+        break;
+      }
+      case'crystal':{
+        if(!this.settled){
+          this.y+=this.vy;
+          this.x+=this.vx;
+          this.angle+=this.rot;
+          this.vy*=0.99;
+          if(this.y>=this.settleY){
+            this.settled=true;
+            this.vy=0;this.vx=0;
+            // Cho'kmaga qo'shish
+            beakerState.sediment.push({x:this.x,y:this.settleY,r:this.r});
+          }
+        }
+        break;
+      }
+      case'electron':{
+        this.ang+=this.spd;
+        this.x=this.cx+Math.cos(this.ang)*this.orR;
+        this.y=this.cy+Math.sin(this.ang)*this.orR*0.55;
+        break;
+      }
+      case'glow':{
+        this.r*=1.04;
+        break;
+      }
+      case'sizzle':{
+        this.trail.push({x:this.x,y:this.y});
+        if(this.trail.length>3)this.trail.shift();
+        this.x+=this.vx;
+        this.y+=this.vy;
+        this.vy+=GRAVITY*0.3;
+        break;
+      }
+    }
+    return this.life>0;
+  }
+
+  draw(c){
+    const a=Math.max(0,Math.min(1,this.life));
+    c.globalAlpha=a;
+
+    switch(this.type){
+      case'bubble':{
+        // Haqiqiy shisha ko'rinishdagi pufakcha
+        c.beginPath();c.arc(this.x,this.y,this.r,0,Math.PI*2);
+        // Highlight (yorug'lik)
+        const bGrad=c.createRadialGradient(
+          this.x-this.r*0.3,this.y-this.r*0.3,this.r*0.1,
+          this.x,this.y,this.r
+        );
+        bGrad.addColorStop(0,'rgba(255,255,255,0.7)');
+        bGrad.addColorStop(0.4,'rgba(200,235,255,0.25)');
+        bGrad.addColorStop(0.85,'rgba(150,200,255,0.1)');
+        bGrad.addColorStop(1,'rgba(100,180,255,0.0)');
+        c.fillStyle=bGrad;c.fill();
+        // Rim
+        c.strokeStyle=`rgba(180,220,255,${a*0.5})`;
+        c.lineWidth=0.8;c.stroke();
+        break;
+      }
+      case'flame':{
+        // Yalqin rangini haroratga qarab (Planck qonuni - taxminiy)
+        // 1800K=oq, 1200K=sariq, 800K=to'q sariq, 500K=qizil
+        const T=this.temp;
+        let r,g,bl;
+        if(T>0.8){r=255;g=255;bl=200*T;}
+        else if(T>0.6){r=255;g=200+55*T;bl=30;}
+        else if(T>0.4){r=255;g=130+70*T;bl=0;}
+        else{r=255;g=50+80*T;bl=0;}
+        const fGrad=c.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);
+        fGrad.addColorStop(0,`rgba(${r|0},${g|0},${bl|0},${a*0.95})`);
+        fGrad.addColorStop(0.5,`rgba(${r|0},${(g*0.6)|0},0,${a*0.7})`);
+        fGrad.addColorStop(1,`rgba(${(r*0.6)|0},0,0,0)`);
+        c.beginPath();c.arc(this.x,this.y,this.r,0,Math.PI*2);
+        c.fillStyle=fGrad;
+        c.shadowColor=`rgba(255,${g|0},0,0.6)`;
+        c.shadowBlur=this.r*1.5;
+        c.fill();
+        c.shadowBlur=0;
+        break;
+      }
+      case'smoke':{
+        const sGrad=c.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);
+        const g=this.gray|180;
+        sGrad.addColorStop(0,`rgba(${g},${g},${g},${a*this.opacity*0.45})`);
+        sGrad.addColorStop(0.6,`rgba(${g},${g},${g},${a*0.15})`);
+        sGrad.addColorStop(1,'rgba(0,0,0,0)');
+        c.beginPath();c.arc(this.x,this.y,this.r,0,Math.PI*2);
+        c.fillStyle=sGrad;c.fill();
+        break;
+      }
+      case'spark':{
+        // Trail chizish
+        if(this.trail.length>1){
+          c.beginPath();
+          c.moveTo(this.trail[0].x,this.trail[0].y);
+          this.trail.forEach(p=>c.lineTo(p.x,p.y));
+          c.strokeStyle=`rgba(${this.col},${a*0.5})`;
+          c.lineWidth=this.r*0.8;c.lineCap='round';c.stroke();
+        }
+        // Uchqun o'zi
+        c.beginPath();c.arc(this.x,this.y,this.r,0,Math.PI*2);
+        c.fillStyle=`rgba(${this.col},${a})`;
+        c.shadowColor=`rgba(${this.col},0.8)`;
+        c.shadowBlur=6;c.fill();c.shadowBlur=0;
+        break;
+      }
+      case'droplet':{
+        if(this.trail.length>1){
+          c.beginPath();c.moveTo(this.trail[0].x,this.trail[0].y);
+          this.trail.forEach(p=>c.lineTo(p.x,p.y));
+          c.strokeStyle=`rgba(${this.col},${a*0.4})`;
+          c.lineWidth=this.r;c.stroke();
+        }
+        c.beginPath();c.arc(this.x,this.y,this.r,0,Math.PI*2);
+        c.fillStyle=`rgba(${this.col},${a*0.9})`;c.fill();
+        break;
+      }
+      case'steam':{
+        const stGrad=c.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);
+        stGrad.addColorStop(0,`rgba(220,235,255,${a*this.opacity*0.4})`);
+        stGrad.addColorStop(1,'rgba(220,235,255,0)');
+        c.beginPath();c.arc(this.x,this.y,this.r,0,Math.PI*2);
+        c.fillStyle=stGrad;c.fill();
+        break;
+      }
+      case'crystal':{
+        // Ko'p qirrali kristall
+        c.save();c.translate(this.x,this.y);c.rotate(this.angle);
+        const [cr,cg,cb]=this.col.split(',');
+        c.beginPath();
+        const sides=this.sides||4;
+        for(let i=0;i<sides;i++){
+          const ang=((Math.PI*2)/sides)*i;
+          const rx=Math.cos(ang)*this.r;
+          const ry=Math.sin(ang)*this.r*(sides===3?1.2:1);
+          if(i===0)c.moveTo(rx,ry);else c.lineTo(rx,ry);
+        }
+        c.closePath();
+        const cGrad=c.createRadialGradient(0,0,0,0,0,this.r);
+        cGrad.addColorStop(0,`rgba(${cr},${cg},${cb},${a*0.9})`);
+        cGrad.addColorStop(1,`rgba(${Math.min(255,(+cr)+40)|0},${Math.min(255,(+cg)+40)|0},${Math.min(255,(+cb)+40)|0},${a*0.5})`);
+        c.fillStyle=cGrad;c.fill();
+        c.strokeStyle=`rgba(${cr},${cg},${cb},${a*0.6})`;
+        c.lineWidth=0.7;c.stroke();
+        c.restore();
+        break;
+      }
+      case'electron':{
+        const eGrad=c.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r*2);
+        eGrad.addColorStop(0,'rgba(0,255,200,1)');
+        eGrad.addColorStop(0.5,'rgba(0,200,255,0.6)');
+        eGrad.addColorStop(1,'rgba(0,100,255,0)');
+        c.beginPath();c.arc(this.x,this.y,this.r,0,Math.PI*2);
+        c.fillStyle=eGrad;
+        c.shadowColor='rgba(0,255,200,0.9)';c.shadowBlur=8;
+        c.fill();c.shadowBlur=0;
+        break;
+      }
+      case'glow':{
+        const glGrad=c.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);
+        glGrad.addColorStop(0,`rgba(${this.col},${a*0.9})`);
+        glGrad.addColorStop(0.4,`rgba(${this.col},${a*0.4})`);
+        glGrad.addColorStop(1,`rgba(${this.col},0)`);
+        c.beginPath();c.arc(this.x,this.y,this.r,0,Math.PI*2);
+        c.fillStyle=glGrad;c.fill();
+        break;
+      }
+      case'sizzle':{
+        if(this.trail.length>1){
+          c.beginPath();c.moveTo(this.trail[0].x,this.trail[0].y);
+          this.trail.forEach(p=>c.lineTo(p.x,p.y));
+          c.strokeStyle=`rgba(${this.col},${a*0.6})`;
+          c.lineWidth=1;c.stroke();
+        }
+        c.beginPath();c.arc(this.x,this.y,this.r,0,Math.PI*2);
+        c.fillStyle=`rgba(${this.col},${a})`;c.fill();
+        break;
+      }
+    }
+    c.globalAlpha=1;
+  }
+}
+
+// ── Metall qo'shimcha ko'rgazmasi (Na, K, Mg suvda) ──
+let metalPiece={x:0,y:0,w:0,h:0,dissolve:0,active:false};
+
+function drawMetalPiece(c,frame,rxnType){
+  if(!metalPiece.active)return;
+  metalPiece.dissolve=Math.min(1,(frame*0.005));
+  const{x,y,w,h,dissolve}=metalPiece;
+  const a=Math.max(0,1-dissolve*1.2);
+  c.globalAlpha=a;
+  // Metall uchun gradient
+  const mGrad=c.createLinearGradient(x,y,x+w,y+h);
+  if(rxnType==='metal_water'){
+    mGrad.addColorStop(0,'rgba(210,220,240,0.9)');
+    mGrad.addColorStop(0.3,'rgba(180,190,220,0.9)');
+    mGrad.addColorStop(0.7,'rgba(120,130,160,0.9)');
+    mGrad.addColorStop(1,'rgba(90,100,130,0.9)');
+  }else{
+    mGrad.addColorStop(0,'rgba(200,200,180,0.9)');
+    mGrad.addColorStop(0.5,'rgba(150,150,120,0.9)');
+    mGrad.addColorStop(1,'rgba(100,100,80,0.9)');
+  }
+  c.fillStyle=mGrad;
+  // Metall erishi - kvadrat shakl o'zgaradi
+  const shrink=dissolve*0.4;
+  c.beginPath();
+  c.rect(x+shrink*w/2,y+shrink*h/2,w*(1-shrink),h*(1-shrink));
+  c.fill();
+  c.strokeStyle='rgba(255,255,255,0.2)';c.lineWidth=1;c.stroke();
+  c.globalAlpha=1;
+}
+
+// ══════════════════════════════════════════════════════════
+// ASOSIY ANIMATSIYA LOOP - Har tur uchun
+// ══════════════════════════════════════════════════════════
+
+function startVisual(mode,color,env,heat,formula){
+  const vc=document.getElementById('visual-container');
+  const phTag=document.getElementById('ph-tag');
+  vc.style.display='block';
+  canvas=document.getElementById('reactionCanvas');
+  ctx=canvas.getContext('2d');
+  canvas.width=vc.offsetWidth||320;canvas.height=250;
+  particles=[];
+  beakerState.sediment=[];
+
+  const rxnType=detectRxnType(formula||currentInput);
+  const W=canvas.width,H=canvas.height;
+
+  const RXN_LABELS={
+    combustion:'🔥 YONISH REAKSIYASI',
+    acid_base:'⚗️ KISLOTA-ASOS NEYTRAL.',
+    acid:'🧪 KISLOTA REAKSIYASI',
+    base:'🔵 ISHQOR REAKSIYASI',
+    precipitate:'🔮 CHO\'KMA HOSIL BO\'LADI',
+    metal_acid:'⚡ METALL + KISLOTA',
+    metal_water:'💧 METALL + SUV',
+    electrolysis:'⚡ ELEKTROLIZ',
+    oxidation:'🌡️ OKSIDLANISH',
+    generic:'⚛️ KIMYOVIY REAKSIYA'
+  };
+  document.getElementById('rxn-type-label').textContent=RXN_LABELS[rxnType]||'';
+  document.getElementById('mainCard').className='rxn-screen'+(heat==='exothermic'?' exo':heat==='endothermic'?' endo':'');
+
+  if(env){
+    phTag.style.display='block';
+    phTag.textContent='pH '+(env==='kislotali'?'< 7 · KISLOTALI':env==='ishqoriy'?'> 7 · ISHQORIY':'= 7 · NEYTRAL');
+    phTag.style.background=env==='kislotali'?'rgba(220,40,60,0.9)':env==='ishqoriy'?'rgba(40,100,220,0.9)':'rgba(10,160,100,0.9)';
+    phTag.style.color='#fff';phTag.style.borderRadius='7px';phTag.style.padding='4px 10px';
+    phTag.style.fontWeight='800';phTag.style.fontSize='9px';phTag.style.letterSpacing='1px';
+  }
+
+  initBeaker(W,H,rxnType,heat);
+  cancelAnimationFrame(animId);
+
+  const{x:bX,y:bY,w:bW,h:bH,liquidH}=beakerState;
+  const liqTop=bY+bH-liquidH;
+
+  // Metall parchasi
+  if(rxnType==='metal_acid'||rxnType==='metal_water'){
+    const mW=28,mH=16;
+    metalPiece={x:bX+bW/2-mW/2,y:liqTop+5,w:mW,h:mH,dissolve:0,active:true};
+  }else{
+    metalPiece.active=false;
+  }
+
+  // Cho'kma kristallar uchun rang
+  let crystalCol='120,220,180';
+  if(color){
+    const m=color.match(/rgba?\((\d+),(\d+),(\d+)/);
+    if(m)crystalCol=`${m[1]},${m[2]},${m[3]}`;
+  }
+
+  let frame=0;
+  let waveDistIdx=-1;
+
+  // ── Fon ──
+  function drawBackground(){
+    if(rxnType==='combustion'){
+      // Qorong'u yonish muhiti
+      const bgGrad=ctx.createRadialGradient(W/2,H*0.6,0,W/2,H*0.6,W*0.7);
+      bgGrad.addColorStop(0,'rgba(60,15,0,0.95)');
+      bgGrad.addColorStop(0.5,'rgba(20,5,0,0.95)');
+      bgGrad.addColorStop(1,'rgba(5,0,0,0.98)');
+      ctx.fillStyle=bgGrad;ctx.fillRect(0,0,W,H);
+      // Yorug'lik aks ettirish
+      if(frame%3===0){
+        const fx=W/2+(Math.random()-0.5)*50;
+        const fLightGrad=ctx.createRadialGradient(fx,H*0.6,0,fx,H*0.6,80);
+        fLightGrad.addColorStop(0,'rgba(255,120,20,0.06)');
+        fLightGrad.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.fillStyle=fLightGrad;ctx.fillRect(0,0,W,H);
+      }
+    }else{
+      // Lab muhiti - qorong'u fon
+      ctx.fillStyle='rgba(2,8,16,0.92)';
+      ctx.fillRect(0,0,W,H);
+      // Ambient glow (reaksiyaga qarab)
+      if(heat==='exothermic'){
+        const aGrad=ctx.createRadialGradient(W/2,H*0.7,0,W/2,H*0.7,W*0.5);
+        aGrad.addColorStop(0,'rgba(255,80,10,0.04)');
+        aGrad.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.fillStyle=aGrad;ctx.fillRect(0,0,W,H);
+      }
+    }
+  }
+
+  // ── Zarralar hosil qilish ──
+  function spawnParticles(){
+    const liqSurface=beakerState.liquidY;
+    const rand=()=>Math.random();
+    const inBeaker=()=>bX+rand()*bW;
+    const atSurface=()=>liqSurface-rand()*liquidH*0.4;
+
+    if(rxnType==='combustion'){
+      // Yonish: ko'p yalqin + uchqun + tutun
+      const fireY=H*0.72;
+      const fireX=W*0.25+rand()*W*0.5;
+      if(frame%1===0){
+        // Ko'p qatlam yalqin
+        for(let i=0;i<3;i++){
+          particles.push(new PhysicsParticle('flame',
+            W/2+(rand()-0.5)*50,
+            fireY+(rand()-0.5)*15,W,H));
+        }
+        // Ichki yadro (oq)
+        particles.push(new PhysicsParticle('flame',
+          W/2+(rand()-0.5)*20,
+          fireY+5,W,H));
+        particles[particles.length-1].temp=0.95;
+        particles[particles.length-1].r=4+rand()*6;
+      }
+      if(frame%2===0){
+        // Tutun
+        particles.push(new PhysicsParticle('smoke',
+          W/2+(rand()-0.5)*30,fireY-10,W,H));
+      }
+      if(frame%3===0){
+        // Uchqunlar - ballistik trayektoriya
+        for(let i=0;i<2;i++){
+          const sp=new PhysicsParticle('spark',
+            W/2+(rand()-0.5)*40,fireY,W,H,{
+              ang:-Math.PI/2+(rand()-0.5)*1.2,
+              spd:3+rand()*5,
+              col:'255,220,50'
+            });
+          particles.push(sp);
+        }
+      }
+      // To'sin yonayotgan narsa
+      ctx.fillStyle='rgba(80,30,10,0.9)';
+      ctx.fillRect(W*0.12,H*0.72,W*0.76,8);
+      // Yorug'lik effekti yerda
+      const fireLight=ctx.createRadialGradient(W/2,H*0.72,0,W/2,H*0.72,70);
+      fireLight.addColorStop(0,'rgba(255,120,20,0.15)');
+      fireLight.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=fireLight;ctx.fillRect(0,H*0.6,W,H*0.4);
+    }
+
+    else if(rxnType==='metal_water'){
+      // Natriy/Kaliy + suv: portlovchi reaksiya
+      if(frame<30){
+        // Boshlang'ich portlash - glow
+        if(frame%3===0){
+          particles.push(new PhysicsParticle('glow',
+            bX+bW/2,liqSurface,W,H,{
+              r:15+frame,col:'255,200,50'
+            }));
+        }
+      }
+      if(frame%2===0){
+        // Ko'p pufakcha (H2 gaz)
+        for(let i=0;i<5;i++){
+          particles.push(new PhysicsParticle('bubble',
+            inBeaker(),atSurface(),W,H));
+        }
+      }
+      if(frame%1===0&&frame<80){
+        // Uchqunlar - ko'plab
+        const sp=new PhysicsParticle('spark',
+          bX+bW/2+(rand()-0.5)*bW*0.4,
+          liqSurface,W,H,{
+            ang:-Math.PI/2+(rand()-0.5)*1.8,
+            spd:4+rand()*7,
+            col:'255,230,80'
+          });
+        particles.push(sp);
+        // Suyuqlik tomchilar ham uchadi
+        if(rand()<0.4){
+          const dp=new PhysicsParticle('droplet',
+            bX+bW/2+(rand()-0.5)*bW*0.3,
+            liqSurface-5,W,H,{
+              ang:-Math.PI/2+(rand()-0.5)*0.8,
+              spd:2+rand()*4,
+              col:'100,180,255'
+            });
+          particles.push(dp);
+        }
+      }
+      if(frame%3===0){
+        // Bug' + tutun
+        particles.push(new PhysicsParticle('steam',
+          inBeaker(),liqSurface-5,W,H));
+        waveDistIdx=Math.floor(rand()*beakerState.wavePoints.length);
+      }
+      drawMetalPiece(ctx,frame,rxnType);
+    }
+
+    else if(rxnType==='metal_acid'){
+      // Metall + kislota: tez pufakchalar + bug'
+      if(frame%2===0){
+        for(let i=0;i<4;i++){
+          const bp=new PhysicsParticle('bubble',
+            metalPiece.active?metalPiece.x+rand()*metalPiece.w:inBeaker(),
+            atSurface(),W,H);
+          bp.vy*=1.4;// tezroq ko'tariladi (H2 engil)
+          particles.push(bp);
+        }
+      }
+      if(frame%4===0){
+        particles.push(new PhysicsParticle('steam',
+          inBeaker(),liqSurface-8,W,H));
+        waveDistIdx=Math.floor(rand()*beakerState.wavePoints.length);
+      }
+      if(heat==='exothermic'&&frame%3===0){
+        particles.push(new PhysicsParticle('smoke',
+          inBeaker(),liqSurface-5,W,H));
+      }
+      // Metall sirtida sizzle
+      if(metalPiece.active&&frame%2===0){
+        particles.push(new PhysicsParticle('sizzle',
+          metalPiece.x+rand()*metalPiece.w,
+          metalPiece.y+rand()*metalPiece.h,W,H,{col:'255,220,80'}));
+      }
+      drawMetalPiece(ctx,frame,rxnType);
+    }
+
+    else if(rxnType==='acid_base'){
+      // Neytrallanish: issiq bo'ladi, pufakchalar, rang o'zgaradi
+      const intensity=Math.min(1,frame/60);
+      if(frame%3===0){
+        for(let i=0;i<Math.ceil(intensity*3);i++){
+          particles.push(new PhysicsParticle('bubble',
+            inBeaker(),atSurface(),W,H));
+        }
+        waveDistIdx=Math.floor(rand()*beakerState.wavePoints.length);
+      }
+      if(frame%5===0&&intensity>0.4){
+        particles.push(new PhysicsParticle('steam',
+          inBeaker(),liqSurface-8,W,H));
+      }
+      // Issiqlik to'lqini
+      if(frame%8===0&&heat==='exothermic'){
+        particles.push(new PhysicsParticle('smoke',
+          bX+bW/2+(rand()-0.5)*20,liqSurface-5,W,H));
+      }
+    }
+
+    else if(rxnType==='acid'){
+      // Kislota reaksiyasi: pufakchalar, bug'
+      if(frame%3===0){
+        for(let i=0;i<2;i++){
+          particles.push(new PhysicsParticle('bubble',
+            inBeaker(),atSurface(),W,H));
+        }
+      }
+    }
+
+    else if(rxnType==='base'){
+      // Ishqor: kamroq pufakcha, silliq reaksiya
+      if(frame%5===0){
+        particles.push(new PhysicsParticle('bubble',
+          inBeaker(),atSurface(),W,H));
+      }
+    }
+
+    else if(rxnType==='precipitate'||mode==='precipitate'){
+      // Cho'kma: kristallar tushadi, suyuqlik loyqalanadi
+      const settleY=bY+bH-8;
+      if(frame%3===0){
+        for(let i=0;i<2;i++){
+          particles.push(new PhysicsParticle('crystal',
+            inBeaker(),
+            liqSurface+rand()*liquidH*0.2,
+            W,H,{settleY,col:crystalCol}));
+        }
+      }
+      // Kichik pufakchalar ham bo'ladi
+      if(frame%8===0){
+        particles.push(new PhysicsParticle('bubble',
+          inBeaker(),atSurface(),W,H));
+        waveDistIdx=Math.floor(rand()*beakerState.wavePoints.length);
+      }
+    }
+
+    else if(rxnType==='oxidation'){
+      // Oksidlanish: uchqunlar, tutun, qizarish
+      if(frame%2===0){
+        for(let i=0;i<2;i++){
+          particles.push(new PhysicsParticle('spark',
+            inBeaker(),atSurface()-10,W,H,{
+              ang:-Math.PI/2+(rand()-0.5)*1.5,
+              spd:2+rand()*4,col:'255,160,30'
+            }));
+        }
+      }
+      if(frame%4===0){
+        particles.push(new PhysicsParticle('smoke',
+          inBeaker(),liqSurface-5,W,H));
+      }
+      if(frame%6===0){
+        particles.push(new PhysicsParticle('bubble',
+          inBeaker(),atSurface(),W,H));
+      }
+    }
+
+    else if(rxnType==='electrolysis'){
+      // Elektroliz: anod va katodda pufakchalar
+      const anode=bX+bW*0.3,cathode=bX+bW*0.7;
+      if(frame%2===0){
+        // Anod: O2 (katta pufakchalar)
+        const bp1=new PhysicsParticle('bubble',
+          anode+(rand()-0.5)*10,atSurface(),W,H);
+        bp1.r*=1.3;particles.push(bp1);
+        // Katod: H2 (kichik tez pufakchalar)
+        const bp2=new PhysicsParticle('bubble',
+          cathode+(rand()-0.5)*10,atSurface(),W,H);
+        bp2.vy*=1.6;particles.push(bp2);
+      }
+      // Elektrod chiziqlar
+      ctx.beginPath();
+      ctx.moveTo(anode,liqSurface);ctx.lineTo(anode,bY+bH-5);
+      ctx.strokeStyle='rgba(255,180,0,0.5)';ctx.lineWidth=2;ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cathode,liqSurface);ctx.lineTo(cathode,bY+bH-5);
+      ctx.strokeStyle='rgba(100,200,255,0.5)';ctx.lineWidth=2;ctx.stroke();
+      // Elektr zanjir effekti
+      if(frame%8===0){
+        particles.push(new PhysicsParticle('sizzle',
+          anode+(rand()-0.5)*5,liqSurface+rand()*10,W,H,
+          {col:'255,200,50'}));
+        particles.push(new PhysicsParticle('sizzle',
+          cathode+(rand()-0.5)*5,liqSurface+rand()*10,W,H,
+          {col:'100,200,255'}));
+      }
+    }
+
+    else{
+      // Umumiy: elektron orbital + kichik pufakchalar
+      if(particles.filter(p=>p.type==='electron').length<6&&frame<30){
+        particles.push(new PhysicsParticle('electron',
+          bX+bW/2,bY+bH*0.4,W,H));
+      }
+      if(frame%6===0){
+        particles.push(new PhysicsParticle('bubble',
+          inBeaker(),atSurface(),W,H));
+      }
+    }
+  }
+
+  function loop(){
+    ctx.clearRect(0,0,W,H);
+    frame++;
+
+    drawBackground();
+
+    // To'lqinlarni yangilash
+    if(rxnType!=='combustion'){
+      const wStrength=rxnType==='metal_water'?-5:
+        rxnType==='acid_base'|rxnType==='metal_acid'?-2.5:-1;
+      if(waveDistIdx>=0&&frame%4===0){
+        updateWaves(waveDistIdx,wStrength);
+        waveDistIdx=-1;
+      }else{
+        updateWaves(-1,0);
+      }
+      // Suyuqlikni chizish
+      drawLiquid(ctx,null,rxnType,env,heat,frame);
+      // Shisha idishni chizish
+      drawRealisticBeaker(ctx,W,H);
+    }
+
+    spawnParticles();
+
+    // Zarralar soni chegarasi
+    const maxP=rxnType==='combustion'?280:rxnType==='metal_water'?240:200;
+    if(particles.length>maxP)particles.splice(0,particles.length-maxP);
+
+    // Zarralarni yangilash va chizish
+    for(let i=particles.length-1;i>=0;i--){
+      if(!particles[i].update())particles.splice(i,1);
+      else particles[i].draw(ctx);
+    }
+
+    animId=requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+async function askAI(){
+  if(!currentInput)return;
+  showLoader('REAKSIYA TAHLIL QILINMOQDA...');
+  document.getElementById('status').textContent='TAHLIL...';
+  document.getElementById('status-dot').style.background='#fbbf24';
+  try{
+    const resp=await fetch(GROQ_URL,{method:'POST',headers:{Authorization:`Bearer ${GROQ_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:`Sen kimyogarsan. Reaksiyani tugalla: ${currentInput}. FAQAT JSON: {"t":"to'liq tenglama","i":"o'zbekcha izoh","possible":true,"gas":true,"precipitate":false,"color":"#hex","env":"kislotali|ishqoriy|neytral","heat":"exothermic|endothermic|none"}`}],response_format:{type:'json_object'}})});
+    const data=await resp.json();
+    const res=JSON.parse(data.choices[0].message.content);
+    if(!res.possible){
+      document.getElementById('display').textContent='❌ Bu reaksiya bormaydi';
+      document.getElementById('display').style.color='var(--red)';
+      document.getElementById('status').textContent='XATO';
+      document.getElementById('status-dot').style.background='var(--red)';
+    }else{
+      document.getElementById('display').textContent=res.t;
+      document.getElementById('display').style.color='#00ff9d';
+      document.getElementById('status').textContent='✓ TAYYOR';
+      document.getElementById('status-dot').style.background='#00ff9d';
+      const heatIcon=res.heat==='exothermic'?'🔥 Issiqlik ajralib chiqadi':res.heat==='endothermic'?'❄️ Issiqlik yutiladi':'';
+      document.getElementById('res-box').innerHTML=`<b style="color:#00ff9d">Tahlil:</b> ${res.i}${heatIcon?`<br><span style="color:#fbbf24;font-size:11px">${heatIcon}</span>`:''}`;
+      document.getElementById('res-box').style.display='block';
+      addHistory('reaction',currentInput);
+      if(res.gas)startVisual('gas',null,res.env,res.heat,res.t);
+      else if(res.precipitate)startVisual('precipitate',res.color,res.env,res.heat,res.t);
+      else startVisual('generic',null,res.env,res.heat,res.t);
+    }
+  }catch(e){document.getElementById('status').textContent='⚠ Xatolik';showToast('Tarmoq xatosi. Qayta urinib ko\'ring.')}
+  hideLoader();
+}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&activePage===0)askAI()});
+
+// ════════════════════════════════════════════════
+// PAGE 1: 3D VIEWER + ORBIT ANIMATION
+// ════════════════════════════════════════════════
+let orbitAnimId=null;
+function startOrbitIdle(){
+  const cvs=document.getElementById('orbitCanvas');
+  const wrap=cvs.parentElement;
+  cvs.width=wrap.offsetWidth||340;cvs.height=140;
+  const c=cvs.getContext('2d'),W=cvs.width,H=140;
+  const atoms=[{sym:'H',r:55,spd:0.04,phase:0,col:'rgba(180,200,255,'},{sym:'O',r:35,spd:0.03,phase:2.1,col:'rgba(255,100,100,'},{sym:'C',r:45,spd:-0.025,phase:4.2,col:'rgba(150,150,150,'}];
+  cancelAnimationFrame(orbitAnimId);
+  let fr=0;
+  function draw(){
+    c.clearRect(0,0,W,H);
+    const cx=W/2,cy=H/2;
+    const grad=c.createRadialGradient(cx,cy,0,cx,cy,16);
+    grad.addColorStop(0,'rgba(255,255,255,0.9)');grad.addColorStop(0.4,'rgba(34,211,238,0.8)');grad.addColorStop(1,'rgba(34,211,238,0)');
+    c.beginPath();c.arc(cx,cy,12,0,Math.PI*2);c.fillStyle=grad;c.fill();
+    c.fillStyle='rgba(0,0,0,0.7)';c.font='bold 9px Segoe UI';c.textAlign='center';c.textBaseline='middle';c.fillText('H₂O',cx,cy);
+    atoms.forEach((a,i)=>{
+      a.phase+=a.spd;
+      c.beginPath();c.ellipse(cx,cy,a.r,a.r*0.4,i*1.2,0,Math.PI*2);
+      c.strokeStyle='rgba(34,211,238,0.15)';c.lineWidth=1;c.stroke();
+      const ex=cx+Math.cos(a.phase)*a.r,ey=cy+Math.sin(a.phase)*a.r*0.4;
+      const ag=c.createRadialGradient(ex,ey,0,ex,ey,10);
+      ag.addColorStop(0,'rgba(255,255,255,0.9)');ag.addColorStop(0.4,a.col+'0.9)');ag.addColorStop(1,a.col+'0)');
+      c.beginPath();c.arc(ex,ey,8,0,Math.PI*2);c.fillStyle=ag;c.fill();
+      c.fillStyle='rgba(255,255,255,0.9)';c.font='bold 7px Segoe UI';c.textAlign='center';c.textBaseline='middle';c.fillText(a.sym,ex,ey);
+    });
+    fr++;orbitAnimId=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function startOrbitFor(symbol,formula,numElec){
+  const cvs=document.getElementById('orbitCanvas');
+  cvs.width=cvs.parentElement.offsetWidth||340;cvs.height=140;
+  const c=cvs.getContext('2d'),W=cvs.width,H=140;
+  const shells=[],mx=[2,8,18,32,18,8,2];let rem=numElec;
+  for(let i=0;i<mx.length&&rem>0;i++){const cnt=Math.min(rem,mx[i]);shells.push({cnt,electrons:Array.from({length:cnt},(_,j)=>({angle:(2*Math.PI/cnt)*j,spd:0.03-i*0.003}))});rem-=cnt}
+  const radii=shells.map((_,i)=>18+i*18);
+  document.getElementById('orbit-formula').textContent=formula||symbol;
+  document.getElementById('orbit-shells').textContent=`${shells.length} qobiq • ${numElec} elektron`;
+  cancelAnimationFrame(orbitAnimId);
+  function draw(){
+    c.clearRect(0,0,W,H);const cx=W/2,cy=H/2;
+    const ng=c.createRadialGradient(cx,cy,0,cx,cy,13);
+    ng.addColorStop(0,'#fff');ng.addColorStop(0.35,'#22d3ee');ng.addColorStop(1,'rgba(34,211,238,0)');
+    c.beginPath();c.arc(cx,cy,10,0,Math.PI*2);c.fillStyle=ng;c.fill();
+    c.fillStyle='rgba(0,0,0,0.8)';c.font=`bold ${symbol.length>2?7:9}px Segoe UI`;c.textAlign='center';c.textBaseline='middle';c.fillText(symbol,cx,cy);
+    shells.forEach((sh,si)=>{
+      const r=radii[si];
+      c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.strokeStyle='rgba(34,211,238,0.15)';c.lineWidth=1;c.stroke();
+      sh.electrons.forEach(e=>{
+        e.angle+=e.spd;const ex=cx+Math.cos(e.angle)*r,ey=cy+Math.sin(e.angle)*r;
+        const eg=c.createRadialGradient(ex,ey,0,ex,ey,5);eg.addColorStop(0,'#00ff9d');eg.addColorStop(1,'rgba(0,255,157,0)');
+        c.beginPath();c.arc(ex,ey,4,0,Math.PI*2);c.fillStyle=eg;c.fill();
+      });
+    });
+    orbitAnimId=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+async function run3DAnalysis(){
+  const q=document.getElementById('mol-input').value.trim();if(!q)return;
+  showLoader('3D MODEL YUKLANMOQDA...');
+  document.getElementById('v3d-loading').textContent='Yuklanmoqda...';
+  document.getElementById('prop-panel').style.display='none';
+  try{
+    const r1=await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(q)}/property/MolecularWeight,MolecularFormula,IUPACName/JSON`);
+    const d1=await r1.json();const p=d1.PropertyTable.Properties[0];const cid=p.CID;
+    document.getElementById('r-mw').textContent=p.MolecularWeight+' g/mol';
+    document.getElementById('r-f').textContent=p.MolecularFormula;
+    const r2=await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/view/data/compound/${cid}/JSON`);
+    const d2=await r2.json();
+    const fv=label=>{try{for(let s of d2.Record.Section)if(s.TOCHeading==='Chemical and Physical Properties')for(let ss of s.Section)if(ss.TOCHeading===label)return ss.Information[0].Value.StringWithMarkup[0].String}catch(e){return'--'}return'--'};
+    document.getElementById('r-d').textContent=fv('Density');
+    document.getElementById('r-mp').textContent=fv('Melting Point');
+    document.getElementById('r-bp').textContent=fv('Boiling Point');
+    const nm=p.IUPACName.toLowerCase();
+    if(nm.includes('acid')){document.getElementById('r-prop').textContent='Kislotali';document.getElementById('r-ph').textContent='< 7';document.getElementById('r-poh').textContent='> 7'}
+    else if(nm.includes('hydroxide')){document.getElementById('r-prop').textContent='Ishqoriy';document.getElementById('r-ph').textContent='> 7';document.getElementById('r-poh').textContent='< 7'}
+    else{document.getElementById('r-prop').textContent='Neytral';document.getElementById('r-ph').textContent='≈ 7';document.getElementById('r-poh').textContent='≈ 7'}
+    const sdf=await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/SDF?record_type=3d`).then(r=>r.text());
+    const vDiv=document.getElementById('v3d-canvas');vDiv.innerHTML='';
+    const viewer=$3Dmol.createViewer(vDiv,{backgroundColor:'black'});
+    viewer.addModel(sdf,'sdf');viewer.setStyle({},{stick:{radius:0.15},sphere:{scale:0.25}});viewer.zoomTo();viewer.render();viewer.spin(true);
+    document.getElementById('v3d-loading').textContent='✓ Online';
+    document.getElementById('prop-panel').style.display='block';
+    addHistory('mol3d',q);
+    startOrbitFor(p.MolecularFormula.match(/^[A-Z][a-z]?/)[0]||q,p.MolecularFormula,Math.round(parseFloat(p.MolecularWeight)));
+  }catch(e){document.getElementById('v3d-loading').textContent='⚠ Topilmadi';showToast('Modda topilmadi yoki tarmoq xatosi')}
+  hideLoader();
+}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&activePage===1)run3DAnalysis()});
+
+// ════════════════════════════════════════════════
+// PAGE 2: AR
+// ════════════════════════════════════════════════
+async function initCamera(){
+  try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});document.getElementById('webcam').srcObject=s;document.getElementById('ar-badge').textContent='● KAMERA FAOL'}
+  catch(e){document.getElementById('ar-badge').textContent='● KAMERA YO\'Q'}
+}
+async function loadAR(){
+  const nm=document.getElementById('ar-input').value.trim();if(!nm)return;
+  showLoader('AR YUKLANMOQDA...');
+  try{
+    const r=await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(nm)}/cids/JSON`);
+    const d=await r.json();const cid=d.IdentifierList.CID[0];
+    const vDiv=document.getElementById('ar-canvas');vDiv.innerHTML='';
+    const viewer=$3Dmol.createViewer(vDiv,{backgroundColor:'black',alpha:true});
+    viewer.setBackgroundColor(0x000000,0);
+    const sdf=await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/SDF?record_type=3d`).then(r=>r.text());
+    viewer.addModel(sdf,'sdf');viewer.setStyle({},{stick:{radius:0.2,colorscheme:'rasmol'},sphere:{scale:0.3,colorscheme:'rasmol'}});viewer.zoomTo();viewer.render();viewer.spin(true);
+    addHistory('ar',nm);showToast('AR muvaffaqiyatli yuklandi ✓');
+    try{
+      const ri=await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(nm)}/property/MolecularWeight,MolecularFormula,IUPACName/JSON`);
+      const di=await ri.json();const pi=di.PropertyTable.Properties[0];
+      document.getElementById('ar-status-val').textContent='AR Faol ●';
+      document.getElementById('ar-formula-val').textContent=pi.MolecularFormula;
+      document.getElementById('ar-mass-val').textContent=pi.MolecularWeight+' g/mol';
+      document.getElementById('ar-name-val').textContent=pi.IUPACName||nm;
+      document.getElementById('ar-mol-info').classList.add('show');
+    }catch(e){}
+  }catch(e){showToast('Modda topilmadi!')}
+  hideLoader();
+}
+
+// ════════════════════════════════════════════════
+// PAGE 3: MOLAR MASS
+// ════════════════════════════════════════════════
+let balAnimId=null;
+function startBalanceAnim(){
+  const cvs=document.getElementById('balanceCanvas');
+  cvs.width=cvs.parentElement.offsetWidth||340;cvs.height=110;
+  const c=cvs.getContext('2d'),W=cvs.width,H=110;
+  cancelAnimationFrame(balAnimId);let t=0;
+  function draw(){
+    c.clearRect(0,0,W,H);t+=0.02;
+    const tilt=Math.sin(t)*8;
+    const cx=W/2,pY=30;
+    // Stand
+    c.beginPath();c.moveTo(cx,pY);c.lineTo(cx,H-10);
+    c.strokeStyle='rgba(251,191,36,0.5)';c.lineWidth=2;c.stroke();
+    c.beginPath();c.moveTo(cx-30,H-10);c.lineTo(cx+30,H-10);
+    c.strokeStyle='rgba(251,191,36,0.5)';c.lineWidth=2;c.stroke();
+    // Pivot
+    c.beginPath();c.arc(cx,pY,5,0,Math.PI*2);c.fillStyle='rgba(251,191,36,0.8)';c.fill();
+    // Beam
+    const rad=tilt*Math.PI/180;
+    const len=80;
+    const lx=cx-Math.cos(rad)*len,ly=pY+Math.sin(rad)*len;
+    const rx=cx+Math.cos(rad)*len,ry=pY-Math.sin(rad)*len;
+    c.beginPath();c.moveTo(lx,ly);c.lineTo(rx,ry);
+    c.strokeStyle='rgba(251,191,36,0.7)';c.lineWidth=2;c.stroke();
+    // Pans
+    const panW=35,panH=8;
+    function drawPan(px,py){
+      c.beginPath();c.moveTo(px-panW/2,py);c.lineTo(px+panW/2,py);c.lineTo(px+panW/2-4,py+panH);c.lineTo(px-panW/2+4,py+panH);c.closePath();
+      c.strokeStyle='rgba(251,191,36,0.6)';c.lineWidth=1.5;c.stroke();
+      c.fillStyle='rgba(251,191,36,0.08)';c.fill();
+      c.beginPath();c.moveTo(px,py-20);c.lineTo(px,py);c.strokeStyle='rgba(251,191,36,0.4)';c.lineWidth=1;c.stroke();
+    }
+    drawPan(lx,ly+10);drawPan(rx,ry+10);
+    // Label
+    c.fillStyle='rgba(251,191,36,0.4)';c.font='9px monospace';c.textAlign='center';c.fillText('ANALITIK TAROZI',cx,H-2);
+    balAnimId=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// Molecule build animation for molar page
+let molAnimId=null;
+const ATOM_COLS={H:'rgba(200,210,255',C:'rgba(120,120,120',N:'rgba(60,120,255',O:'rgba(255,80,80',F:'rgba(140,255,140',Cl:'rgba(50,200,50',Na:'rgba(150,80,255',K:'rgba(180,80,200',Ca:'rgba(80,200,200',Fe:'rgba(200,100,50',S:'rgba(220,200,50',P:'rgba(220,130,50',default:'rgba(34,211,238'};
+
+function startMolAnim(formula){
+  const stage=document.getElementById('mol-stage');stage.style.display='block';
+  const cvs=document.getElementById('molCanvas');cvs.width=stage.offsetWidth||340;cvs.height=120;
+  const c=cvs.getContext('2d'),W=cvs.width,H=120;
+  const re=/([A-Z][a-z]?)(\d*)/g;const atoms=[];let m;
+  while((m=re.exec(formula))!==null&&m[0]){const s=m[1],cnt=parseInt(m[2])||1;for(let i=0;i<Math.min(cnt,10);i++)atoms.push(s)}
+  const sp=Math.min(52,(W-40)/Math.max(1,atoms.length));
+  const sx=(W-sp*(atoms.length-1))/2;
+  const molAtoms=atoms.map((s,i)=>({s,tx:sx+i*sp,ty:H/2,x:Math.random()*W,y:Math.random()*H,r:s.length===1?15:12,col:(ATOM_COLS[s]||ATOM_COLS.default),pulse:Math.random()*Math.PI*2,arrived:false}));
+  cancelAnimationFrame(molAnimId);
+  function draw(){
+    c.clearRect(0,0,W,H);c.fillStyle='#000';c.fillRect(0,0,W,H);
+    // bonds
+    c.strokeStyle='rgba(255,255,255,0.2)';c.lineWidth=1.5;
+    for(let i=0;i<molAtoms.length-1;i++){c.beginPath();c.moveTo(molAtoms[i].x,molAtoms[i].y);c.lineTo(molAtoms[i+1].x,molAtoms[i+1].y);c.stroke()}
+    molAtoms.forEach(a=>{
+      if(!a.arrived){a.x+=(a.tx-a.x)*0.08;a.y+=(a.ty-a.y)*0.08;if(Math.abs(a.tx-a.x)<1&&Math.abs(a.ty-a.y)<1)a.arrived=true}
+      a.pulse+=0.05;const pr=a.r+Math.sin(a.pulse)*1.5;
+      const g=c.createRadialGradient(a.x,a.y,0,a.x,a.y,pr);
+      g.addColorStop(0,'rgba(255,255,255,0.95)');g.addColorStop(0.35,a.col+',0.9)');g.addColorStop(1,a.col+',0.05)');
+      c.beginPath();c.arc(a.x,a.y,pr,0,Math.PI*2);c.fillStyle=g;c.fill();
+      c.fillStyle='rgba(255,255,255,0.95)';c.font=`bold ${Math.round(pr*0.75)}px Segoe UI`;c.textAlign='center';c.textBaseline='middle';c.fillText(a.s,a.x,a.y);
+    });
+    molAnimId=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+async function calcMolar(){
+  const inp=document.getElementById('molar-input').value.trim();if(!inp)return;
+  showLoader('AI HISOBLAYAPTI...');
+  try{
+    const r=await fetch(GROQ_URL,{method:'POST',headers:{Authorization:`Bearer ${GROQ_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:`Modda: "${inp}". Kimyoviy formulasini tahlil qil. FAQAT JSON: {"name":"to'liq nom","formula":"H2O","elements":[{"sym":"H","count":2,"mass":1,"total":2},{"sym":"O","count":1,"mass":16,"total":16}],"total":18}`}],response_format:{type:'json_object'}})});
+    const data=await r.json();if(data.error)throw new Error(data.error.message);
+    const res=JSON.parse(data.choices[0].message.content);
+    document.getElementById('molar-name').textContent=res.name;
+    const elems=Array.isArray(res.elements)?res.elements:[];
+    document.getElementById('molar-details').innerHTML=elems.map(e=>`
+      <div class="mr-elem-row">
+        <span class="mr-elem-sym" style="color:${(ATOM_COLS[e.sym||e.element]||ATOM_COLS.default)+',1)'}">${e.sym||e.element}</span>
+        <span class="mr-elem-math">${e.count||1} × ${e.mass||'?'} g/mol</span>
+        <span class="mr-elem-mass" style="color:#fbbf24">= ${e.total||'?'}</span>
+      </div>`).join('');
+    document.getElementById('molar-total').textContent=(res.total||'?')+' g/mol';
+    document.getElementById('molar-res').style.display='block';
+    addHistory('molar',inp);
+    startMolAnim(res.formula||inp);
+  }catch(e){showToast('Xato: Noto\'g\'ri formula yoki tarmoq muammosi.')}
+  hideLoader();
+}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&activePage===3)calcMolar()});
+
+// ════════════════════════════════════════════════
+// PAGE 4: PERIODIC TABLE
+// ════════════════════════════════════════════════
+const PT_DATA=[
+  {n:1,s:'H',name:'Vodorod',m:1.008,cat:'nonmetal',conf:'1s¹',col:1,row:1},
+  {n:2,s:'He',name:'Geliy',m:4.003,cat:'noble',conf:'1s²',col:18,row:1},
+  {n:3,s:'Li',name:'Litiy',m:6.941,cat:'alkali',conf:'[He]2s¹',col:1,row:2},
+  {n:4,s:'Be',name:'Berilliy',m:9.012,cat:'alkaline',conf:'[He]2s²',col:2,row:2},
+  {n:5,s:'B',name:'Bor',m:10.81,cat:'metalloid',conf:'[He]2s²2p¹',col:13,row:2},
+  {n:6,s:'C',name:'Uglerod',m:12.011,cat:'nonmetal',conf:'[He]2s²2p²',col:14,row:2},
+  {n:7,s:'N',name:'Azot',m:14.007,cat:'nonmetal',conf:'[He]2s²2p³',col:15,row:2},
+  {n:8,s:'O',name:'Kislorod',m:15.999,cat:'nonmetal',conf:'[He]2s²2p⁴',col:16,row:2},
+  {n:9,s:'F',name:'Ftor',m:18.998,cat:'halogen',conf:'[He]2s²2p⁵',col:17,row:2},
+  {n:10,s:'Ne',name:'Neon',m:20.18,cat:'noble',conf:'[He]2s²2p⁶',col:18,row:2},
+  {n:11,s:'Na',name:'Natriy',m:22.99,cat:'alkali',conf:'[Ne]3s¹',col:1,row:3},
+  {n:12,s:'Mg',name:'Magniy',m:24.305,cat:'alkaline',conf:'[Ne]3s²',col:2,row:3},
+  {n:13,s:'Al',name:'Alyuminiy',m:26.982,cat:'other',conf:'[Ne]3s²3p¹',col:13,row:3},
+  {n:14,s:'Si',name:'Kremniy',m:28.086,cat:'metalloid',conf:'[Ne]3s²3p²',col:14,row:3},
+  {n:15,s:'P',name:'Fosfor',m:30.974,cat:'nonmetal',conf:'[Ne]3s²3p³',col:15,row:3},
+  {n:16,s:'S',name:'Oltingugurt',m:32.06,cat:'nonmetal',conf:'[Ne]3s²3p⁴',col:16,row:3},
+  {n:17,s:'Cl',name:'Xlor',m:35.45,cat:'halogen',conf:'[Ne]3s²3p⁵',col:17,row:3},
+  {n:18,s:'Ar',name:'Argon',m:39.948,cat:'noble',conf:'[Ne]3s²3p⁶',col:18,row:3},
+  {n:19,s:'K',name:'Kaliy',m:39.098,cat:'alkali',conf:'[Ar]4s¹',col:1,row:4},
+  {n:20,s:'Ca',name:'Kalsiy',m:40.078,cat:'alkaline',conf:'[Ar]4s²',col:2,row:4},
+  {n:21,s:'Sc',name:'Skandiy',m:44.956,cat:'transition',conf:'[Ar]3d¹4s²',col:3,row:4},
+  {n:22,s:'Ti',name:'Titan',m:47.867,cat:'transition',conf:'[Ar]3d²4s²',col:4,row:4},
+  {n:23,s:'V',name:'Vanadiy',m:50.942,cat:'transition',conf:'[Ar]3d³4s²',col:5,row:4},
+  {n:24,s:'Cr',name:'Xrom',m:51.996,cat:'transition',conf:'[Ar]3d⁵4s¹',col:6,row:4},
+  {n:25,s:'Mn',name:'Marganes',m:54.938,cat:'transition',conf:'[Ar]3d⁵4s²',col:7,row:4},
+  {n:26,s:'Fe',name:'Temir',m:55.845,cat:'transition',conf:'[Ar]3d⁶4s²',col:8,row:4},
+  {n:27,s:'Co',name:'Kobalt',m:58.933,cat:'transition',conf:'[Ar]3d⁷4s²',col:9,row:4},
+  {n:28,s:'Ni',name:'Nikel',m:58.693,cat:'transition',conf:'[Ar]3d⁸4s²',col:10,row:4},
+  {n:29,s:'Cu',name:'Mis',m:63.546,cat:'transition',conf:'[Ar]3d¹⁰4s¹',col:11,row:4},
+  {n:30,s:'Zn',name:'Rux',m:65.38,cat:'transition',conf:'[Ar]3d¹⁰4s²',col:12,row:4},
+  {n:31,s:'Ga',name:'Galliy',m:69.723,cat:'other',conf:'[Ar]3d¹⁰4s²4p¹',col:13,row:4},
+  {n:32,s:'Ge',name:'Germaniy',m:72.63,cat:'metalloid',conf:'[Ar]3d¹⁰4s²4p²',col:14,row:4},
+  {n:33,s:'As',name:'Mishyak',m:74.922,cat:'metalloid',conf:'[Ar]3d¹⁰4s²4p³',col:15,row:4},
+  {n:34,s:'Se',name:'Selen',m:78.971,cat:'nonmetal',conf:'[Ar]3d¹⁰4s²4p⁴',col:16,row:4},
+  {n:35,s:'Br',name:'Brom',m:79.904,cat:'halogen',conf:'[Ar]3d¹⁰4s²4p⁵',col:17,row:4},
+  {n:36,s:'Kr',name:'Kripton',m:83.798,cat:'noble',conf:'[Ar]3d¹⁰4s²4p⁶',col:18,row:4},
+  {n:37,s:'Rb',name:'Rubidiy',m:85.468,cat:'alkali',conf:'[Kr]5s¹',col:1,row:5},
+  {n:38,s:'Sr',name:'Stronsiy',m:87.62,cat:'alkaline',conf:'[Kr]5s²',col:2,row:5},
+  {n:47,s:'Ag',name:'Kumush',m:107.87,cat:'transition',conf:'[Kr]4d¹⁰5s¹',col:11,row:5},
+  {n:50,s:'Sn',name:'Qalay',m:118.71,cat:'other',conf:'[Kr]4d¹⁰5s²5p²',col:14,row:5},
+  {n:53,s:'I',name:'Yod',m:126.9,cat:'halogen',conf:'[Kr]4d¹⁰5s²5p⁵',col:17,row:5},
+  {n:54,s:'Xe',name:'Ksenon',m:131.29,cat:'noble',conf:'[Kr]4d¹⁰5s²5p⁶',col:18,row:5},
+  {n:55,s:'Cs',name:'Seziy',m:132.91,cat:'alkali',conf:'[Xe]6s¹',col:1,row:6},
+  {n:56,s:'Ba',name:'Bariy',m:137.33,cat:'alkaline',conf:'[Xe]6s²',col:2,row:6},
+  {n:74,s:'W',name:'Volfram',m:183.84,cat:'transition',conf:'[Xe]4f¹⁴5d⁴6s²',col:6,row:6},
+  {n:78,s:'Pt',name:'Platin',m:195.08,cat:'transition',conf:'[Xe]4f¹⁴5d⁹6s¹',col:10,row:6},
+  {n:79,s:'Au',name:'Oltin',m:196.97,cat:'transition',conf:'[Xe]4f¹⁴5d¹⁰6s¹',col:11,row:6},
+  {n:80,s:'Hg',name:'Simob',m:200.59,cat:'transition',conf:'[Xe]4f¹⁴5d¹⁰6s²',col:12,row:6},
+  {n:82,s:'Pb',name:'Qo\'rg\'oshin',m:207.2,cat:'other',conf:'[Xe]4f¹⁴5d¹⁰6s²6p²',col:14,row:6},
+  {n:92,s:'U',name:'Uran',m:238.03,cat:'actinide',conf:'[Rn]5f³6d¹7s²',col:6,row:7}
+];
+const CAT_LABELS={alkali:'Ishqoriy metal',alkaline:'Ishqoriy-yer',transition:'O\'tish metali',other:'Boshqa metal',metalloid:'Metalloid',nonmetal:'Ametall',halogen:'Galogen',noble:'Nodir gaz',lanthanide:'Lantanoid',actinide:'Aktinoid'};
+let ptAllCells=[];
+
+function buildPeriodicTable(){
+  const grid=document.getElementById('pt-grid');grid.innerHTML='';ptAllCells=[];
+  const cells={};PT_DATA.forEach(el=>cells[`${el.row}-${el.col}`]=el);
+  for(let row=1;row<=7;row++)for(let col=1;col<=18;col++){
+    const el=cells[`${row}-${col}`];
+    if(el){
+      const div=document.createElement('div');div.className=`pt-cell cat-${el.cat}`;
+      div.innerHTML=`<div class="num">${el.n}</div><div class="sym">${el.s}</div><div class="pname">${el.name.substring(0,5)}</div>`;
+      div.dataset.el=JSON.stringify(el);
+      div.onclick=()=>{div.classList.add('flash');setTimeout(()=>div.classList.remove('flash'),600);showElPopup(el)};
+      grid.appendChild(div);ptAllCells.push({div,el});
+    }else{const empty=document.createElement('div');empty.className='pt-empty';grid.appendChild(empty)}
+  }
+}
+buildPeriodicTable();
+
+function filterPT(q){
+  const s=q.toLowerCase();
+  ptAllCells.forEach(({div,el})=>{
+    const show=!q||el.name.toLowerCase().includes(s)||el.s.toLowerCase().includes(s)||el.n.toString().includes(s)||el.cat.includes(s);
+    div.style.opacity=show?'1':'0.1';div.style.transform=show?'':'scale(0.85)';
+  });
+}
+
+// Popup orbit animation
+let popupOrbitId=null;
+function showElPopup(el){
+  selectedElement=el;
+  document.getElementById('ep-sym').textContent=el.s;
+  document.getElementById('ep-name').textContent=el.name;
+  document.getElementById('ep-num').textContent=`Atom raqami: ${el.n}`;
+  document.getElementById('ep-mass').textContent=`Atom massasi: ${el.m} a.b.m.`;
+  document.getElementById('ep-cat').textContent=CAT_LABELS[el.cat]||el.cat;
+  document.getElementById('ep-conf').textContent=`Elektronlar: ${el.conf}`;
+  document.getElementById('el-popup').classList.add('show');
+  // Draw mini orbit in popup
+  const cvs=document.getElementById('ep-orbit-canvas');
+  cvs.width=276;cvs.height=100;
+  const c=cvs.getContext('2d'),W=276,H=100;
+  const shells=[],mx=[2,8,18,32];let rem=el.n;
+  for(let i=0;i<mx.length&&rem>0;i++){const cnt=Math.min(rem,mx[i]);shells.push({cnt,electrons:Array.from({length:cnt},(_,j)=>({angle:(2*Math.PI/cnt)*j,spd:0.04-i*0.008}))});rem-=cnt}
+  const radii=shells.map((_,i)=>14+i*16);
+  cancelAnimationFrame(popupOrbitId);
+  function draw(){
+    c.clearRect(0,0,W,H);const cx=W/2,cy=H/2;
+    const ng=c.createRadialGradient(cx,cy,0,cx,cy,12);ng.addColorStop(0,'#fff');ng.addColorStop(0.4,'#22d3ee');ng.addColorStop(1,'transparent');
+    c.beginPath();c.arc(cx,cy,9,0,Math.PI*2);c.fillStyle=ng;c.fill();
+    c.fillStyle='rgba(0,0,0,0.8)';c.font=`bold ${el.s.length>2?6:8}px Segoe UI`;c.textAlign='center';c.textBaseline='middle';c.fillText(el.s,cx,cy);
+    shells.forEach((sh,si)=>{
+      const r=radii[si];
+      c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.strokeStyle='rgba(34,211,238,0.18)';c.lineWidth=1;c.stroke();
+      sh.electrons.forEach(e=>{e.angle+=e.spd;const ex=cx+Math.cos(e.angle)*r,ey=cy+Math.sin(e.angle)*r;const eg=c.createRadialGradient(ex,ey,0,ex,ey,4);eg.addColorStop(0,'#00ff9d');eg.addColorStop(1,'transparent');c.beginPath();c.arc(ex,ey,3,0,Math.PI*2);c.fillStyle=eg;c.fill()});
+    });
+    popupOrbitId=requestAnimationFrame(draw);
+  }
+  draw();
+}
+function closeElPopup(){document.getElementById('el-popup').classList.remove('show');cancelAnimationFrame(popupOrbitId)}
+function useElementInReaction(){if(!selectedElement)return;closeElPopup();navigateTo(0);addChar(selectedElement.s);showToast(`${selectedElement.s} qo'shildi ✓`)}
+
+// ════════════════════════════════════════════════
+// PAGE 5: QUIZ GAME
+// ════════════════════════════════════════════════
+const QUESTIONS=[
+  {q:'Qaysi element davriy jadvalda birinchi o\'rinda turadi?',opts:['Vodorod','Geliy','Litiy','Uglerod'],ans:0},
+  {q:'H₂O ning molyar massasi necha g/mol?',opts:['16','18','20','14'],ans:1},
+  {q:'Qaysi gaz havoda eng ko\'p uchraydi?',opts:['Kislorod','Vodorod','Azot','Argon'],ans:2},
+  {q:'NaCl qanday nomlanadi?',opts:['Osh tuzi','Soda','Loy','Gips'],ans:0},
+  {q:'Qaysi element eng qattiq hisoblanadi?',opts:['Temir','Olmos (C)','Platina','Titan'],ans:1},
+  {q:'pH = 7 qanday muhitni bildiradi?',opts:['Kislotali','Ishqoriy','Neytral','Tuzli'],ans:2},
+  {q:'Elektron musbat zaryadlimi?',opts:['Ha','Yo\'q — manfiy','Neytral','Ikki xil'],ans:1},
+  {q:'Qaysi kislota eng kuchli hisoblanadi?',opts:['HCl','H₂SO₄','HF','HNO₃'],ans:1},
+  {q:'Fe₂O₃ — bu nima?',opts:['Temirning oksidi','Temir sulfati','Temir xloridi','Temir nitriti'],ans:0},
+  {q:'Avogadro soni qancha?',opts:['6.022×10²³','3.14×10¹⁵','9.8×10⁸','1.38×10⁻²³'],ans:0},
+  {q:'Qaysi holat gazga xos?',opts:['Shakl saqlaydi','Hajm saqlaydi','Erkin tarqaladi','Siqilmaydi'],ans:2},
+  {q:'Natriyning kimyoviy belgisi?',opts:['Na','N','Ni','Nb'],ans:0},
+  {q:'Qanday reaksiyada issiqlik ajralib chiqadi?',opts:['Endotermik','Ekzotermik','Neytral','Katalitik'],ans:1},
+  {q:'CO₂ da nechta kislorod atomi bor?',opts:['1','2','3','4'],ans:1},
+  {q:'Qaysi element xona haroratida suyuq holda bo\'ladi?',opts:['Temir','Mis','Simob','Qo\'rg\'oshin'],ans:2}
+];
+let quizQs=[],quizIdx=0,quizScore=0;
+
+let quizBgId=null;
+function startQuizBg(){
+  const cvs=document.getElementById('quizBgCanvas');
+  const page=document.getElementById('page-5');
+  cvs.width=page.offsetWidth||360;cvs.height=page.offsetHeight||600;
+  const c=cvs.getContext('2d'),W=cvs.width,H=cvs.height;
+  cancelAnimationFrame(quizBgId);
+  const syms=['H','O','C','N','Na','Fe','Cl','K','Ca','Zn'];
+  const mols=Array.from({length:16},()=>({x:Math.random()*W,y:Math.random()*H,sym:syms[Math.floor(Math.random()*syms.length)],r:8+Math.random()*7,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,pulse:Math.random()*Math.PI*2}));
+  function draw(){
+    c.clearRect(0,0,W,H);
+    mols.forEach(m=>{
+      m.x+=m.vx;m.y+=m.vy;m.pulse+=0.025;
+      if(m.x<-30)m.x=W+30;if(m.x>W+30)m.x=-30;
+      if(m.y<-30)m.y=H+30;if(m.y>H+30)m.y=-30;
+      const pr=m.r+Math.sin(m.pulse)*1;
+      c.beginPath();c.arc(m.x,m.y,pr,0,Math.PI*2);
+      c.strokeStyle='rgba(255,77,109,0.35)';c.lineWidth=1;c.stroke();
+      c.fillStyle='rgba(255,77,109,0.25)';c.font=`bold ${Math.round(pr*0.85)}px Segoe UI`;
+      c.textAlign='center';c.textBaseline='middle';c.fillText(m.sym,m.x,m.y);
+    });
+    quizBgId=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function startQuiz(){
+  quizScore=0;quizIdx=0;
+  quizQs=[...QUESTIONS].sort(()=>Math.random()-0.5).slice(0,10);
+  document.getElementById('quiz-area').style.display='block';
+  document.getElementById('quiz-end').style.display='none';
+  document.getElementById('quiz-score').textContent='0';
+  document.getElementById('quiz-progress').style.width='10%';
+  showQuestion();
+  startQuizBg();
+}
+function showQuestion(){
+  const q=quizQs[quizIdx];
+  document.getElementById('quiz-q').textContent=q.q;
+  document.getElementById('quiz-q-num').textContent=quizIdx+1;
+  document.getElementById('quiz-q-num2').textContent=String(quizIdx+1).padStart(2,'0');
+  document.getElementById('quiz-fb').textContent='';
+  document.getElementById('quiz-next').style.display='none';
+  document.getElementById('quiz-opts').innerHTML=q.opts.map((o,i)=>`<div class="quiz-opt" onclick="answerQuiz(${i})">${o}</div>`).join('');
+  document.getElementById('quiz-progress').style.width=((quizIdx+1)/10*100)+'%';
+}
+function answerQuiz(i){
+  const q=quizQs[quizIdx];const opts=document.querySelectorAll('.quiz-opt');
+  opts.forEach(o=>o.style.pointerEvents='none');
+  if(i===q.ans){opts[i].classList.add('correct');quizScore+=10;document.getElementById('quiz-score').textContent=quizScore;document.getElementById('quiz-fb').textContent='✓ To\'g\'ri!';document.getElementById('quiz-fb').style.color='#00ff9d'}
+  else{opts[i].classList.add('wrong');opts[q.ans].classList.add('correct');document.getElementById('quiz-fb').textContent='✗ Noto\'g\'ri. To\'g\'ri: '+q.opts[q.ans];document.getElementById('quiz-fb').style.color='var(--red)'}
+  document.getElementById('quiz-next').style.display='block';
+}
+function nextQuestion(){
+  quizIdx++;
+  if(quizIdx>=quizQs.length)endQuiz();else showQuestion();
+}
+function endQuiz(){
+  document.getElementById('quiz-area').style.display='none';
+  const end=document.getElementById('quiz-end');end.style.display='block';
+  document.getElementById('quiz-final-score').textContent=quizScore;
+  const b=quizScore>=90?{t:'🥇 KIMYO USTASI!',c:'#fbbf24',bc:'rgba(251,191,36,0.3)'}:quizScore>=70?{t:'🥈 Yaxshi natija!',c:'#22d3ee',bc:'rgba(34,211,238,0.3)'}:quizScore>=50?{t:'🥉 Davom eting!',c:'#c084fc',bc:'rgba(192,132,252,0.3)'}:{t:'📚 Ko\'proq o\'qing',c:'var(--muted)',bc:'rgba(255,255,255,0.1)'};
+  const badge=document.getElementById('quiz-badge');badge.textContent=b.t;badge.style.color=b.c;badge.style.borderColor=b.c;badge.style.background=b.bc;
+}
+startQuiz();
+
+// ════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════
+updateTopbar(0);updateTabs(0);
+// Start idle orbit animation on load
+setTimeout(startOrbitIdle,500);
+setTimeout(startBalanceAnim,800);
+setTimeout(startQuizBg,600);
+</script>
+</body>
+</html>
