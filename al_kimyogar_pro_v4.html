@@ -1,0 +1,3300 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Al Kimyogar Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/3Dmol/2.0.4/3Dmol-min.js"></script>
+<style>
+/* ══════════════════════════════════════════
+   MD3 DESIGN TOKENS
+══════════════════════════════════════════ */
+:root {
+  /* Surface */
+  --md-surface:        #0d1117;
+  --md-surface-1:      #131922;
+  --md-surface-2:      #18202e;
+  --md-surface-3:      #1e2840;
+  --md-surface-var:    #1a2035;
+  --md-outline:        rgba(255,255,255,0.08);
+  --md-outline-var:    rgba(255,255,255,0.04);
+
+  /* On-surface */
+  --md-on-surface:     #e2e8f8;
+  --md-on-surface-med: rgba(226,232,248,0.6);
+  --md-on-surface-low: rgba(226,232,248,0.35);
+
+  /* Primary (teal-sky) */
+  --md-primary:        #38bdf8;
+  --md-primary-dim:    rgba(56,189,248,0.12);
+  --md-primary-tint:   rgba(56,189,248,0.06);
+
+  /* Page accent vars */
+  --accent:            #38bdf8;
+  --accent-rgb:        56,189,248;
+
+  /* Semantics */
+  --md-green:          #4ade80;
+  --md-purple:         #a78bfa;
+  --md-amber:          #fbbf24;
+  --md-red:            #f87171;
+  --md-cyan:           #22d3ee;
+
+  /* Compat with old vars */
+  --blue:              #38bdf8;
+  --green:             #4ade80;
+  --red:               #f87171;
+  --purple:            #a78bfa;
+  --gold:              #fbbf24;
+  --white:             #e2e8f8;
+  --muted:             rgba(226,232,248,0.35);
+  --bg:                #0d1117;
+  --glass:             rgba(19,25,34,0.9);
+  --glass-border:      rgba(255,255,255,0.07);
+  --radius-lg:         20px;
+  --radius-md:         14px;
+  --radius-sm:         10px;
+  --shadow:            0 4px 24px rgba(0,0,0,0.4);
+  --sidebar-w:         300px;
+  --font:              'Inter', system-ui, -apple-system, sans-serif;
+  --mono:              'SF Mono', 'Courier New', monospace;
+
+  /* Bottom nav height */
+  --bn-h: 68px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%; overflow: hidden;
+  background: var(--md-surface);
+  color: var(--md-on-surface);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+button, input, select, textarea { font-family: var(--font); }
+button { cursor: pointer; }
+
+/* ══════════════════════════════════════════
+   BACKGROUND LAYERS
+══════════════════════════════════════════ */
+#bg-image {
+  position: fixed; inset: 0; z-index: 0;
+  background-size: cover; background-position: center;
+  transition: opacity 0.5s;
+}
+#bg-image-overlay {
+  position: fixed; inset: 0; z-index: 0;
+  background: linear-gradient(180deg, rgba(13,17,23,0.88) 0%, rgba(13,17,23,0.92) 100%);
+}
+#bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.08; }
+
+/* ══════════════════════════════════════════
+   APP SHELL
+══════════════════════════════════════════ */
+#app { position: fixed; inset: 0; z-index: 1; display: flex; flex-direction: column; }
+
+/* ══════════════════════════════════════════
+   MD3 TOP APP BAR
+══════════════════════════════════════════ */
+#topbar {
+  height: 60px; flex-shrink: 0;
+  display: flex; align-items: center; gap: 4px;
+  padding: 0 8px 0 4px;
+  background: rgba(13,17,23,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--md-outline);
+  position: relative; z-index: 20;
+}
+
+#menu-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: transparent; border: none;
+  color: var(--md-on-surface-med);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: background 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+#menu-btn:hover { background: rgba(255,255,255,0.06); }
+#menu-btn:active { background: rgba(255,255,255,0.1); }
+
+.topbar-title-wrap {
+  flex: 1; display: flex; flex-direction: column; padding: 0 4px;
+}
+.topbar-app-name {
+  font-size: 11px; font-weight: 600; letter-spacing: 2.5px;
+  color: var(--md-on-surface-low); text-transform: uppercase;
+  line-height: 1;
+}
+#topbar-title {
+  font-size: 17px; font-weight: 700; color: var(--md-on-surface);
+  line-height: 1.2; display: flex; align-items: center; gap: 6px;
+}
+#topbar-page { color: var(--accent); }
+
+#topbar-badge {
+  font-size: 10px; font-weight: 600; padding: 4px 10px;
+  border-radius: 20px; border: 1px solid rgba(var(--accent-rgb),0.3);
+  color: var(--accent); background: rgba(var(--accent-rgb),0.06);
+  letter-spacing: 0.5px; flex-shrink: 0; transition: all 0.3s;
+}
+
+/* ══════════════════════════════════════════
+   PAGES CONTAINER
+══════════════════════════════════════════ */
+#pages {
+  flex: 1; overflow: hidden; position: relative;
+  padding-bottom: var(--bn-h);
+}
+
+.page {
+  position: absolute; inset: 0; overflow-y: auto;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(.4,0,.2,1),
+              transform 0.3s cubic-bezier(.4,0,.2,1);
+  transform: translateY(10px);
+  padding-bottom: 16px;
+  -webkit-overflow-scrolling: touch;
+}
+.page.active { opacity: 1; pointer-events: all; transform: translateY(0); }
+.page.exit-left { transform: translateY(-10px); opacity: 0; }
+
+/* ══════════════════════════════════════════
+   MD3 BOTTOM NAVIGATION
+══════════════════════════════════════════ */
+#bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: var(--bn-h); z-index: 50;
+  background: rgba(13,17,23,0.95);
+  backdrop-filter: blur(24px);
+  border-top: 1px solid var(--md-outline);
+  display: flex; align-items: stretch;
+  padding: 0 4px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.bn-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 4px; cursor: pointer; position: relative;
+  padding: 4px 0 6px;
+  -webkit-tap-highlight-color: transparent;
+  outline: none; background: none; border: none;
+  color: var(--md-on-surface-low);
+  transition: color 0.2s;
+  min-width: 0;
+}
+.bn-indicator {
+  position: absolute; top: 6px;
+  width: 64px; height: 32px; border-radius: 16px;
+  background: transparent;
+  transition: background 0.25s cubic-bezier(.4,0,.2,1),
+              transform 0.25s cubic-bezier(.4,0,.2,1);
+  transform: scale(0);
+}
+.bn-item.active .bn-indicator {
+  background: rgba(var(--bn-accent-rgb, 56,189,248), 0.16);
+  transform: scale(1);
+}
+.bn-icon {
+  width: 24px; height: 24px; position: relative; z-index: 1;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.2s cubic-bezier(.34,1.56,.64,1);
+}
+.bn-item.active .bn-icon { transform: scale(1.1); }
+.bn-icon svg { width: 24px; height: 24px; transition: all 0.2s; }
+.bn-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.3px;
+  position: relative; z-index: 1; white-space: nowrap;
+  transition: color 0.2s, opacity 0.2s;
+  opacity: 0.5;
+}
+.bn-item.active .bn-label { opacity: 1; font-weight: 700; }
+.bn-item.active { color: var(--accent); }
+#bn-0.active { --bn-accent-rgb: 74,222,128; color: #4ade80; }
+#bn-1.active { --bn-accent-rgb: 167,139,250; color: #a78bfa; }
+#bn-2.active { --bn-accent-rgb: 251,191,36; color: #fbbf24; }
+#bn-3.active { --bn-accent-rgb: 56,189,248; color: #38bdf8; }
+#bn-4.active { --bn-accent-rgb: 255,255,255; color: rgba(255,255,255,0.8); }
+
+/* ══════════════════════════════════════════
+   SIDEBAR (DRAWER — history & profile)
+══════════════════════════════════════════ */
+#sidebar-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px); z-index: 99;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+#sidebar-overlay.show { opacity: 1; pointer-events: all; }
+
+#sidebar {
+  position: fixed; top: 0; bottom: 0; left: 0;
+  width: var(--sidebar-w);
+  background: var(--md-surface-1);
+  border-right: 1px solid var(--md-outline);
+  z-index: 100;
+  transform: translateX(-100%);
+  transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+  display: flex; flex-direction: column;
+  box-shadow: 4px 0 32px rgba(0,0,0,0.5);
+}
+#sidebar.open { transform: translateX(0); }
+
+.sb-head {
+  padding: 52px 20px 20px;
+  background: linear-gradient(160deg, var(--md-surface-2) 0%, var(--md-surface-1) 100%);
+  border-bottom: 1px solid var(--md-outline-var);
+  display: flex; align-items: center; gap: 14px;
+}
+.sb-avatar-wrap { position: relative; cursor: pointer; flex-shrink: 0; }
+.sb-avatar {
+  width: 52px; height: 52px; border-radius: 50%; object-fit: cover;
+  border: 2px solid rgba(56,189,248,0.4);
+  background: var(--md-surface-2); display: block;
+}
+.sb-avatar-edit {
+  position: absolute; bottom: -1px; right: -1px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--md-primary); color: #000;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 800;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+#avatar-input { display: none; }
+.sb-info { flex: 1; min-width: 0; }
+.sb-name {
+  font-size: 15px; font-weight: 700; letter-spacing: 0.3px;
+  color: var(--md-on-surface); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sb-tg { font-size: 12px; color: var(--md-primary); margin-top: 2px; opacity: 0.8; }
+
+/* Nav items in sidebar (hidden but keep IDs for JS) */
+.sb-nav { display: none; }
+.sb-section { display: none; }
+.sb-item { display: none; }
+
+/* Sidebar visible history section */
+.sb-hist-section {
+  flex: 1; overflow-y: auto; padding: 16px 0 8px;
+}
+.sb-hist-title {
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  color: var(--md-on-surface-low); padding: 0 20px 10px;
+  text-transform: uppercase;
+}
+
+.hist-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px; font-size: 12px;
+  color: var(--md-on-surface-med);
+  border-bottom: 1px solid var(--md-outline-var);
+  transition: background 0.15s;
+}
+.hist-item:hover { background: rgba(255,255,255,0.03); }
+.hist-ico { width: 28px; height: 28px; border-radius: 8px; background: var(--md-surface-2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.hist-ico svg { width: 14px; height: 14px; }
+.hist-text {
+  flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  cursor: pointer; font-size: 13px; font-weight: 500;
+}
+.hist-text:hover { color: var(--md-on-surface); }
+.hist-del {
+  background: none; border: none; color: var(--md-red);
+  opacity: 0.35; cursor: pointer; padding: 4px; border-radius: 6px;
+  display: flex; transition: opacity 0.2s;
+}
+.hist-del:hover { opacity: 0.9; }
+.hist-clear {
+  width: calc(100% - 32px); margin: 8px 16px;
+  padding: 10px 14px; border-radius: var(--radius-sm);
+  background: rgba(248,113,113,0.06); border: 1px solid rgba(248,113,113,0.18);
+  color: var(--md-red); font-size: 12px; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; gap: 8px;
+  transition: background 0.2s;
+}
+.hist-clear:hover { background: rgba(248,113,113,0.12); }
+
+.sb-footer {
+  padding: 12px 16px 20px;
+  border-top: 1px solid var(--md-outline);
+}
+.sb-tg-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; border-radius: var(--radius-md);
+  background: rgba(56,189,248,0.06); border: 1px solid rgba(56,189,248,0.18);
+  color: var(--md-primary); font-size: 13px; font-weight: 600;
+  cursor: pointer; text-decoration: none; transition: background 0.2s; width: 100%;
+}
+.sb-tg-btn:hover { background: rgba(56,189,248,0.12); }
+.sb-version {
+  font-size: 10px; color: var(--md-on-surface-low);
+  text-align: center; margin-top: 10px; letter-spacing: 1px;
+}
+
+/* ══════════════════════════════════════════
+   MD3 CARDS
+══════════════════════════════════════════ */
+.md-card {
+  margin: 10px 14px;
+  background: var(--md-surface-1);
+  border: 1px solid var(--md-outline);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.md-card-elevated {
+  background: var(--md-surface-2);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.3);
+}
+
+.section-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 1.8px;
+  color: var(--md-on-surface-low); padding: 14px 14px 6px;
+  text-transform: uppercase;
+}
+
+/* ══════════════════════════════════════════
+   PAGE HEADER
+══════════════════════════════════════════ */
+.page-header {
+  padding: 20px 16px 16px;
+  background: linear-gradient(135deg, rgba(var(--accent-rgb),0.06) 0%, transparent 65%);
+  border-bottom: 1px solid rgba(var(--accent-rgb),0.1);
+}
+.page-eyebrow {
+  font-size: 10px; font-weight: 600; letter-spacing: 2.5px;
+  color: rgba(var(--accent-rgb),0.65); margin-bottom: 4px;
+  text-transform: uppercase; display: flex; align-items: center; gap: 6px;
+}
+.page-eyebrow svg { width: 12px; height: 12px; }
+.page-title { font-size: 24px; font-weight: 800; color: var(--md-on-surface); }
+.page-sub { font-size: 12px; color: var(--md-on-surface-low); margin-top: 3px; }
+
+/* ══════════════════════════════════════════
+   MD3 LOADER (full-screen)
+══════════════════════════════════════════ */
+#loader {
+  display: none; position: fixed; inset: 0; z-index: 500;
+  background: rgba(13,17,23,0.88); backdrop-filter: blur(12px);
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 18px;
+}
+#loader.show { display: flex; }
+.loader-ring { width: 52px; height: 52px; position: relative; }
+.loader-ring::before, .loader-ring::after {
+  content: ''; position: absolute; inset: 0;
+  border-radius: 50%; border: 2.5px solid transparent;
+}
+.loader-ring::before { border-top-color: var(--md-primary); animation: spin 0.85s linear infinite; }
+.loader-ring::after { border-bottom-color: var(--md-green); animation: spin 1.25s linear infinite reverse; inset: 8px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loader-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--md-primary);
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  box-shadow: 0 0 12px var(--md-primary);
+}
+.loader-txt {
+  font-size: 11px; letter-spacing: 2.5px; color: var(--md-primary);
+  font-weight: 600; text-transform: uppercase;
+}
+
+/* ══════════════════════════════════════════
+   MD3 SNACKBAR (Toast)
+══════════════════════════════════════════ */
+#toast {
+  position: fixed;
+  bottom: calc(var(--bn-h) + 12px); left: 16px; right: 16px;
+  max-width: 480px; margin: 0 auto;
+  transform: translateY(12px);
+  background: #2a3040;
+  border-radius: 12px;
+  color: var(--md-on-surface);
+  padding: 12px 16px;
+  font-size: 13px; font-weight: 500;
+  z-index: 400; opacity: 0;
+  transition: opacity 0.25s, transform 0.25s cubic-bezier(.34,1.56,.64,1);
+  pointer-events: none;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+  display: flex; align-items: center; gap: 8px;
+}
+#toast.show { opacity: 1; transform: translateY(0); }
+
+/* ══════════════════════════════════════════
+   MD3 NOTIFICATION
+══════════════════════════════════════════ */
+#notif {
+  position: fixed; top: 70px; left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  min-width: 220px; max-width: 90%;
+  background: var(--md-surface-2);
+  border: 1px solid var(--md-outline);
+  border-radius: var(--radius-md);
+  padding: 12px 16px; z-index: 450;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; font-weight: 600;
+  transition: transform 0.35s cubic-bezier(.34,1.56,.64,1), opacity 0.35s;
+  opacity: 0; pointer-events: none;
+  box-shadow: 0 10px 36px rgba(0,0,0,0.5);
+}
+#notif.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.notif-icon { font-size: 16px; }
+.notif-msg { flex: 1; }
+
+/* ══════════════════════════════════════════
+   ELEMENT BOTTOM SHEET (MD3 Modal Sheet)
+══════════════════════════════════════════ */
+#el-popup {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.65); backdrop-filter: blur(8px);
+  align-items: flex-end; justify-content: center;
+}
+#el-popup.show { display: flex; }
+.el-popup-card {
+  background: var(--md-surface-2);
+  border: 1px solid var(--md-outline);
+  border-radius: 28px 28px 0 0;
+  padding: 0 0 32px;
+  width: 100%; max-width: 600px;
+  position: relative;
+  animation: slideUp 0.3s cubic-bezier(.34,1.2,.64,1);
+  max-height: 88vh; overflow-y: auto;
+}
+@keyframes slideUp { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.ep-handle {
+  width: 36px; height: 4px; border-radius: 2px;
+  background: rgba(255,255,255,0.2); margin: 12px auto 20px;
+}
+.ep-header {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 0 20px 18px;
+  border-bottom: 1px solid var(--md-outline-var);
+}
+.ep-sym-badge {
+  width: 64px; height: 64px; border-radius: 18px;
+  background: var(--md-surface-3);
+  border: 1.5px solid rgba(var(--accent-rgb),0.25);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.ep-sym {
+  font-size: 26px; font-weight: 900; line-height: 1;
+  color: var(--md-cyan);
+}
+.ep-info { flex: 1; }
+.ep-name { font-size: 20px; font-weight: 800; color: var(--md-on-surface); }
+.ep-meta { font-size: 12px; color: var(--md-on-surface-med); margin-top: 3px; }
+.ep-cat {
+  display: inline-block; margin-top: 6px;
+  font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px;
+  background: rgba(56,189,248,0.1); color: var(--md-cyan);
+  border: 1px solid rgba(56,189,248,0.2);
+}
+.ep-close {
+  position: absolute; top: 14px; right: 16px;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--md-outline);
+  color: var(--md-on-surface-med); font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background 0.2s;
+}
+.ep-close:hover { background: rgba(255,255,255,0.1); }
+.ep-canvas-wrap {
+  width: 100%; height: 90px; margin: 14px 0 4px;
+  border-radius: var(--radius-sm); overflow: hidden;
+  background: var(--md-surface);
+}
+.ep-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+  background: var(--md-outline-var);
+  margin: 16px 20px 0; border-radius: var(--radius-md); overflow: hidden;
+}
+.ep-grid-item {
+  padding: 12px 14px; background: var(--md-surface-1);
+}
+.ep-grid-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 1px;
+  color: var(--md-cyan); text-transform: uppercase; margin-bottom: 3px;
+}
+.ep-grid-val { font-size: 14px; font-weight: 700; color: var(--md-on-surface); }
+
+.ep-action-btn {
+  margin: 16px 20px 0; width: calc(100% - 40px);
+  padding: 14px; border-radius: var(--radius-md);
+  background: rgba(74,222,128,0.1); border: 1.5px solid rgba(74,222,128,0.3);
+  color: var(--md-green); font-size: 14px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  cursor: pointer; transition: all 0.2s;
+}
+.ep-action-btn:hover { background: rgba(74,222,128,0.18); }
+.ep-action-btn svg { width: 18px; height: 18px; }
+
+/* ══════════════════════════════════════════
+   PAGE 0 — REACTION LAB
+══════════════════════════════════════════ */
+#page-0 {
+  --accent: #4ade80; --accent-rgb: 74,222,128;
+  background: linear-gradient(180deg, #091210 0%, var(--md-surface) 100%);
+}
+
+.rxn-screen {
+  margin: 12px 14px;
+  background: rgba(0,0,0,0.55);
+  border-radius: var(--radius-lg);
+  border: 1.5px solid rgba(74,222,128,0.22);
+  padding: 16px; position: relative; overflow: hidden;
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.7);
+}
+.rxn-screen::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(74,222,128,0.025) 20px),
+    repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(74,222,128,0.025) 20px);
+}
+.rxn-formula {
+  font-family: var(--mono); font-size: 20px; color: #4ade80;
+  min-height: 32px; word-break: break-all;
+  text-shadow: 0 0 12px rgba(74,222,128,0.5);
+  position: relative; z-index: 1; line-height: 1.4;
+  letter-spacing: 1px;
+}
+.rxn-status-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 10px; position: relative; z-index: 1;
+}
+.rxn-status-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #4ade80; box-shadow: 0 0 6px #4ade80;
+  animation: statusPulse 2s ease-in-out infinite;
+}
+@keyframes statusPulse {
+  0%,100%{opacity:1;box-shadow:0 0 6px #4ade80}
+  50%{opacity:0.3;box-shadow:0 0 2px #4ade80}
+}
+.rxn-status-txt { font-size: 10px; letter-spacing: 2px; color: rgba(74,222,128,0.5); font-weight: 600; }
+
+.rxn-input-wrap { margin: 0 14px 10px; }
+.rxn-input-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
+  color: rgba(74,222,128,0.55); margin-bottom: 8px; display: block; text-transform: uppercase;
+}
+.rxn-kb-input {
+  width: 100%; padding: 14px 16px;
+  background: rgba(0,0,0,0.45);
+  border: 1.5px solid rgba(74,222,128,0.22);
+  border-radius: var(--radius-md);
+  color: #4ade80; font-size: 17px; font-family: var(--mono);
+  outline: none; letter-spacing: 0.5px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.rxn-kb-input::placeholder { color: rgba(74,222,128,0.2); }
+.rxn-kb-input:focus {
+  border-color: rgba(74,222,128,0.5);
+  box-shadow: 0 0 0 3px rgba(74,222,128,0.07);
+}
+
+.rxn-analyze-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin: 4px 14px 10px;
+  background: linear-gradient(135deg, rgba(74,222,128,0.14), rgba(74,222,128,0.05));
+  border: 1.5px solid rgba(74,222,128,0.35);
+  border-radius: var(--radius-md);
+  color: #4ade80; font-size: 14px; font-weight: 700; letter-spacing: 1.5px;
+  padding: 16px; cursor: pointer;
+  transition: all 0.22s; position: relative; overflow: hidden;
+  text-transform: uppercase;
+}
+.rxn-analyze-btn:hover { background: rgba(74,222,128,0.2); box-shadow: 0 0 32px rgba(74,222,128,0.15); }
+.rxn-analyze-btn:active { transform: scale(0.98); }
+.analyze-icon { width: 20px; height: 20px; }
+.rxn-analyze-btn svg { width: 20px; height: 20px; }
+
+.rxn-result {
+  margin: 0 14px 10px; padding: 14px 16px;
+  background: rgba(0,0,0,0.35);
+  border-radius: var(--radius-md);
+  border-left: 3px solid #4ade80;
+  font-size: 13px; line-height: 1.75; display: none;
+}
+.rxn-visual {
+  margin: 0 14px 16px; border-radius: var(--radius-md); overflow: hidden;
+  border: 1px solid rgba(74,222,128,0.12);
+  background: #000; position: relative; display: none;
+}
+#reactionCanvas { display: block; width: 100%; height: 240px; }
+.rxn-visual-type {
+  position: absolute; top: 8px; left: 10px;
+  font-size: 9px; font-weight: 700; letter-spacing: 2px;
+  color: rgba(74,222,128,0.6); background: rgba(0,0,0,0.65);
+  padding: 4px 10px; border-radius: 8px;
+}
+#ph-tag {
+  position: absolute; top: 8px; right: 10px;
+  font-size: 10px; padding: 4px 10px; border-radius: 8px; font-weight: 800; display: none;
+}
+
+/* ══════════════════════════════════════════
+   PAGE 1 — AR + MOLECULE
+══════════════════════════════════════════ */
+#page-1 {
+  --accent: #a78bfa; --accent-rgb: 167,139,250;
+  background: var(--md-surface);
+}
+
+.ar-viewfinder {
+  margin: 12px 14px; border-radius: var(--radius-lg); overflow: hidden;
+  position: relative; background: #000;
+  border: 1.5px solid rgba(167,139,250,0.2);
+}
+#webcam { width: 100%; height: 210px; object-fit: cover; display: block; opacity: 0.88; }
+.ar-hud { position: absolute; inset: 0; pointer-events: none; }
+.ar-corner { position: absolute; width: 20px; height: 20px; border-color: rgba(167,139,250,0.8); border-style: solid; }
+.ar-corner-tl { top: 10px; left: 10px; border-width: 2px 0 0 2px; border-radius: 2px 0 0 0; }
+.ar-corner-tr { top: 10px; right: 10px; border-width: 2px 2px 0 0; border-radius: 0 2px 0 0; }
+.ar-corner-bl { bottom: 10px; left: 10px; border-width: 0 0 2px 2px; border-radius: 0 0 0 2px; }
+.ar-corner-br { bottom: 10px; right: 10px; border-width: 0 2px 2px 0; border-radius: 0 0 2px 0; }
+.ar-scan-line {
+  position: absolute; left: 0; right: 0; height: 1.5px;
+  background: linear-gradient(90deg, transparent, rgba(167,139,250,0.7), transparent);
+  animation: arScan 2.5s linear infinite; top: 0;
+}
+@keyframes arScan { 0%{top:0%;opacity:0.8}50%{opacity:1}100%{top:100%;opacity:0.8} }
+.ar-crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 30px; height: 30px; }
+.ar-crosshair::before, .ar-crosshair::after { content: ''; position: absolute; background: rgba(167,139,250,0.5); }
+.ar-crosshair::before { width: 1.5px; height: 100%; left: 50%; transform: translateX(-50%); }
+.ar-crosshair::after { height: 1.5px; width: 100%; top: 50%; transform: translateY(-50%); }
+.ar-status-badge {
+  position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.8); border: 1px solid rgba(167,139,250,0.35);
+  color: rgba(167,139,250,0.9); font-size: 9px; font-weight: 700; letter-spacing: 2px;
+  padding: 4px 12px; border-radius: 20px; white-space: nowrap;
+}
+#ar-mol-canvas { position: absolute; inset: 0; pointer-events: none; width: 100%; height: 100%; }
+
+.ar-search-wrap { margin: 10px 14px; display: flex; gap: 8px; }
+.ar-search-input {
+  flex: 1; padding: 13px 15px;
+  background: var(--md-surface-1);
+  border: 1.5px solid rgba(167,139,250,0.2);
+  border-radius: var(--radius-md); color: var(--md-on-surface); font-size: 14px; outline: none;
+  transition: all 0.2s;
+}
+.ar-search-input::placeholder { color: var(--md-on-surface-low); }
+.ar-search-input:focus { border-color: rgba(167,139,250,0.5); background: var(--md-surface-2); }
+.ar-load-btn {
+  padding: 13px 18px; border-radius: var(--radius-md);
+  background: rgba(167,139,250,0.1); border: 1.5px solid rgba(167,139,250,0.28);
+  color: var(--md-purple); font-size: 13px; font-weight: 700; cursor: pointer;
+  white-space: nowrap; transition: all 0.2s;
+  display: flex; align-items: center; gap: 6px;
+}
+.ar-load-btn:hover { background: rgba(167,139,250,0.2); }
+.ar-load-btn:active { transform: scale(0.97); }
+.ar-load-btn svg { width: 16px; height: 16px; }
+
+/* Molecule info panel */
+.mol-info-panel {
+  margin: 10px 14px;
+  background: var(--md-surface-1);
+  border: 1px solid rgba(167,139,250,0.18);
+  border-radius: var(--radius-lg);
+  overflow: hidden; display: none;
+}
+.mol-info-panel.show { display: block; }
+.mol-info-panel-head {
+  padding: 14px 16px;
+  background: linear-gradient(135deg, rgba(167,139,250,0.08) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(167,139,250,0.1);
+}
+.mol-info-name { font-size: 17px; font-weight: 800; color: var(--md-on-surface); }
+.mol-info-formula { font-family: var(--mono); font-size: 13px; color: var(--md-purple); font-weight: 600; margin-top: 2px; }
+.mol-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.mol-info-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--md-outline-var);
+  border-right: 1px solid var(--md-outline-var);
+}
+.mol-info-item:nth-child(even) { border-right: none; }
+.mol-info-item:last-child, .mol-info-item:nth-last-child(2):nth-child(odd) { border-bottom: none; }
+.mol-info-label { font-size: 9px; color: var(--md-purple); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 4px; }
+.mol-info-val { font-size: 13px; font-weight: 700; color: var(--md-on-surface); word-break: break-word; }
+.mol-info-full {
+  padding: 12px 16px;
+  border-top: 1px solid var(--md-outline-var);
+  font-size: 12px; line-height: 1.7;
+}
+.mol-info-full-label { font-size: 9px; color: var(--md-purple); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 4px; }
+
+/* ══════════════════════════════════════════
+   PAGE 2 — MOLAR MASS
+══════════════════════════════════════════ */
+#page-2 {
+  --accent: #fbbf24; --accent-rgb: 251,191,36;
+  background: linear-gradient(180deg, #100a00 0%, var(--md-surface) 100%);
+}
+
+.mr-balance-stage {
+  margin: 12px 14px; height: 100px;
+  background: rgba(0,0,0,0.5); border-radius: var(--radius-md);
+  border: 1px solid rgba(251,191,36,0.12); overflow: hidden;
+}
+#balanceCanvas { display: block; width: 100%; height: 100px; }
+
+.mr-input-wrap { margin: 10px 14px; }
+.mr-formula-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
+  color: rgba(251,191,36,0.55); margin-bottom: 8px; display: block; text-transform: uppercase;
+}
+.mr-formula-input {
+  width: 100%; padding: 13px 16px;
+  background: rgba(0,0,0,0.4); border: 1.5px solid rgba(251,191,36,0.22);
+  border-radius: var(--radius-md); color: #fbbf24; font-size: 18px;
+  font-family: var(--mono); font-weight: 700; letter-spacing: 0.5px; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.mr-formula-input::placeholder { color: rgba(251,191,36,0.18); }
+.mr-formula-input:focus { border-color: rgba(251,191,36,0.5); box-shadow: 0 0 0 3px rgba(251,191,36,0.06); }
+
+.mr-calc-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin: 10px 14px; padding: 15px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(251,191,36,0.14), rgba(251,191,36,0.04));
+  border: 1.5px solid rgba(251,191,36,0.32);
+  color: #fbbf24; font-size: 14px; font-weight: 700; letter-spacing: 1.5px;
+  cursor: pointer; transition: all 0.22s; text-transform: uppercase;
+}
+.mr-calc-btn:hover { background: rgba(251,191,36,0.2); box-shadow: 0 0 28px rgba(251,191,36,0.12); }
+.mr-calc-btn:active { transform: scale(0.98); }
+.mr-calc-btn svg { width: 18px; height: 18px; }
+
+.mr-mol-stage { margin: 0 14px; border-radius: var(--radius-md); overflow: hidden; background: #000; border: 1px solid rgba(251,191,36,0.1); display: none; }
+#molCanvas { display: block; width: 100%; height: 120px; }
+
+.mr-result {
+  margin: 10px 14px; border-radius: var(--radius-lg); overflow: hidden;
+  border: 1px solid rgba(251,191,36,0.14); display: none;
+  background: var(--md-surface-1);
+}
+.mr-result-head {
+  padding: 11px 16px;
+  background: rgba(251,191,36,0.05);
+  border-bottom: 1px solid rgba(251,191,36,0.08);
+  font-size: 10px; font-weight: 700; color: rgba(251,191,36,0.65); letter-spacing: 1.5px;
+  text-transform: uppercase; display: flex; align-items: center; gap: 6px;
+}
+.mr-result-head svg { width: 14px; height: 14px; }
+.mr-compound-name {
+  padding: 14px; font-size: 17px; font-weight: 800; color: var(--md-on-surface);
+  border-bottom: 1px solid var(--md-outline-var);
+  background: rgba(0,0,0,0.2); text-align: center;
+}
+.mr-elements-list { padding: 12px 16px; font-family: var(--mono); font-size: 12px; line-height: 2; color: var(--md-on-surface-med); }
+.mr-elem-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid var(--md-outline-var); }
+.mr-elem-row:last-child { border-bottom: none; }
+.mr-elem-sym { font-weight: 800; font-size: 15px; }
+.mr-elem-math { color: var(--md-on-surface-low); font-size: 11px; }
+.mr-elem-mass { font-weight: 700; }
+.mr-total-bar {
+  padding: 16px 14px; text-align: center;
+  background: linear-gradient(135deg, rgba(251,191,36,0.08), rgba(251,191,36,0.02));
+  border-top: 1px solid rgba(251,191,36,0.12);
+}
+.mr-total-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: rgba(251,191,36,0.5); text-transform: uppercase; }
+.mr-total-val { font-size: 36px; font-weight: 900; color: #fbbf24; text-shadow: 0 0 20px rgba(251,191,36,0.35); line-height: 1.2; }
+
+/* ══════════════════════════════════════════
+   PAGE 3 — PERIODIC TABLE
+══════════════════════════════════════════ */
+#page-3 { --accent: #22d3ee; --accent-rgb: 34,211,238; background: var(--md-surface); }
+
+.pt-gift { font-size: 10px; padding: 3px 10px; border-radius: 10px; background: rgba(34,211,238,0.1); color: var(--md-cyan); font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+.pt-gift-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--md-cyan); }
+.pt-search-bar {
+  margin: 10px 14px; display: flex; align-items: center; gap: 10px;
+  background: var(--md-surface-1); border: 1px solid var(--md-outline);
+  border-radius: var(--radius-md); padding: 11px 14px;
+}
+.pt-search-ico { width: 18px; height: 18px; color: var(--md-on-surface-low); flex-shrink: 0; }
+.pt-search-ico svg { width: 18px; height: 18px; }
+.pt-search-bar input {
+  flex: 1; background: none; border: none; outline: none;
+  color: var(--md-on-surface); font-size: 14px; font-family: var(--font);
+}
+.pt-search-bar input::placeholder { color: var(--md-on-surface-low); }
+
+.pt-scroll-wrap { overflow-x: auto; padding: 0 14px; scrollbar-width: thin; }
+.pt-grid {
+  display: grid; grid-template-columns: repeat(18, minmax(34px,1fr));
+  gap: 3px; min-width: 600px; padding: 8px 0;
+}
+.pt-cell {
+  aspect-ratio: 1; border-radius: 7px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.15s;
+  border: 1px solid transparent; padding: 2px;
+}
+.pt-cell:hover { transform: scale(1.14); z-index: 5; border-color: rgba(255,255,255,0.4); box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+.pt-cell .num { font-size: 6px; color: rgba(255,255,255,0.4); font-weight: 700; line-height: 1; }
+.pt-cell .sym { font-size: 11px; font-weight: 800; line-height: 1.1; }
+.pt-cell .pname { font-size: 5px; color: rgba(255,255,255,0.35); line-height: 1; margin-top: 1px; }
+.pt-empty { aspect-ratio: 1; }
+@keyframes flash { 0%,100%{opacity:1}50%{opacity:0.2} }
+.pt-cell.flash { animation: flash 0.5s; }
+
+.cat-alkali { background: rgba(255,80,80,0.15); border-color: rgba(255,80,80,0.1); color: #fca5a5; }
+.cat-alkaline { background: rgba(255,180,30,0.15); border-color: rgba(255,180,30,0.1); color: #fcd34d; }
+.cat-transition { background: rgba(56,189,248,0.1); border-color: rgba(56,189,248,0.08); color: #7dd3fc; }
+.cat-other { background: rgba(150,150,255,0.1); border-color: rgba(150,150,255,0.07); color: #c4b5fd; }
+.cat-metalloid { background: rgba(80,200,180,0.1); border-color: rgba(80,200,180,0.07); color: #6ee7b7; }
+.cat-nonmetal { background: rgba(100,160,255,0.13); border-color: rgba(100,160,255,0.09); color: #93c5fd; }
+.cat-halogen { background: rgba(160,110,255,0.13); border-color: rgba(160,110,255,0.09); color: #c4b5fd; }
+.cat-noble { background: rgba(255,100,180,0.13); border-color: rgba(255,100,180,0.09); color: #f9a8d4; }
+.cat-lanthanide { background: rgba(255,200,80,0.1); border-color: rgba(255,200,80,0.07); color: #fde68a; }
+.cat-actinide { background: rgba(200,80,255,0.1); border-color: rgba(200,80,255,0.07); color: #e879f9; }
+
+.pt-legend { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 14px 14px; }
+.pt-legend-item {
+  font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 8px;
+  letter-spacing: 0.3px;
+}
+
+/* ══════════════════════════════════════════
+   PAGE 4 — SETTINGS
+══════════════════════════════════════════ */
+#page-4 { --accent: rgba(255,255,255,0.45); --accent-rgb: 255,255,255; background: var(--md-surface); }
+
+.sett-group {
+  margin: 10px 14px; border-radius: var(--radius-lg); overflow: hidden;
+  border: 1px solid var(--md-outline);
+  background: var(--md-surface-1);
+}
+.sett-group-head {
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid var(--md-outline-var);
+  font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--md-on-surface-low);
+  text-transform: uppercase; display: flex; align-items: center; gap: 10px;
+}
+.sett-group-icon { width: 16px; height: 16px; }
+.sett-group-icon svg { width: 16px; height: 16px; }
+.sett-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 15px 16px; border-bottom: 1px solid var(--md-outline-var);
+  transition: background 0.15s;
+}
+.sett-row:last-child { border-bottom: none; }
+.sett-row:hover { background: rgba(255,255,255,0.015); }
+.sett-label { font-size: 14px; font-weight: 500; color: var(--md-on-surface); }
+.sett-sub { font-size: 11px; color: var(--md-on-surface-low); margin-top: 2px; }
+.sett-input {
+  width: 130px; padding: 9px 12px;
+  background: var(--md-surface-2); border: 1px solid var(--md-outline);
+  border-radius: var(--radius-sm); color: var(--md-on-surface); font-size: 13px;
+  outline: none; transition: border-color 0.2s; font-family: var(--font);
+}
+.sett-input:focus { border-color: var(--md-primary); }
+
+/* MD3 Toggle */
+.toggle {
+  width: 48px; height: 26px; border-radius: 13px;
+  background: rgba(255,255,255,0.12); position: relative;
+  cursor: pointer; transition: background 0.25s; flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.08);
+  -webkit-tap-highlight-color: transparent;
+}
+.toggle.on { background: var(--md-primary); border-color: transparent; }
+.toggle::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 18px; height: 18px; border-radius: 9px; background: #fff;
+  transition: transform 0.25s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+.toggle.on::after { transform: translateX(22px); }
+
+/* Theme dots */
+.theme-dots { display: flex; gap: 8px; }
+.theme-dot {
+  width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
+  border: 2.5px solid transparent; transition: border-color 0.2s, transform 0.2s;
+}
+.theme-dot.active { border-color: #fff; transform: scale(1.15); }
+
+/* Language select */
+.lang-select {
+  background: var(--md-surface-2); border: 1px solid var(--md-outline);
+  color: var(--md-on-surface); padding: 9px 12px; border-radius: var(--radius-sm);
+  font-size: 13px; outline: none; cursor: pointer; font-family: var(--font);
+}
+
+/* Background picker */
+.bg-picker-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 14px; border-radius: var(--radius-sm);
+  background: rgba(56,189,248,0.06); border: 1px solid rgba(56,189,248,0.2);
+  color: var(--md-primary); font-size: 12px; font-weight: 600; cursor: pointer;
+  transition: background 0.2s;
+}
+.bg-picker-btn:hover { background: rgba(56,189,248,0.12); }
+.bg-picker-btn svg { width: 14px; height: 14px; }
+.bg-preview {
+  width: 44px; height: 30px; border-radius: 6px;
+  background: rgba(255,255,255,0.06) center/cover no-repeat;
+  border: 1px solid var(--md-outline); flex-shrink: 0;
+}
+#bg-file-input { display: none; }
+
+/* Music player */
+#music-file-input { display: none; }
+.music-pick-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 14px; border-radius: var(--radius-sm);
+  background: rgba(167,139,250,0.06); border: 1px solid rgba(167,139,250,0.2);
+  color: var(--md-purple); font-size: 12px; font-weight: 600; cursor: pointer;
+  transition: background 0.2s;
+}
+.music-pick-btn:hover { background: rgba(167,139,250,0.14); }
+.music-pick-btn svg { width: 14px; height: 14px; }
+.music-controls {
+  display: none; gap: 10px; margin: 10px 14px;
+  padding: 16px; border-radius: var(--radius-md);
+  background: var(--md-surface-1); border: 1px solid rgba(167,139,250,0.12);
+  flex-direction: column;
+}
+.music-controls.show { display: flex; }
+.music-track-name { font-size: 13px; font-weight: 600; color: var(--md-purple); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.music-btn-row { display: flex; gap: 8px; }
+.music-btn {
+  flex: 1; padding: 11px; border-radius: var(--radius-sm);
+  background: rgba(167,139,250,0.07); border: 1px solid rgba(167,139,250,0.15);
+  color: var(--md-purple); font-size: 15px; cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.music-btn:hover { background: rgba(167,139,250,0.18); }
+.music-btn.active-btn { background: rgba(167,139,250,0.2); border-color: rgba(167,139,250,0.5); }
+.music-volume-row { display: flex; align-items: center; gap: 10px; margin-top: 2px; }
+.music-vol-label { font-size: 11px; color: rgba(167,139,250,0.7); font-weight: 600; letter-spacing: 0.5px; white-space: nowrap; }
+input[type="range"] {
+  flex: 1; -webkit-appearance: none; height: 4px;
+  background: rgba(167,139,250,0.2); border-radius: 2px; outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px;
+  border-radius: 50%; background: var(--md-purple); cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.sett-danger-btn {
+  width: 100%; padding: 13px; border-radius: var(--radius-sm);
+  background: rgba(248,113,113,0.06); border: 1px solid rgba(248,113,113,0.18);
+  color: var(--md-red); font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: background 0.2s; text-align: left; display: flex; align-items: center; gap: 8px;
+}
+.sett-danger-btn:hover { background: rgba(248,113,113,0.12); }
+.sett-danger-btn svg { width: 16px; height: 16px; }
+
+.sett-tg-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 13px 16px;
+  color: var(--md-primary); font-size: 13px; font-weight: 600; cursor: pointer;
+  text-decoration: none; transition: background 0.2s;
+  border-bottom: 1px solid var(--md-outline-var);
+}
+.sett-tg-link:last-child { border-bottom: none; }
+.sett-tg-link:hover { background: rgba(56,189,248,0.05); }
+.sett-tg-link svg { width: 16px; height: 16px; }
+
+.sett-about-logo {
+  text-align: center; padding: 24px 14px 12px;
+}
+.about-atom-icon { width: 56px; height: 56px; margin: 0 auto; color: var(--md-primary); }
+.about-atom-icon svg { width: 56px; height: 56px; }
+.sett-about-name { text-align: center; font-size: 18px; font-weight: 800; letter-spacing: 1.5px; margin-top: 8px; }
+.sett-about-ver { text-align: center; font-size: 11px; color: var(--md-on-surface-low); margin-top: 3px; letter-spacing: 1px; }
+.sett-about-desc { text-align: center; font-size: 13px; color: var(--md-on-surface-med); margin: 12px 20px; line-height: 1.65; }
+.sett-footer { text-align: center; color: var(--md-on-surface-low); font-size: 11px; padding: 12px 14px 20px; letter-spacing: 0.5px; }
+
+/* Error states */
+.input-error { border-color: rgba(248,113,113,0.55) !important; }
+.err-msg { font-size: 11px; color: var(--md-red); margin-top: 5px; display: block; font-weight: 500; }
+
+/* p-section-label compat */
+.p-section-label { display: none; }
+</style>
+</head>
+<body>
+
+<!-- ═══ BACKGROUND ═══ -->
+<div id="bg-image" role="presentation"></div>
+<div id="bg-image-overlay" role="presentation"></div>
+<canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+<!-- ═══ SIDEBAR OVERLAY ═══ -->
+<div id="sidebar-overlay" onclick="closeSidebar()" role="presentation"></div>
+
+<!-- ═══ SIDEBAR (Profile + History) ═══ -->
+<nav id="sidebar" aria-label="Profil va tarix" role="navigation">
+  <div class="sb-head">
+    <div class="sb-avatar-wrap" onclick="document.getElementById('avatar-input').click()" role="button" tabindex="0" aria-label="Avatarni o'zgartirish" onkeydown="if(event.key==='Enter'||event.key===' ')document.getElementById('avatar-input').click()">
+      <img id="sb-avatar-img" class="sb-avatar" src="" alt="Foydalanuvchi avatari">
+      <div class="sb-avatar-edit" aria-hidden="true">✎</div>
+    </div>
+    <input type="file" id="avatar-input" accept="image/*" aria-label="Avatar rasm tanlash">
+    <div class="sb-info">
+      <div class="sb-name" id="sb-username" contenteditable="true" role="textbox" aria-label="Foydalanuvchi ismi" spellcheck="false">Kimyogar</div>
+      <div class="sb-tg" id="sb-tg-id">@username</div>
+    </div>
+  </div>
+
+  <!-- Hidden nav items — IDs kept for JS compatibility -->
+  <div class="sb-nav" aria-hidden="true">
+    <div class="sb-section" data-i18n="sb_pages">Bo'limlar</div>
+    <div class="sb-item active" id="sb-item-0" onclick="navigateTo(0);closeSidebar()" role="listitem" tabindex="-1" aria-current="page"><span data-i18n="nav_reaction">Reaksiya Lab</span></div>
+    <div class="sb-item" id="sb-item-1" onclick="navigateTo(1);closeSidebar()" role="listitem" tabindex="-1"><span data-i18n="nav_ar">AR Molekula</span></div>
+    <div class="sb-item" id="sb-item-2" onclick="navigateTo(2);closeSidebar()" role="listitem" tabindex="-1"><span data-i18n="nav_molar">Mr Kalkulyator</span></div>
+    <div class="sb-item" id="sb-item-3" onclick="navigateTo(3);closeSidebar()" role="listitem" tabindex="-1"><span data-i18n="nav_table">Davriy Jadval</span></div>
+    <div class="sb-item" id="sb-item-4" onclick="navigateTo(4);closeSidebar()" role="listitem" tabindex="-1"><span data-i18n="nav_settings">Sozlamalar</span></div>
+  </div>
+
+  <div class="sb-hist-section">
+    <div class="sb-hist-title" data-i18n="sb_history">Tarix</div>
+    <div id="hist-list" role="list" aria-label="Qidiruv tarixi"></div>
+    <button class="hist-clear" onclick="clearHistory()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+      <span data-i18n="btn_clear_history">Tarixni tozalash</span>
+    </button>
+  </div>
+
+  <div class="sb-footer">
+    <a class="sb-tg-btn" href="https://t.me/+O8q7VBCkZE4xOGZi" target="_blank" rel="noopener noreferrer" aria-label="Telegram guruhiga o'tish">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.285c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.936z"/></svg>
+      <span data-i18n="btn_contact">Admin bilan bog'lanish</span>
+    </a>
+    <div class="sb-version">AL KIMYOGAR PRO v4.0 • O'zMU</div>
+  </div>
+</nav>
+
+<!-- ═══ ELEMENT BOTTOM SHEET ═══ -->
+<div id="el-popup" role="dialog" aria-modal="true" aria-labelledby="ep-name">
+  <div class="el-popup-card">
+    <div class="ep-handle" aria-hidden="true"></div>
+    <button class="ep-close" onclick="closeElPopup()" aria-label="Yopish">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+
+    <div class="ep-header">
+      <div class="ep-sym-badge">
+        <div class="ep-sym" id="ep-sym" style="color:var(--md-cyan)" aria-hidden="true"></div>
+      </div>
+      <div class="ep-info">
+        <div class="ep-name" id="ep-name"></div>
+        <div class="ep-meta">
+          <span id="ep-num"></span> &nbsp;·&nbsp; <span id="ep-mass"></span>
+        </div>
+        <span class="ep-cat" id="ep-cat"></span>
+      </div>
+    </div>
+
+    <div style="padding: 0 20px;">
+      <div class="ep-canvas-wrap">
+        <canvas id="ep-orbit-canvas" width="276" height="90" aria-label="Elektron orbital animatsiyasi"></canvas>
+      </div>
+    </div>
+
+    <div style="padding: 4px 20px 0; font-size: 11px; color: var(--md-on-surface-low);" id="ep-conf"></div>
+
+    <div class="ep-grid">
+      <div class="ep-grid-item">
+        <div class="ep-grid-label" data-i18n="ep_atom_num">Atom raqami</div>
+        <div class="ep-grid-val" id="ep-num-val">—</div>
+      </div>
+      <div class="ep-grid-item">
+        <div class="ep-grid-label" data-i18n="ep_atom_mass">Atom massasi</div>
+        <div class="ep-grid-val" id="ep-mass-val">—</div>
+      </div>
+    </div>
+
+    <button onclick="useElementInReaction()" class="ep-action-btn" data-i18n="btn_add_to_reaction">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+      Reaksiyaga qo'shish
+    </button>
+  </div>
+</div>
+
+<!-- ═══ LOADER ═══ -->
+<div id="loader" role="status" aria-live="polite" aria-label="Yuklanyapti">
+  <div class="loader-ring"><div class="loader-dot" aria-hidden="true"></div></div>
+  <div class="loader-txt" id="loader-txt">TAHLIL KETMOQDA</div>
+</div>
+
+<!-- ═══ SNACKBAR (Toast) ═══ -->
+<div id="toast" role="status" aria-live="polite" aria-atomic="true">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="flex-shrink:0;color:var(--md-primary)"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+  <span id="toast-msg"></span>
+</div>
+
+<!-- ═══ NOTIFICATION ═══ -->
+<div id="notif" class="notif" role="alert" aria-live="assertive">
+  <span class="notif-icon" id="notif-icon" aria-hidden="true">✓</span>
+  <span class="notif-msg" id="notif-msg"></span>
+</div>
+
+<!-- ═══ APP ═══ -->
+<div id="app">
+  <!-- MD3 Top App Bar -->
+  <header id="topbar" role="banner">
+    <button id="menu-btn" onclick="openSidebar()" aria-label="Profil va tarixni ochish" aria-expanded="false" aria-controls="sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+        <circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+        <path d="M19 8v6M22 11h-6" stroke-linecap="round"/>
+      </svg>
+    </button>
+
+    <div class="topbar-title-wrap">
+      <div class="topbar-app-name">Al Kimyogar Pro</div>
+      <div id="topbar-title">
+        <span id="topbar-page" style="color:var(--md-green)">LAB</span>
+      </div>
+    </div>
+
+    <div id="topbar-badge" role="status">ONLINE</div>
+  </header>
+
+  <!-- Pages -->
+  <main id="pages" role="main">
+
+    <!-- ═══ PAGE 0: REACTION LAB ═══ -->
+    <section class="page active" id="page-0" aria-label="Reaksiya laboratoriyasi" aria-hidden="false">
+      <div class="page-header">
+        <div class="page-eyebrow" style="color:rgba(74,222,128,0.7)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+          <span data-i18n="rxn_eyebrow">KIMYO LABORATORIYASI</span>
+        </div>
+        <div class="page-title" data-i18n="rxn_title">Reaksiya Tahlilchi</div>
+        <div class="page-sub" style="color:rgba(74,222,128,0.5)" data-i18n="rxn_sub">Formulani kiriting va real animatsiyani ko'ring</div>
+      </div>
+
+      <!-- Formula display screen -->
+      <div class="rxn-screen" id="mainCard" aria-live="polite">
+        <div class="rxn-formula" id="display" aria-label="Kimyoviy formula ko'rsatgichi">...</div>
+        <div class="rxn-status-bar">
+          <div style="display:flex;align-items:center;gap:7px">
+            <div class="rxn-status-dot" id="status-dot" aria-hidden="true"></div>
+            <div class="rxn-status-txt" id="status" data-i18n="status_ready">TAYYOR</div>
+          </div>
+          <div style="font-size:9px;color:rgba(74,222,128,0.25);font-family:var(--mono)" aria-hidden="true">Al Kimyogar PRO</div>
+        </div>
+      </div>
+
+      <!-- Input -->
+      <div class="rxn-input-wrap">
+        <label class="rxn-input-label" for="manual-input" data-i18n="rxn_input_label">Kimyoviy formula yoki reaksiya</label>
+        <input
+          class="rxn-kb-input" id="manual-input"
+          placeholder="HCl + NaOH → ..."
+          type="text" autocomplete="off" spellcheck="false" maxlength="300"
+          oninput="syncInput()"
+          onkeydown="if(event.key==='Enter') askAI()"
+          aria-label="Kimyoviy formula kiritish"
+          aria-describedby="rxn-hint"
+        >
+        <span id="rxn-hint" class="err-msg" style="display:none"></span>
+      </div>
+
+      <!-- Analyze button -->
+      <button class="rxn-analyze-btn" onclick="askAI()" aria-label="Reaksiyani tahlil qilish">
+        <svg class="analyze-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/><path d="m15 13 2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span data-i18n="btn_analyze">Tahlil qilish</span>
+      </button>
+
+      <!-- Result -->
+      <div class="rxn-result" id="res-box" aria-live="polite"></div>
+
+      <!-- Visual canvas -->
+      <div class="rxn-visual" id="visual-container" aria-hidden="true">
+        <canvas id="reactionCanvas" aria-label="Kimyoviy reaksiya animatsiyasi"></canvas>
+        <div class="rxn-visual-type" id="rxn-type-label">REAKSIYA</div>
+        <div id="ph-tag"></div>
+      </div>
+      <div style="height:12px"></div>
+    </section>
+
+    <!-- ═══ PAGE 1: AR + MOLECULE INFO ═══ -->
+    <section class="page" id="page-1" aria-label="AR Molekula Ko'rinishi" aria-hidden="true">
+      <div class="page-header">
+        <div class="page-eyebrow" style="color:rgba(167,139,250,0.7)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M2 12h4M18 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+          <span data-i18n="ar_eyebrow">KENGAYTIRILGAN REALLIK</span>
+        </div>
+        <div class="page-title" data-i18n="ar_title">AR Molekula</div>
+      </div>
+
+      <!-- Camera viewfinder -->
+      <div class="ar-viewfinder" aria-label="Kamera ko'rinishi">
+        <video id="webcam" autoplay playsinline aria-label="Kamera oqimi" muted></video>
+        <canvas id="ar-mol-canvas" aria-hidden="true"></canvas>
+        <div class="ar-hud" aria-hidden="true">
+          <div class="ar-corner ar-corner-tl"></div>
+          <div class="ar-corner ar-corner-tr"></div>
+          <div class="ar-corner ar-corner-bl"></div>
+          <div class="ar-corner ar-corner-br"></div>
+          <div class="ar-scan-line"></div>
+          <div class="ar-crosshair"></div>
+          <div class="ar-status-badge" id="ar-badge" data-i18n="ar_camera_ready">● KAMERA TAYYOR</div>
+        </div>
+      </div>
+
+      <!-- 3D container -->
+      <div id="ar-3d-container" style="margin:0 14px;border-radius:var(--radius-md);overflow:hidden;background:#000;border:1px solid rgba(167,139,250,0.12);display:none;" aria-label="3D Molekula ko'rinishi">
+        <div id="ar-canvas" style="height:200px"></div>
+      </div>
+
+      <!-- Search -->
+      <div class="ar-search-wrap" role="search">
+        <label for="ar-input" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Modda nomini qidirish</label>
+        <input class="ar-search-input" id="ar-input" placeholder="Modda nomi (Caffeine, Ethanol...)" autocomplete="off" maxlength="100" aria-label="Modda nomi">
+        <button class="ar-load-btn" onclick="loadAR()" data-i18n="btn_load_ar" aria-label="Molekulani 3D ko'rsatish">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M2 12h4M18 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+          Ko'rsat
+        </button>
+      </div>
+
+      <!-- Molecule info panel -->
+      <div class="mol-info-panel" id="mol-info-panel" aria-label="Molekula ma'lumotlari" aria-live="polite">
+        <div class="mol-info-panel-head">
+          <div class="mol-info-name" id="mol-info-name">—</div>
+          <div class="mol-info-formula" id="mol-info-formula">—</div>
+        </div>
+        <div class="mol-info-grid">
+          <div class="mol-info-item">
+            <div class="mol-info-label" data-i18n="prop_mw">Molyar Massa</div>
+            <div class="mol-info-val" id="mol-mw">—</div>
+          </div>
+          <div class="mol-info-item">
+            <div class="mol-info-label" data-i18n="prop_state">Holat</div>
+            <div class="mol-info-val" id="mol-state">—</div>
+          </div>
+          <div class="mol-info-item">
+            <div class="mol-info-label" data-i18n="prop_density">Zichlik</div>
+            <div class="mol-info-val" id="mol-density">—</div>
+          </div>
+          <div class="mol-info-item">
+            <div class="mol-info-label" data-i18n="prop_mp">Erish harorati</div>
+            <div class="mol-info-val" id="mol-mp">—</div>
+          </div>
+          <div class="mol-info-item">
+            <div class="mol-info-label" data-i18n="prop_bp">Qaynash harorati</div>
+            <div class="mol-info-val" id="mol-bp">—</div>
+          </div>
+          <div class="mol-info-item">
+            <div class="mol-info-label" data-i18n="prop_solubility">Eruvchanligi</div>
+            <div class="mol-info-val" id="mol-solubility">—</div>
+          </div>
+          <div class="mol-info-item">
+            <div class="mol-info-label" data-i18n="prop_color">Rangi</div>
+            <div class="mol-info-val" id="mol-color">—</div>
+          </div>
+          <div class="mol-info-item">
+            <div class="mol-info-label" data-i18n="prop_prop">Xossasi</div>
+            <div class="mol-info-val" id="mol-prop">—</div>
+          </div>
+        </div>
+        <div class="mol-info-full" id="mol-uses-wrap" style="display:none">
+          <div class="mol-info-full-label" data-i18n="prop_uses">Ishlatilishi</div>
+          <div id="mol-uses" style="font-size:12px;color:var(--md-on-surface-med);line-height:1.7;margin-top:4px"></div>
+        </div>
+        <div class="mol-info-full" id="mol-hazards-wrap" style="display:none;border-top:1px solid var(--md-outline-var)">
+          <div class="mol-info-full-label" style="color:var(--md-red)" data-i18n="prop_hazards">Xavfliligi</div>
+          <div id="mol-hazards" style="font-size:12px;color:rgba(248,113,113,0.8);line-height:1.7;margin-top:4px"></div>
+        </div>
+        <div class="mol-info-full" id="mol-notes-wrap" style="display:none;border-top:1px solid var(--md-outline-var)">
+          <div class="mol-info-full-label" style="color:var(--md-amber)" data-i18n="prop_notes">Izohlar</div>
+          <div id="mol-notes" style="font-size:12px;color:rgba(251,191,36,0.75);line-height:1.7;margin-top:4px"></div>
+        </div>
+      </div>
+      <div style="height:12px"></div>
+    </section>
+
+    <!-- ═══ PAGE 2: MOLAR MASS ═══ -->
+    <section class="page" id="page-2" aria-label="Mr Kalkulyator" aria-hidden="true">
+      <div class="page-header">
+        <div class="page-eyebrow" style="color:rgba(251,191,36,0.7)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span data-i18n="mr_eyebrow">ANALITIK MODUL</span>
+        </div>
+        <div class="page-title" data-i18n="mr_title">Mr Kalkulyator</div>
+      </div>
+
+      <!-- Balance animation -->
+      <div class="mr-balance-stage" aria-hidden="true">
+        <canvas id="balanceCanvas" aria-label="Analitik tarozi animatsiyasi"></canvas>
+      </div>
+
+      <div class="mr-input-wrap">
+        <label class="mr-formula-label" for="molar-input" data-i18n="mr_input_label">Kimyoviy formula yoki modda nomi</label>
+        <input class="mr-formula-input" id="molar-input" placeholder="H₂SO₄  yoki  Glucose  yoki  NaCl" type="text" onkeydown="if(event.key==='Enter')calcMolar()" maxlength="200" aria-describedby="molar-hint">
+        <span id="molar-hint" class="err-msg" style="display:none"></span>
+      </div>
+
+      <button class="mr-calc-btn" onclick="calcMolar()" aria-label="Molyar massani hisoblash">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h8M8 14h4"/><path d="M15 17l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span data-i18n="btn_calculate">Hisoblash</span>
+      </button>
+
+      <div class="mr-mol-stage" id="mol-stage" aria-hidden="true">
+        <canvas id="molCanvas" aria-label="Molekula tuzilishi animatsiyasi"></canvas>
+      </div>
+
+      <div class="mr-result" id="molar-res" aria-live="polite" role="region" aria-label="Molyar massa natijalari">
+        <div class="mr-result-head">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 21l-4.35-4.35"/><circle cx="11" cy="11" r="8"/></svg>
+          <span data-i18n="mr_results">Tahlil natijalari</span>
+        </div>
+        <div class="mr-compound-name" id="molar-name"></div>
+        <div class="mr-elements-list" id="molar-details"></div>
+        <div class="mr-total-bar">
+          <div class="mr-total-label" data-i18n="mr_total">Molyar massa</div>
+          <div class="mr-total-val" id="molar-total"></div>
+        </div>
+      </div>
+      <div style="height:12px"></div>
+    </section>
+
+    <!-- ═══ PAGE 3: PERIODIC TABLE ═══ -->
+    <section class="page" id="page-3" aria-label="Davriy Jadval" aria-hidden="true">
+      <div class="page-header">
+        <div class="page-eyebrow" style="color:rgba(34,211,238,0.65)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          <span data-i18n="pt_eyebrow">MENDELEEV JADVAL</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="page-title" data-i18n="pt_title">Davriy Jadval</div>
+          <span class="pt-gift">
+            <span class="pt-gift-dot"></span>
+            <span data-i18n="pt_interactive">Interaktiv</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="pt-search-bar" role="search">
+        <span class="pt-search-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" stroke-linecap="round"/></svg>
+        </span>
+        <input type="text" id="pt-search" placeholder="Element qidirish..." oninput="filterPT(this.value)" data-i18n-placeholder="pt_search_placeholder" maxlength="50" aria-label="Element qidirish">
+      </div>
+
+      <!-- Table -->
+      <div class="pt-scroll-wrap" role="region" aria-label="Davriy jadval">
+        <div class="pt-grid" id="pt-grid" role="grid" aria-label="Mendeleev davriy jadvali"></div>
+      </div>
+
+      <!-- Legend -->
+      <div class="pt-legend" role="list" aria-label="Element kategoriyalari">
+        <span class="pt-legend-item" style="background:rgba(255,80,80,0.16);color:#fca5a5" data-i18n="cat_alkali" role="listitem">Ishqoriy metal</span>
+        <span class="pt-legend-item" style="background:rgba(255,180,30,0.16);color:#fcd34d" data-i18n="cat_alkaline" role="listitem">Ishqoriy-yer</span>
+        <span class="pt-legend-item" style="background:rgba(56,189,248,0.14);color:#7dd3fc" data-i18n="cat_transition" role="listitem">O'tish metali</span>
+        <span class="pt-legend-item" style="background:rgba(100,160,255,0.16);color:#93c5fd" data-i18n="cat_nonmetal" role="listitem">Ametall</span>
+        <span class="pt-legend-item" style="background:rgba(160,110,255,0.16);color:#c4b5fd" data-i18n="cat_halogen" role="listitem">Galogen</span>
+        <span class="pt-legend-item" style="background:rgba(255,100,180,0.16);color:#f9a8d4" data-i18n="cat_noble" role="listitem">Nodir gaz</span>
+      </div>
+      <div style="height:12px"></div>
+    </section>
+
+    <!-- ═══ PAGE 4: SETTINGS ═══ -->
+    <section class="page" id="page-4" aria-label="Sozlamalar" aria-hidden="true">
+      <div class="page-header" style="--accent-rgb:255,255,255;background:linear-gradient(135deg,rgba(255,255,255,0.03) 0%,transparent 60%);border-bottom:1px solid rgba(255,255,255,0.06)">
+        <div class="page-eyebrow" style="color:rgba(255,255,255,0.35)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+          <span data-i18n="sett_eyebrow">Sozlama paneli</span>
+        </div>
+        <div class="page-title" data-i18n="sett_title">Sozlamalar</div>
+      </div>
+
+      <!-- Profile -->
+      <div class="sett-group">
+        <div class="sett-group-head">
+          <span class="sett-group-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          </span>
+          <span data-i18n="sett_profile">Profil</span>
+        </div>
+        <div class="sett-row">
+          <div><label class="sett-label" for="sett-name" data-i18n="sett_name">Ism</label></div>
+          <input class="sett-input" id="sett-name" oninput="updateProfileName(this.value)" placeholder="Kimyogar" maxlength="50" aria-label="Foydalanuvchi ismi">
+        </div>
+        <div class="sett-row">
+          <div><label class="sett-label" for="sett-tg" data-i18n="sett_tg">Telegram ID</label></div>
+          <input class="sett-input" id="sett-tg" placeholder="@username" oninput="updateTgId(this.value)" maxlength="50" aria-label="Telegram foydalanuvchi nomi">
+        </div>
+        <div class="sett-row">
+          <div><div class="sett-label" data-i18n="sett_avatar">Avatar</div></div>
+          <button class="bg-picker-btn" onclick="document.getElementById('avatar-input').click()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            <span data-i18n="btn_pick_image">Rasm tanlash</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Appearance -->
+      <div class="sett-group">
+        <div class="sett-group-head">
+          <span class="sett-group-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </span>
+          <span data-i18n="sett_appearance">Ko'rinish</span>
+        </div>
+        <div class="sett-row">
+          <div><div class="sett-label" data-i18n="sett_theme">Rang rejimi</div></div>
+          <div class="theme-dots" role="radiogroup" aria-label="Rang rejimi tanlash">
+            <div class="theme-dot active" style="background:linear-gradient(135deg,#38bdf8,#4ade80)" onclick="setTheme('default')" role="radio" aria-checked="true" tabindex="0" title="Standart" onkeydown="if(event.key==='Enter'||event.key===' ')setTheme('default')"></div>
+            <div class="theme-dot" style="background:linear-gradient(135deg,#a855f7,#ec4899)" onclick="setTheme('purple')" role="radio" aria-checked="false" tabindex="0" title="Binafsha" onkeydown="if(event.key==='Enter'||event.key===' ')setTheme('purple')"></div>
+            <div class="theme-dot" style="background:linear-gradient(135deg,#f97316,#fbbf24)" onclick="setTheme('orange')" role="radio" aria-checked="false" tabindex="0" title="Olov" onkeydown="if(event.key==='Enter'||event.key===' ')setTheme('orange')"></div>
+            <div class="theme-dot" style="background:linear-gradient(135deg,#10b981,#3b82f6)" onclick="setTheme('ocean')" role="radio" aria-checked="false" tabindex="0" title="Okean" onkeydown="if(event.key==='Enter'||event.key===' ')setTheme('ocean')"></div>
+          </div>
+        </div>
+        <div class="sett-row">
+          <div><div class="sett-label" data-i18n="sett_anim">Animatsiya</div><div class="sett-sub" data-i18n="sett_anim_sub">Fon effektlari</div></div>
+          <div class="toggle on" id="tog-anim" onclick="toggleAnim()" role="switch" aria-checked="true" tabindex="0" aria-label="Animatsiyani yoqish/o'chirish" onkeydown="if(event.key==='Enter'||event.key===' ')toggleAnim()"></div>
+        </div>
+      </div>
+
+      <!-- Language -->
+      <div class="sett-group">
+        <div class="sett-group-head">
+          <span class="sett-group-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </span>
+          <span data-i18n="sett_language">Til</span>
+        </div>
+        <div class="sett-row">
+          <div><label class="sett-label" for="lang-select" data-i18n="sett_language">Interfeys tili</label></div>
+          <select class="lang-select" id="lang-select" onchange="setLanguage(this.value)" aria-label="Interfeys tilini tanlash">
+            <option value="uz">O'zbekcha</option>
+            <option value="ru">Русский</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Background -->
+      <div class="sett-group">
+        <div class="sett-group-head">
+          <span class="sett-group-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+          </span>
+          <span data-i18n="sett_background">Fon rasm</span>
+        </div>
+        <div class="sett-row">
+          <div><div class="sett-label" data-i18n="sett_bg_pick">Rasm tanlash</div><div class="sett-sub" data-i18n="sett_bg_sub">Telefoningizdan rasm</div></div>
+          <button class="bg-picker-btn" onclick="document.getElementById('bg-file-input').click()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            <span data-i18n="btn_pick_bg">Tanlash</span>
+          </button>
+        </div>
+        <input type="file" id="bg-file-input" accept="image/*" onchange="setBgImage(this)" aria-label="Fon rasm fayli">
+        <div class="sett-row" id="bg-preview-row" style="display:none">
+          <div><div class="sett-label" data-i18n="sett_bg_current">Joriy fon</div></div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="bg-preview" id="bg-preview-thumb" role="img" aria-label="Joriy fon rasmi"></div>
+            <button class="sett-danger-btn" style="width:auto;padding:7px 12px;font-size:11px" onclick="resetBg()" data-i18n="btn_reset">Tiklash</button>
+          </div>
+        </div>
+        <div class="sett-row">
+          <div><div class="sett-label" data-i18n="sett_overlay">Qorayish</div><div class="sett-sub" data-i18n="sett_overlay_sub">O'qish uchun overlay</div></div>
+          <div class="toggle on" id="tog-overlay" onclick="toggleOverlay()" role="switch" aria-checked="true" tabindex="0" aria-label="Fon qorayishini yoqish/o'chirish" onkeydown="if(event.key==='Enter'||event.key===' ')toggleOverlay()"></div>
+        </div>
+      </div>
+
+      <!-- Music -->
+      <div class="sett-group">
+        <div class="sett-group-head">
+          <span class="sett-group-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          </span>
+          <span data-i18n="sett_music">Musiqa</span>
+        </div>
+        <div class="sett-row">
+          <div><div class="sett-label" data-i18n="sett_music_pick">MP3 Tanlash</div><div class="sett-sub" id="music-name-display" data-i18n="sett_music_sub">Hech qanday fayl tanlanmagan</div></div>
+          <button class="music-pick-btn" onclick="document.getElementById('music-file-input').click()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            <span data-i18n="btn_pick_music">Tanlash</span>
+          </button>
+        </div>
+        <input type="file" id="music-file-input" accept="audio/*" onchange="loadMusic(this)" aria-label="Musiqa fayli">
+        <div class="sett-row">
+          <div><div class="sett-label" data-i18n="sett_autoplay">Avtomatik ijro</div></div>
+          <div class="toggle" id="tog-autoplay" onclick="toggleAutoplay()" role="switch" aria-checked="false" tabindex="0" aria-label="Avtomatik ijroni yoqish/o'chirish" onkeydown="if(event.key==='Enter'||event.key===' ')toggleAutoplay()"></div>
+        </div>
+        <div class="sett-row">
+          <div><div class="sett-label" data-i18n="sett_loop">Takrorlash</div></div>
+          <div class="toggle" id="tog-loop" onclick="toggleLoop()" role="switch" aria-checked="false" tabindex="0" aria-label="Musiqa takrorlashni yoqish/o'chirish" onkeydown="if(event.key==='Enter'||event.key===' ')toggleLoop()"></div>
+        </div>
+      </div>
+
+      <!-- Music player -->
+      <div class="music-controls" id="music-player" role="region" aria-label="Musiqa pleer">
+        <div class="music-track-name" id="music-track-name">—</div>
+        <div class="music-btn-row">
+          <button class="music-btn" onclick="musicPlay()" id="btn-play" aria-label="Musiqani ijro etish">▶</button>
+          <button class="music-btn" onclick="musicPause()" id="btn-pause" aria-label="Musiqani to'xtatib turish">⏸</button>
+          <button class="music-btn" onclick="musicStop()" aria-label="Musiqani to'xtatish">⏹</button>
+        </div>
+        <div class="music-volume-row">
+          <label class="music-vol-label" for="music-volume" data-i18n="sett_volume">Ovoz</label>
+          <input type="range" id="music-volume" min="0" max="1" step="0.05" value="0.7" oninput="setMusicVolume(this.value)" aria-label="Ovoz balandligi">
+          <span id="vol-display" style="font-size:11px;color:rgba(167,139,250,0.65);font-weight:700;min-width:32px;text-align:right" aria-live="polite">70%</span>
+        </div>
+      </div>
+
+      <!-- About -->
+      <div class="sett-group">
+        <div class="sett-group-head">
+          <span class="sett-group-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          </span>
+          <span data-i18n="sett_about">Haqida</span>
+        </div>
+        <div class="sett-about-logo">
+          <div class="about-atom-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="2"/>
+              <ellipse cx="12" cy="12" rx="10" ry="4"/>
+              <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/>
+              <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-60 12 12)"/>
+            </svg>
+          </div>
+        </div>
+        <div class="sett-about-name">AL KIMYOGAR PRO</div>
+        <div class="sett-about-ver">v4.0 • O'zMU Digital Lab</div>
+        <div class="sett-about-desc" data-i18n="about_desc">Premium kimyo ilova. AI yordamida reaksiyalarni tahlil qiling, AR orqali molekulalarni ko'ring va davriy jadvaldan foydalaning.</div>
+        <div class="sett-row" style="flex-direction:column;align-items:stretch;gap:0;background:none">
+          <a class="sett-tg-link" href="https://t.me/+O8q7VBCkZE4xOGZi" target="_blank" rel="noopener noreferrer" aria-label="Telegram orqali bog'lanish">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.285c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.936z"/></svg>
+            <span data-i18n="btn_contact">Admin bilan bog'lanish</span>
+          </a>
+        </div>
+        <div class="sett-row" style="flex-direction:column;align-items:stretch;gap:8px;background:none">
+          <button class="sett-danger-btn" onclick="clearHistory()" aria-label="Barcha tarixni o'chirish">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+            <span data-i18n="btn_clear_history">Tarixni o'chirish</span>
+          </button>
+          <button class="sett-danger-btn" onclick="resetApp()" style="margin-top:0" aria-label="Ilovani qayta sozlash">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 12a9 9 0 0 1 15-6.7M21 12a9 9 0 0 1-15 6.7"/><path d="M3 3v5h5M21 21v-5h-5"/></svg>
+            <span data-i18n="btn_reset_app">Ilovani qayta sozlash</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="sett-footer" data-i18n="footer_made">Made with Al Kimyogar Pro v4.0</div>
+      <div style="height:16px"></div>
+    </section>
+
+  </main>
+</div><!-- /app -->
+
+<!-- ═══ BOTTOM NAVIGATION ═══ -->
+<nav id="bottom-nav" aria-label="Asosiy navigatsiya" role="navigation">
+  <button class="bn-item active" id="bn-0" onclick="navigateTo(0)" aria-label="Reaksiya Lab" title="Reaksiya Lab">
+    <div class="bn-indicator"></div>
+    <div class="bn-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/>
+      </svg>
+    </div>
+    <span class="bn-label" data-i18n="nav_reaction">Lab</span>
+  </button>
+
+  <button class="bn-item" id="bn-1" onclick="navigateTo(1)" aria-label="AR Molekula" title="AR Molekula">
+    <div class="bn-indicator"></div>
+    <div class="bn-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="12" cy="12" r="2"/>
+        <ellipse cx="12" cy="12" rx="10" ry="4"/>
+        <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/>
+        <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-60 12 12)"/>
+      </svg>
+    </div>
+    <span class="bn-label" data-i18n="nav_ar">AR</span>
+  </button>
+
+  <button class="bn-item" id="bn-2" onclick="navigateTo(2)" aria-label="Mr Kalkulyator" title="Mr Kalkulyator">
+    <div class="bn-indicator"></div>
+    <div class="bn-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+      </svg>
+    </div>
+    <span class="bn-label" data-i18n="nav_molar">Mr</span>
+  </button>
+
+  <button class="bn-item" id="bn-3" onclick="navigateTo(3)" aria-label="Davriy Jadval" title="Davriy Jadval">
+    <div class="bn-indicator"></div>
+    <div class="bn-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <rect x="3" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+        <rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+    </div>
+    <span class="bn-label" data-i18n="nav_table">Jadval</span>
+  </button>
+
+  <button class="bn-item" id="bn-4" onclick="navigateTo(4)" aria-label="Sozlamalar" title="Sozlamalar">
+    <div class="bn-indicator"></div>
+    <div class="bn-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+        <path d="m12 2 1.5 3M12 2l-1.5 3M12 22l1.5-3M12 22l-1.5-3M2 12l3 1.5M2 12l3-1.5M22 12l-3 1.5M22 12l-3-1.5"/>
+      </svg>
+    </div>
+    <span class="bn-label" data-i18n="nav_settings">Sozlama</span>
+  </button>
+</nav>
+
+<!-- ═══ AUDIO ═══ -->
+<audio id="bg-music" loop aria-hidden="true"></audio>
+
+<script>
+'use strict';
+// ════════════════════════════════════════════════
+// CONSTANTS & API
+// ════════════════════════════════════════════════
+const GROQ_KEY = "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";
+const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+
+// ════════════════════════════════════════════════
+// SAFE DOM HELPER — XSS oldini olish
+// ════════════════════════════════════════════════
+function safeText(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
+function getEl(id) {
+  const el = document.getElementById(id);
+  if (!el) console.warn(`Element topilmadi: #${id}`);
+  return el;
+}
+
+// ════════════════════════════════════════════════
+// LOCALIZATION (i18n)
+// ════════════════════════════════════════════════
+const LANG = {
+  uz: {
+    sb_pages:"Bo'limlar", sb_history:"Tarix",
+    nav_reaction:"Lab", nav_ar:"AR",
+    nav_molar:"Mr", nav_table:"Jadval", nav_settings:"Sozlama",
+    rxn_eyebrow:"KIMYO LABORATORIYASI", rxn_title:"Reaksiya Tahlilchi",
+    rxn_sub:"Formulani kiriting va real animatsiyani ko'ring",
+    rxn_input_label:"Kimyoviy formula yoki reaksiya",
+    btn_analyze:"Tahlil qilish", btn_contact:"Admin bilan bog'lanish",
+    btn_clear_history:"Tarixni tozalash",
+    btn_add_to_reaction:"Reaksiyaga qo'shish",
+    status_ready:"TAYYOR", status_analyzing:"TAHLIL...",
+    ar_eyebrow:"KENGAYTIRILGAN REALLIK", ar_title:"AR Molekula Ko'rinishi",
+    ar_camera_ready:"KAMERA TAYYOR", btn_load_ar:"Ko'rsat",
+    prop_mw:"Molyar Massa", prop_state:"Holat", prop_density:"Zichlik",
+    prop_mp:"Erish harorati", prop_bp:"Qaynash harorati",
+    prop_solubility:"Eruvchanligi", prop_color:"Rangi",
+    prop_prop:"Xossasi", prop_uses:"Ishlatilishi",
+    prop_hazards:"Xavfliligi", prop_notes:"Izohlar",
+    mr_eyebrow:"ANALITIK MODUL", mr_title:"Mr Kalkulyator",
+    mr_input_label:"Kimyoviy formula yoki modda nomi",
+    btn_calculate:"Hisoblash", mr_results:"Tahlil natijalari",
+    mr_total:"Molyar massa",
+    pt_eyebrow:"MENDELEEV JADVAL", pt_title:"Davriy Jadval",
+    pt_interactive:"Interaktiv", pt_search_placeholder:"Element qidirish...",
+    cat_alkali:"Ishqoriy metal", cat_alkaline:"Ishqoriy-yer",
+    cat_transition:"O'tish metali", cat_nonmetal:"Ametall",
+    cat_halogen:"Galogen", cat_noble:"Nodir gaz",
+    sett_eyebrow:"Sozlama paneli", sett_title:"Sozlamalar",
+    sett_profile:"Profil", sett_name:"Ism", sett_tg:"Telegram ID",
+    sett_avatar:"Avatar", sett_appearance:"Ko'rinish",
+    sett_theme:"Rang rejimi", sett_anim:"Animatsiya",
+    sett_anim_sub:"Fon effektlari", sett_language:"Til",
+    sett_background:"Fon rasm", sett_bg_pick:"Rasm tanlash",
+    sett_bg_sub:"Telefoningizdan rasm", btn_pick_bg:"Tanlash",
+    btn_pick_image:"Rasm tanlash", sett_bg_current:"Joriy fon",
+    btn_reset:"Tiklash", sett_overlay:"Qorayish",
+    sett_overlay_sub:"O'qish uchun overlay",
+    sett_music:"Musiqa", sett_music_pick:"MP3 Tanlash",
+    sett_music_sub:"Hech qanday fayl tanlanmagan",
+    btn_pick_music:"Tanlash", sett_autoplay:"Avtomatik ijro",
+    sett_loop:"Takrorlash", sett_volume:"Ovoz",
+    sett_about:"Haqida", about_desc:"Premium kimyo ilova. AI yordamida reaksiyalarni tahlil qiling, AR orqali molekulalarni ko'ring va davriy jadvaldan foydalaning.",
+    btn_reset_app:"Ilovani qayta sozlash",
+    footer_made:"Made with Al Kimyogar Pro v4.0",
+    toast_avatar:"Avatar yangilandi", toast_theme:"Rang o'zgartirildi",
+    toast_anim_on:"Animatsiya yoqildi", toast_anim_off:"O'chirildi",
+    toast_bg_set:"Fon o'rnatildi", toast_bg_reset:"Fon tiklandi",
+    toast_music_loaded:"Musiqa yuklandi", toast_mol_ok:"Molekula yuklandi",
+    toast_mol_err:"Modda topilmadi!", toast_net_err:"Tarmoq xatosi",
+    confirm_reset:"Barcha ma'lumotlar o'chadi. Davom etasizmi?",
+    loader_analysis:"REAKSIYA TAHLIL QILINMOQDA...",
+    loader_molar:"AI HISOBLAYAPTI...", loader_ar:"AR YUKLANMOQDA...",
+    err_no_reaction:"Bu reaksiya bormaydi",
+    lbl_heat_exo:"Issiqlik ajralib chiqadi",
+    lbl_heat_endo:"Issiqlik yutiladi",
+    lbl_analysis:"Tahlil:", history_empty:"Tarix bo'sh",
+    tab_title_0:"LAB", tab_title_1:"AR KO'RINISH",
+    tab_title_2:"Mr HISOB", tab_title_3:"DAVRIY JADVAL", tab_title_4:"SOZLAMALAR",
+    ep_atom_num:"Atom raqami:", ep_atom_mass:"Atom massasi:",
+    ep_electrons:"Elektronlar:", err_empty_input:"Iltimos, formulani kiriting",
+    err_too_short:"Kamida 1 belgi kiriting",
+  },
+  ru: {
+    sb_pages:"Разделы", sb_history:"История",
+    nav_reaction:"Лаб", nav_ar:"AR",
+    nav_molar:"Mr", nav_table:"Таблица", nav_settings:"Настр",
+    rxn_eyebrow:"ХИМИЧЕСКАЯ ЛАБОРАТОРИЯ", rxn_title:"Анализатор Реакций",
+    rxn_sub:"Введите формулу и посмотрите анимацию",
+    rxn_input_label:"Химическая формула или реакция:",
+    btn_analyze:"Анализировать", btn_contact:"Связаться с Admin",
+    btn_clear_history:"Очистить историю",
+    btn_add_to_reaction:"Добавить в реакцию",
+    status_ready:"ГОТОВО", status_analyzing:"АНАЛИЗ...",
+    ar_eyebrow:"ДОПОЛНЕННАЯ РЕАЛЬНОСТЬ", ar_title:"AR Молекулы",
+    ar_camera_ready:"КАМЕРА ГОТОВА", btn_load_ar:"Показать",
+    prop_mw:"Молярная масса", prop_state:"Состояние", prop_density:"Плотность",
+    prop_mp:"Точка плавления", prop_bp:"Точка кипения",
+    prop_solubility:"Растворимость", prop_color:"Цвет",
+    prop_prop:"Свойства", prop_uses:"Применение",
+    prop_hazards:"Опасность", prop_notes:"Примечания",
+    mr_eyebrow:"АНАЛИТИЧЕСКИЙ МОДУЛЬ", mr_title:"Калькулятор Mr",
+    mr_input_label:"Химическая формула или название вещества:",
+    btn_calculate:"Вычислить", mr_results:"Результаты анализа",
+    mr_total:"МОЛЯРНАЯ МАССА",
+    pt_eyebrow:"ТАБЛИЦА МЕНДЕЛЕЕВА", pt_title:"Периодическая Таблица",
+    pt_interactive:"ИНТЕРАКТИВ", pt_search_placeholder:"Поиск элемента...",
+    cat_alkali:"Щелочной металл", cat_alkaline:"Щелочноземельный",
+    cat_transition:"Переходный металл", cat_nonmetal:"Неметалл",
+    cat_halogen:"Галоген", cat_noble:"Благородный газ",
+    sett_eyebrow:"ПАНЕЛЬ НАСТРОЕК", sett_title:"Настройки",
+    sett_profile:"Профиль", sett_name:"Имя", sett_tg:"Telegram ID",
+    sett_avatar:"Аватар", sett_appearance:"ВНЕШНИЙ ВИД",
+    sett_theme:"Цветовая схема", sett_anim:"Анимация",
+    sett_anim_sub:"Фоновые эффекты", sett_language:"ЯЗЫК",
+    sett_background:"ФОН", sett_bg_pick:"Выбрать изображение",
+    sett_bg_sub:"Из вашего телефона", btn_pick_bg:"Выбрать",
+    btn_pick_image:"Выбрать фото", sett_bg_current:"Текущий фон",
+    btn_reset:"Сбросить", sett_overlay:"Затемнение",
+    sett_overlay_sub:"Оверлей для чтения",
+    sett_music:"МУЗЫКА", sett_music_pick:"Выбрать MP3",
+    sett_music_sub:"Файл не выбран",
+    btn_pick_music:"Выбрать", sett_autoplay:"Автовоспроизведение",
+    sett_loop:"Повтор", sett_volume:"ГРОМКОСТЬ",
+    sett_about:"О ПРОГРАММЕ", about_desc:"Премиум химическое приложение. Анализируйте реакции с помощью ИИ, смотрите молекулы в AR и используйте периодическую таблицу.",
+    btn_reset_app:"Сбросить приложение",
+    footer_made:"Made with Al Kimyogar Pro v4.0",
+    toast_avatar:"Аватар обновлён", toast_theme:"Тема изменена",
+    toast_anim_on:"Анимация включена", toast_anim_off:"Выключено",
+    toast_bg_set:"Фон установлен", toast_bg_reset:"Фон сброшен",
+    toast_music_loaded:"Музыка загружена", toast_mol_ok:"Молекула загружена",
+    toast_mol_err:"Вещество не найдено!", toast_net_err:"Сетевая ошибка",
+    confirm_reset:"Все данные будут удалены. Продолжить?",
+    loader_analysis:"АНАЛИЗ РЕАКЦИИ...",
+    loader_molar:"ИИ ВЫЧИСЛЯЕТ...", loader_ar:"ЗАГРУЗКА AR...",
+    err_no_reaction:"Такая реакция невозможна",
+    lbl_heat_exo:"Выделяется тепло",
+    lbl_heat_endo:"Поглощается тепло",
+    lbl_analysis:"Анализ:", history_empty:"История пуста",
+    tab_title_0:"ЛАБ", tab_title_1:"AR ВИД",
+    tab_title_2:"Mr РАСЧ", tab_title_3:"ПЕРИОДИЧ", tab_title_4:"НАСТРОЙКИ",
+    ep_atom_num:"Атомный номер:", ep_atom_mass:"Атомная масса:",
+    ep_electrons:"Электроны:", err_empty_input:"Пожалуйста, введите формулу",
+    err_too_short:"Введите не менее 1 символа",
+  },
+  en: {
+    sb_pages:"Sections", sb_history:"History",
+    nav_reaction:"Lab", nav_ar:"AR",
+    nav_molar:"Mr", nav_table:"Table", nav_settings:"Settings",
+    rxn_eyebrow:"CHEMISTRY LABORATORY", rxn_title:"Reaction Analyzer",
+    rxn_sub:"Enter a formula and watch the real animation",
+    rxn_input_label:"Chemical formula or reaction:",
+    btn_analyze:"Analyze", btn_contact:"Contact Admin",
+    btn_clear_history:"Clear History",
+    btn_add_to_reaction:"Add to Reaction",
+    status_ready:"READY", status_analyzing:"ANALYZING...",
+    ar_eyebrow:"AUGMENTED REALITY", ar_title:"AR Molecule View",
+    ar_camera_ready:"CAMERA READY", btn_load_ar:"Show",
+    prop_mw:"Molar Mass", prop_state:"State", prop_density:"Density",
+    prop_mp:"Melting Point", prop_bp:"Boiling Point",
+    prop_solubility:"Solubility", prop_color:"Color",
+    prop_prop:"Properties", prop_uses:"Uses",
+    prop_hazards:"Hazards", prop_notes:"Notes",
+    mr_eyebrow:"ANALYTICAL MODULE", mr_title:"Mr Calculator",
+    mr_input_label:"Chemical formula or substance name:",
+    btn_calculate:"Calculate", mr_results:"Analysis Results",
+    mr_total:"MOLAR MASS",
+    pt_eyebrow:"MENDELEEV TABLE", pt_title:"Periodic Table",
+    pt_interactive:"INTERACTIVE", pt_search_placeholder:"Search element...",
+    cat_alkali:"Alkali metal", cat_alkaline:"Alkaline earth",
+    cat_transition:"Transition metal", cat_nonmetal:"Nonmetal",
+    cat_halogen:"Halogen", cat_noble:"Noble gas",
+    sett_eyebrow:"SETTINGS PANEL", sett_title:"Settings",
+    sett_profile:"Profile", sett_name:"Name", sett_tg:"Telegram ID",
+    sett_avatar:"Avatar", sett_appearance:"APPEARANCE",
+    sett_theme:"Color theme", sett_anim:"Animation",
+    sett_anim_sub:"Background effects", sett_language:"LANGUAGE",
+    sett_background:"BACKGROUND", sett_bg_pick:"Select image",
+    sett_bg_sub:"From your phone", btn_pick_bg:"Select",
+    btn_pick_image:"Select photo", sett_bg_current:"Current background",
+    btn_reset:"Reset", sett_overlay:"Darkening",
+    sett_overlay_sub:"Reading overlay",
+    sett_music:"MUSIC", sett_music_pick:"Select MP3",
+    sett_music_sub:"No file selected",
+    btn_pick_music:"Select", sett_autoplay:"Autoplay",
+    sett_loop:"Loop", sett_volume:"VOLUME",
+    sett_about:"ABOUT", about_desc:"Premium chemistry app. Analyze reactions with AI, view molecules in AR and use the periodic table.",
+    btn_reset_app:"Reset App",
+    footer_made:"Made with Al Kimyogar Pro v4.0",
+    toast_avatar:"Avatar updated", toast_theme:"Theme changed",
+    toast_anim_on:"Animation enabled", toast_anim_off:"Disabled",
+    toast_bg_set:"Background set", toast_bg_reset:"Background reset",
+    toast_music_loaded:"Music loaded", toast_mol_ok:"Molecule loaded",
+    toast_mol_err:"Substance not found!", toast_net_err:"Network error",
+    confirm_reset:"All data will be deleted. Continue?",
+    loader_analysis:"ANALYZING REACTION...",
+    loader_molar:"AI CALCULATING...", loader_ar:"LOADING AR...",
+    err_no_reaction:"This reaction doesn't exist",
+    lbl_heat_exo:"Heat is released",
+    lbl_heat_endo:"Heat is absorbed",
+    lbl_analysis:"Analysis:", history_empty:"History is empty",
+    tab_title_0:"LAB", tab_title_1:"AR VIEW",
+    tab_title_2:"Mr CALC", tab_title_3:"PERIODIC", tab_title_4:"SETTINGS",
+    ep_atom_num:"Atomic number:", ep_atom_mass:"Atomic mass:",
+    ep_electrons:"Electrons:", err_empty_input:"Please enter a formula",
+    err_too_short:"Enter at least 1 character",
+  }
+};
+
+let currentLang = 'uz';
+function tr(key) {
+  try {
+    return (LANG[currentLang] || LANG.uz)[key] || LANG.uz[key] || key;
+  } catch(e) { return key; }
+}
+const t = tr;
+
+function applyLanguage() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    try {
+      const key = el.getAttribute('data-i18n');
+      if (el.tagName === 'INPUT' && el.type === 'text') {
+        el.placeholder = tr(key);
+      } else {
+        el.textContent = tr(key);
+      }
+    } catch(e) { /* silent */ }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    try { el.placeholder = tr(el.getAttribute('data-i18n-placeholder')); } catch(e) {}
+  });
+  updateTopbar(activePage);
+}
+
+function setLanguage(lang) {
+  if (!LANG[lang]) return;
+  currentLang = lang;
+  settings.lang = lang;
+  saveSettings();
+  applyLanguage();
+  showToast(tr('toast_theme'));
+}
+
+// ════════════════════════════════════════════════
+// PAGE STATE
+// ════════════════════════════════════════════════
+let activePage = 0;
+let currentInput = '';
+let chemHistory = [];
+try { chemHistory = JSON.parse(localStorage.getItem('chem_history') || '[]'); } catch(e) { chemHistory = []; }
+let settings = {};
+try { settings = JSON.parse(localStorage.getItem('chem_settings') || '{}'); } catch(e) { settings = {}; }
+let animEnabled = settings.anim !== false;
+let selectedElement = null;
+let animId = null;
+let particles = [];
+let canvas = null;
+let ctx = null;
+let bgAnimId = null;
+
+const PAGE_META = [
+  { name_key:'tab_title_0', accent:'#4ade80', bg:'rgba(74,222,128,0.08)',  border:'rgba(74,222,128,0.2)' },
+  { name_key:'tab_title_1', accent:'#a78bfa', bg:'rgba(167,139,250,0.08)', border:'rgba(167,139,250,0.2)' },
+  { name_key:'tab_title_2', accent:'#fbbf24', bg:'rgba(251,191,36,0.08)',  border:'rgba(251,191,36,0.2)' },
+  { name_key:'tab_title_3', accent:'#22d3ee', bg:'rgba(34,211,238,0.08)',  border:'rgba(34,211,238,0.2)' },
+  { name_key:'tab_title_4', accent:'rgba(255,255,255,0.5)', bg:'rgba(255,255,255,0.05)', border:'rgba(255,255,255,0.1)' }
+];
+
+// ════════════════════════════════════════════════
+// AMBIENT BACKGROUND CANVAS
+// ════════════════════════════════════════════════
+const bgCanvas = document.getElementById('bg-canvas');
+const bgCtx = bgCanvas ? bgCanvas.getContext('2d') : null;
+let bgAtoms = [];
+
+function resizeBg() {
+  if (!bgCanvas) return;
+  bgCanvas.width = window.innerWidth;
+  bgCanvas.height = window.innerHeight;
+}
+
+function initBg() {
+  if (!bgCanvas) return;
+  bgAtoms = [];
+  for (let i = 0; i < 10; i++) bgAtoms.push({
+    x: Math.random() * bgCanvas.width,
+    y: Math.random() * bgCanvas.height,
+    r: 20 + Math.random() * 35,
+    er: 3 + Math.random() * 4,
+    angle: Math.random() * Math.PI * 2,
+    speed: (0.25 + Math.random() * 0.35) * (Math.random() < 0.5 ? 1 : -1),
+    col: Math.random() < 0.6 ? '#38bdf8' : '#4ade80',
+    vx: (Math.random() - 0.5) * 0.2,
+    vy: (Math.random() - 0.5) * 0.2
+  });
+}
+
+function drawBg() {
+  if (!bgCtx || !bgCanvas) return;
+  if (!animEnabled) { bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height); bgAnimId = null; return; }
+  bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+  bgAtoms.forEach(a => {
+    a.x += a.vx; a.y += a.vy;
+    if (a.x < -70) a.x = bgCanvas.width + 70;
+    if (a.x > bgCanvas.width + 70) a.x = -70;
+    if (a.y < -70) a.y = bgCanvas.height + 70;
+    if (a.y > bgCanvas.height + 70) a.y = -70;
+    a.angle += a.speed * 0.012;
+    bgCtx.beginPath(); bgCtx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
+    bgCtx.strokeStyle = a.col; bgCtx.lineWidth = 0.5; bgCtx.stroke();
+    const ex = a.x + Math.cos(a.angle) * a.r, ey = a.y + Math.sin(a.angle) * a.r;
+    bgCtx.beginPath(); bgCtx.arc(ex, ey, a.er / 2, 0, Math.PI * 2);
+    bgCtx.fillStyle = a.col; bgCtx.fill();
+    bgCtx.beginPath(); bgCtx.arc(a.x, a.y, 1.5, 0, Math.PI * 2);
+    bgCtx.fillStyle = a.col; bgCtx.fill();
+  });
+  bgAnimId = requestAnimationFrame(drawBg);
+}
+
+function startBgAnim() {
+  if (bgAnimId) return;
+  drawBg();
+}
+
+resizeBg(); initBg(); startBgAnim();
+window.addEventListener('resize', () => { resizeBg(); initBg(); });
+
+// ════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════
+let navLocked = false;
+
+function navigateTo(n) {
+  if (n === activePage || navLocked) return;
+  if (n < 0 || n > 4) return;
+  navLocked = true;
+  onPageLeave(activePage);
+  const pages = document.querySelectorAll('.page');
+  const prev = activePage;
+  if (pages[prev]) {
+    pages[prev].classList.add('exit-left');
+    pages[prev].classList.remove('active');
+    pages[prev].setAttribute('aria-hidden', 'true');
+  }
+  setTimeout(() => {
+    if (pages[prev]) pages[prev].classList.remove('exit-left');
+    activePage = n;
+    if (pages[n]) {
+      pages[n].classList.add('active');
+      pages[n].setAttribute('aria-hidden', 'false');
+    }
+    updateTopbar(n);
+    updateSidebar(n);
+    onPageEnter(n);
+    navLocked = false;
+  }, 280);
+}
+
+function updateTopbar(n) {
+  const m = PAGE_META[n] || PAGE_META[0];
+  const pageEl = getEl('topbar-page');
+  const badgeEl = getEl('topbar-badge');
+  if (pageEl) { pageEl.textContent = tr(m.name_key); pageEl.style.color = m.accent; }
+  if (badgeEl) {
+    badgeEl.style.background = m.bg;
+    badgeEl.style.borderColor = m.border;
+    badgeEl.style.color = m.accent;
+  }
+  document.documentElement.style.setProperty('--page-accent', m.accent);
+  const menuBtn = getEl('menu-btn');
+  if (menuBtn) menuBtn.setAttribute('aria-expanded', 'false');
+}
+
+function updateSidebar(n) {
+  for (let i = 0; i < 5; i++) {
+    const el = getEl('sb-item-' + i);
+    if (!el) continue;
+    const isActive = i === n;
+    el.classList.toggle('active', isActive);
+    el.setAttribute('aria-current', isActive ? 'page' : 'false');
+  }
+  // Sync bottom nav
+  for (let i = 0; i < 5; i++) {
+    const bnEl = getEl('bn-' + i);
+    if (bnEl) bnEl.classList.toggle('active', i === n);
+  }
+}
+
+function onPageLeave(n) {
+  try {
+    if (n === 1) stopCamera();
+    if (n === 2) {
+      if (balAnimId) { cancelAnimationFrame(balAnimId); balAnimId = null; }
+      if (molAnimId) { cancelAnimationFrame(molAnimId); molAnimId = null; }
+    }
+    if (n === 0) {
+      if (animId) { cancelAnimationFrame(animId); animId = null; }
+    }
+  } catch(e) { console.warn('onPageLeave error:', e); }
+}
+
+function onPageEnter(n) {
+  try {
+    if (n === 1) initCamera();
+    if (n === 2) startBalanceAnim();
+  } catch(e) { console.warn('onPageEnter error:', e); }
+}
+
+// ════════════════════════════════════════════════
+// SIDEBAR
+// ════════════════════════════════════════════════
+function openSidebar() {
+  const sb = getEl('sidebar');
+  const ov = getEl('sidebar-overlay');
+  const btn = getEl('menu-btn');
+  if (sb) sb.classList.add('open');
+  if (ov) ov.classList.add('show');
+  if (btn) btn.setAttribute('aria-expanded', 'true');
+}
+
+function closeSidebar() {
+  const sb = getEl('sidebar');
+  const ov = getEl('sidebar-overlay');
+  const btn = getEl('menu-btn');
+  if (sb) sb.classList.remove('open');
+  if (ov) ov.classList.remove('show');
+  if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const sidebar = getEl('sidebar');
+    if (sidebar && sidebar.classList.contains('open')) { closeSidebar(); return; }
+    const popup = getEl('el-popup');
+    if (popup && popup.classList.contains('show')) { closeElPopup(); }
+  }
+});
+
+// ════════════════════════════════════════════════
+// PROFILE
+// ════════════════════════════════════════════════
+(function initProfile() {
+  try {
+    const name = settings.name || 'Kimyogar';
+    const tg = settings.tg || '@username';
+    const usernameEl = getEl('sb-username');
+    const tgEl = getEl('sb-tg-id');
+    const settNameEl = getEl('sett-name');
+    const settTgEl = getEl('sett-tg');
+    const avatarEl = getEl('sb-avatar-img');
+    if (usernameEl) usernameEl.textContent = name;
+    if (tgEl) tgEl.textContent = tg;
+    if (settNameEl) settNameEl.value = name;
+    if (settTgEl) settTgEl.value = tg;
+    const av = settings.avatar || '';
+    if (avatarEl) {
+      if (av) avatarEl.src = av;
+      else avatarEl.src = genAvatar(name);
+    }
+  } catch(e) { console.warn('initProfile error:', e); }
+})();
+
+function genAvatar(n) {
+  try {
+    const c = document.createElement('canvas'); c.width = c.height = 72;
+    const x = c.getContext('2d');
+    if (!x) return '';
+    x.fillStyle = '#131922'; x.fillRect(0, 0, 72, 72);
+    x.fillStyle = '#38bdf8'; x.font = 'bold 32px Inter, system-ui';
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    const letter = (n && n.length > 0) ? n[0].toUpperCase() : 'K';
+    x.fillText(letter, 36, 36);
+    return c.toDataURL();
+  } catch(e) { return ''; }
+}
+
+const avatarInput = getEl('avatar-input');
+if (avatarInput) {
+  avatarInput.addEventListener('change', function(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { showToast('Faqat rasm fayli qabul qilinadi'); return; }
+    if (file.size > 2 * 1024 * 1024) { showToast('Rasm 2MB dan kichik bo\'lishi kerak'); return; }
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const src = ev.target.result;
+        const avatarEl = getEl('sb-avatar-img');
+        if (avatarEl) avatarEl.src = src;
+        settings.avatar = src; saveSettings();
+        showToast(tr('toast_avatar'));
+      } catch(err) { showToast('Avatar saqlashda xatolik'); }
+    };
+    reader.onerror = () => showToast('Fayl o\'qishda xatolik');
+    reader.readAsDataURL(file);
+    this.value = '';
+  });
+}
+
+const sbUsernameEl = getEl('sb-username');
+if (sbUsernameEl) {
+  sbUsernameEl.addEventListener('input', function() { updateProfileName(this.textContent || ''); });
+}
+
+function updateProfileName(v) {
+  const clean = String(v || '').trim().slice(0, 50);
+  settings.name = clean;
+  const settNameEl = getEl('sett-name');
+  if (settNameEl && settNameEl.value !== clean) settNameEl.value = clean;
+  const avatarEl = getEl('sb-avatar-img');
+  if (avatarEl && !settings.avatar) avatarEl.src = genAvatar(clean);
+  saveSettings();
+}
+
+function updateTgId(v) {
+  const clean = String(v || '').trim().slice(0, 50);
+  settings.tg = clean;
+  const tgEl = getEl('sb-tg-id');
+  if (tgEl) tgEl.textContent = clean || '@username';
+  saveSettings();
+}
+
+// ════════════════════════════════════════════════
+// SETTINGS & PERSISTENCE
+// ════════════════════════════════════════════════
+function saveSettings() {
+  try {
+    localStorage.setItem('chem_settings', JSON.stringify(settings));
+  } catch(e) {
+    try {
+      const slim = Object.assign({}, settings);
+      delete slim.avatar; delete slim.bgImage;
+      localStorage.setItem('chem_settings', JSON.stringify(slim));
+    } catch(e2) { console.error('Cannot save settings:', e2); }
+  }
+}
+
+function toggleAnim() {
+  animEnabled = !animEnabled;
+  settings.anim = animEnabled;
+  const togEl = getEl('tog-anim');
+  if (togEl) { togEl.classList.toggle('on', animEnabled); togEl.setAttribute('aria-checked', animEnabled.toString()); }
+  saveSettings();
+  if (animEnabled) { bgAnimId = null; startBgAnim(); }
+  showToast(animEnabled ? tr('toast_anim_on') : tr('toast_anim_off'));
+}
+
+const THEMES = {
+  default: { blue: '#38bdf8', green: '#4ade80' },
+  purple:  { blue: '#a855f7', green: '#ec4899' },
+  orange:  { blue: '#f97316', green: '#fbbf24' },
+  ocean:   { blue: '#3b82f6', green: '#10b981' }
+};
+const THEME_KEYS = ['default','purple','orange','ocean'];
+
+function setTheme(n) {
+  if (!THEMES[n]) return;
+  const th = THEMES[n];
+  document.documentElement.style.setProperty('--blue', th.blue);
+  document.documentElement.style.setProperty('--green', th.green);
+  settings.theme = n; saveSettings();
+  document.querySelectorAll('.theme-dot').forEach((d, i) => {
+    const active = THEME_KEYS[i] === n;
+    d.classList.toggle('active', active);
+    d.setAttribute('aria-checked', active.toString());
+  });
+  showToast(tr('toast_theme'));
+}
+
+if (settings.theme) setTheme(settings.theme);
+if (settings.anim === false) {
+  const togAnim = getEl('tog-anim');
+  if (togAnim) { togAnim.classList.remove('on'); togAnim.setAttribute('aria-checked', 'false'); }
+  animEnabled = false;
+}
+
+if (settings.lang && LANG[settings.lang]) {
+  currentLang = settings.lang;
+  const langSel = getEl('lang-select');
+  if (langSel) langSel.value = settings.lang;
+}
+
+function resetApp() {
+  if (confirm(tr('confirm_reset'))) {
+    try { localStorage.clear(); } catch(e) {}
+    location.reload();
+  }
+}
+
+// ════════════════════════════════════════════════
+// BACKGROUND IMAGE
+// ════════════════════════════════════════════════
+function setBgImage(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { showToast('Faqat rasm fayli'); return; }
+  if (file.size > 5 * 1024 * 1024) { showToast('Rasm 5MB dan kichik bo\'lishi kerak'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const src = ev.target.result;
+      const bgEl = getEl('bg-image');
+      if (bgEl) bgEl.style.backgroundImage = `url('${src}')`;
+      settings.bgImage = src; saveSettings();
+      const thumbEl = getEl('bg-preview-thumb');
+      if (thumbEl) thumbEl.style.backgroundImage = `url('${src}')`;
+      const rowEl = getEl('bg-preview-row');
+      if (rowEl) rowEl.style.display = 'flex';
+      showToast(tr('toast_bg_set'));
+    } catch(err) { showToast('Fon saqlashda xatolik'); }
+  };
+  reader.onerror = () => showToast('Fayl o\'qishda xatolik');
+  reader.readAsDataURL(file);
+  input.value = '';
+}
+
+function resetBg() {
+  const bgEl = getEl('bg-image');
+  if (bgEl) bgEl.style.backgroundImage = '';
+  settings.bgImage = ''; saveSettings();
+  const rowEl = getEl('bg-preview-row');
+  if (rowEl) rowEl.style.display = 'none';
+  showToast(tr('toast_bg_reset'));
+}
+
+function toggleOverlay() {
+  const togEl = getEl('tog-overlay');
+  if (!togEl) return;
+  const on = togEl.classList.toggle('on');
+  togEl.setAttribute('aria-checked', on.toString());
+  const overlayEl = getEl('bg-image-overlay');
+  if (overlayEl) overlayEl.style.opacity = on ? '1' : '0';
+  settings.overlay = on; saveSettings();
+}
+
+(function restoreBg() {
+  try {
+    if (settings.bgImage) {
+      const bgEl = getEl('bg-image');
+      if (bgEl) bgEl.style.backgroundImage = `url('${settings.bgImage}')`;
+      const thumbEl = getEl('bg-preview-thumb');
+      if (thumbEl) thumbEl.style.backgroundImage = `url('${settings.bgImage}')`;
+      const rowEl = getEl('bg-preview-row');
+      if (rowEl) rowEl.style.display = 'flex';
+    }
+    if (settings.overlay === false) {
+      const togEl = getEl('tog-overlay');
+      if (togEl) { togEl.classList.remove('on'); togEl.setAttribute('aria-checked', 'false'); }
+      const overlayEl = getEl('bg-image-overlay');
+      if (overlayEl) overlayEl.style.opacity = '0';
+    }
+  } catch(e) { console.warn('restoreBg error:', e); }
+})();
+
+// ════════════════════════════════════════════════
+// MUSIC PLAYER
+// ════════════════════════════════════════════════
+const bgMusic = getEl('bg-music');
+let currentMusicUrl = null;
+
+function loadMusic(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('audio/')) { showToast('Faqat audio fayl'); return; }
+  if (currentMusicUrl) { try { URL.revokeObjectURL(currentMusicUrl); } catch(e) {} }
+  const url = URL.createObjectURL(file);
+  currentMusicUrl = url;
+  if (bgMusic) { bgMusic.src = url; bgMusic.loop = settings.musicLoop || false; bgMusic.volume = settings.musicVolume !== undefined ? settings.musicVolume : 0.7; }
+  settings.musicName = file.name.slice(0, 100); saveSettings();
+  const trackNameEl = getEl('music-track-name');
+  if (trackNameEl) trackNameEl.textContent = file.name;
+  const nameDisplayEl = getEl('music-name-display');
+  if (nameDisplayEl) nameDisplayEl.textContent = file.name;
+  const playerEl = getEl('music-player');
+  if (playerEl) playerEl.classList.add('show');
+  showToast(tr('toast_music_loaded'));
+  if (settings.musicAutoplay && bgMusic) bgMusic.play().catch(() => {});
+  input.value = '';
+}
+
+function musicPlay() {
+  if (!bgMusic) return;
+  bgMusic.play().catch(() => showToast('Musiqa ijro etilmadi'));
+  const playBtn = getEl('btn-play'); const pauseBtn = getEl('btn-pause');
+  if (playBtn) playBtn.classList.add('active-btn');
+  if (pauseBtn) pauseBtn.classList.remove('active-btn');
+}
+function musicPause() {
+  if (!bgMusic) return;
+  bgMusic.pause();
+  const playBtn = getEl('btn-play'); const pauseBtn = getEl('btn-pause');
+  if (pauseBtn) pauseBtn.classList.add('active-btn');
+  if (playBtn) playBtn.classList.remove('active-btn');
+}
+function musicStop() {
+  if (!bgMusic) return;
+  bgMusic.pause(); bgMusic.currentTime = 0;
+  const playBtn = getEl('btn-play'); const pauseBtn = getEl('btn-pause');
+  if (playBtn) playBtn.classList.remove('active-btn');
+  if (pauseBtn) pauseBtn.classList.remove('active-btn');
+}
+function setMusicVolume(v) {
+  const vol = parseFloat(v);
+  if (isNaN(vol)) return;
+  if (bgMusic) bgMusic.volume = Math.max(0, Math.min(1, vol));
+  settings.musicVolume = vol; saveSettings();
+  const volDisplay = getEl('vol-display');
+  if (volDisplay) volDisplay.textContent = Math.round(vol * 100) + '%';
+}
+function toggleAutoplay() {
+  const togEl = getEl('tog-autoplay');
+  if (!togEl) return;
+  const on = togEl.classList.toggle('on');
+  togEl.setAttribute('aria-checked', on.toString());
+  settings.musicAutoplay = on; saveSettings();
+}
+function toggleLoop() {
+  const togEl = getEl('tog-loop');
+  if (!togEl) return;
+  const on = togEl.classList.toggle('on');
+  togEl.setAttribute('aria-checked', on.toString());
+  if (bgMusic) bgMusic.loop = on;
+  settings.musicLoop = on; saveSettings();
+}
+
+(function restoreMusic() {
+  try {
+    const vol = settings.musicVolume !== undefined ? settings.musicVolume : 0.7;
+    if (bgMusic) { bgMusic.volume = vol; bgMusic.loop = settings.musicLoop || false; }
+    const volEl = getEl('music-volume');
+    if (volEl) volEl.value = vol;
+    const volDisplay = getEl('vol-display');
+    if (volDisplay) volDisplay.textContent = Math.round(vol * 100) + '%';
+    const togAutoplay = getEl('tog-autoplay');
+    if (togAutoplay && settings.musicAutoplay) { togAutoplay.classList.add('on'); togAutoplay.setAttribute('aria-checked', 'true'); }
+    const togLoop = getEl('tog-loop');
+    if (togLoop && settings.musicLoop) { togLoop.classList.add('on'); togLoop.setAttribute('aria-checked', 'true'); }
+    if (settings.musicName) {
+      const nameDisplay = getEl('music-name-display');
+      if (nameDisplay) nameDisplay.textContent = settings.musicName;
+      const trackName = getEl('music-track-name');
+      if (trackName) trackName.textContent = settings.musicName;
+      const playerEl = getEl('music-player');
+      if (playerEl) playerEl.classList.add('show');
+    }
+  } catch(e) { console.warn('restoreMusic error:', e); }
+})();
+
+// ════════════════════════════════════════════════
+// HISTORY
+// ════════════════════════════════════════════════
+function addHistory(type, text) {
+  try {
+    const icons = { reaction: 'reaction', mol3d: 'mol', molar: 'molar', ar: 'ar' };
+    chemHistory.unshift({ type, text: String(text).slice(0, 200), ico: icons[type] || 'reaction', time: Date.now() });
+    if (chemHistory.length > 30) chemHistory.pop();
+    localStorage.setItem('chem_history', JSON.stringify(chemHistory));
+    renderHistory();
+  } catch(e) { console.warn('addHistory error:', e); }
+}
+
+function getHistIcon(type) {
+  const icons = {
+    reaction: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>`,
+    ar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="2"/><ellipse cx="12" cy="12" rx="10" ry="4"/></svg>`,
+    molar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
+    mol3d: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4"/></svg>`
+  };
+  return icons[type] || icons.reaction;
+}
+
+function renderHistory() {
+  const el = getEl('hist-list');
+  if (!el) return;
+  if (!chemHistory.length) {
+    el.innerHTML = `<div style="padding:10px 20px;font-size:12px;color:var(--md-on-surface-low)">${tr('history_empty')}</div>`;
+    return;
+  }
+  el.innerHTML = '';
+  chemHistory.slice(0, 15).forEach((h, i) => {
+    const row = document.createElement('div'); row.className = 'hist-item'; row.setAttribute('role', 'listitem');
+    row.innerHTML = `
+      <div class="hist-ico" style="color:var(--md-primary)">${getHistIcon(h.type)}</div>
+      <span class="hist-text" role="button" tabindex="0" title="${safeText(h.text)}">${safeText(h.text)}</span>
+      <button class="hist-del" aria-label="O'chirish">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>`;
+    row.querySelector('.hist-text').onclick = () => useHistory(i);
+    row.querySelector('.hist-text').onkeydown = e => { if(e.key==='Enter') useHistory(i); };
+    row.querySelector('.hist-del').onclick = e => { e.stopPropagation(); delHistory(i); };
+    el.appendChild(row);
+  });
+}
+
+function useHistory(i) {
+  try {
+    const h = chemHistory[i];
+    if (!h) return;
+    if (h.type === 'reaction') {
+      navigateTo(0); closeSidebar();
+      currentInput = h.text;
+      const displayEl = getEl('display');
+      if (displayEl) displayEl.textContent = h.text;
+      const inputEl = getEl('manual-input');
+      if (inputEl) inputEl.value = h.text;
+    } else if (h.type === 'ar') {
+      navigateTo(1); closeSidebar();
+      const arEl = getEl('ar-input');
+      if (arEl) arEl.value = h.text;
+    } else if (h.type === 'molar') {
+      navigateTo(2); closeSidebar();
+      const molarEl = getEl('molar-input');
+      if (molarEl) molarEl.value = h.text;
+    }
+  } catch(e) { console.warn('useHistory error:', e); }
+}
+
+function delHistory(i) {
+  chemHistory.splice(i, 1);
+  try { localStorage.setItem('chem_history', JSON.stringify(chemHistory)); } catch(e) {}
+  renderHistory();
+}
+
+function clearHistory() {
+  chemHistory = [];
+  try { localStorage.setItem('chem_history', '[]'); } catch(e) {}
+  renderHistory();
+  showToast(tr('btn_clear_history'));
+}
+renderHistory();
+
+// ════════════════════════════════════════════════
+// TOAST & LOADER & NOTIF
+// ════════════════════════════════════════════════
+let toastTimer = null;
+function showToast(msg) {
+  const toastEl = getEl('toast');
+  const msgEl = getEl('toast-msg');
+  if (!toastEl) return;
+  if (msgEl) msgEl.textContent = String(msg);
+  else toastEl.textContent = String(msg);
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { if(toastEl) toastEl.classList.remove('show'); }, 2800);
+}
+
+function showLoader(msg) {
+  const txtEl = getEl('loader-txt');
+  if (txtEl) txtEl.textContent = msg || 'TAHLIL KETMOQDA';
+  const loaderEl = getEl('loader');
+  if (loaderEl) loaderEl.classList.add('show');
+}
+
+function hideLoader() {
+  const loaderEl = getEl('loader');
+  if (loaderEl) loaderEl.classList.remove('show');
+}
+
+let notifTimer = null;
+function showNotif(icon, msg) {
+  try {
+    const el = getEl('notif');
+    const iconEl = getEl('notif-icon');
+    const msgEl = getEl('notif-msg');
+    if (!el) return;
+    if (iconEl) iconEl.textContent = icon;
+    if (msgEl) msgEl.textContent = String(msg);
+    el.classList.add('show');
+    clearTimeout(notifTimer);
+    notifTimer = setTimeout(() => { if(el) el.classList.remove('show'); }, 3000);
+  } catch(e) {}
+}
+
+// ════════════════════════════════════════════════
+// PAGE 0: REACTION LAB
+// ════════════════════════════════════════════════
+function syncInput() {
+  const inputEl = getEl('manual-input');
+  const displayEl = getEl('display');
+  const hintEl = getEl('rxn-hint');
+  if (!inputEl) return;
+  currentInput = inputEl.value;
+  if (displayEl) displayEl.textContent = currentInput || '...';
+  if (hintEl) hintEl.style.display = 'none';
+  if (inputEl.classList.contains('input-error')) inputEl.classList.remove('input-error');
+}
+
+function validateRxnInput() {
+  const inputEl = getEl('manual-input');
+  const hintEl = getEl('rxn-hint');
+  if (!inputEl) return false;
+  const val = inputEl.value.trim();
+  if (!val) {
+    inputEl.classList.add('input-error');
+    if (hintEl) { hintEl.textContent = tr('err_empty_input'); hintEl.style.display = 'block'; }
+    inputEl.focus();
+    return false;
+  }
+  return true;
+}
+
+function resetRxn() {
+  currentInput = '';
+  const displayEl = getEl('display');
+  const inputEl = getEl('manual-input');
+  const resBox = getEl('res-box');
+  const vc = getEl('visual-container');
+  const mainCard = getEl('mainCard');
+  const statusEl = getEl('status');
+  if (displayEl) { displayEl.textContent = '...'; displayEl.style.color = ''; }
+  if (inputEl) inputEl.value = '';
+  if (resBox) resBox.style.display = 'none';
+  if (vc) vc.style.display = 'none';
+  if (mainCard) mainCard.className = 'rxn-screen';
+  if (statusEl) statusEl.textContent = tr('status_ready');
+  if (animId) { cancelAnimationFrame(animId); animId = null; }
+}
+
+// ─── Physics constants ───
+const GRAVITY = 0.12, AIR_RESISTANCE = 0.99;
+let beakerState = { x:0, y:0, w:0, h:0, liquidY:0, liquidH:0, wavePoints:[], waveTime:0, temperature:20, bubbleNuclei:[], sediment:[] };
+let metalPiece = { active: false };
+
+function detectRxnType(f) {
+  if (!f) return 'generic';
+  const s = f.toLowerCase();
+  if (s.includes('o2') && (s.includes('ch') || s.includes('c2h') || s.includes('c3h') || s.includes('c4h') || s.includes('ch4') || s.includes('c2h5'))) return 'combustion';
+  if ((s.includes('hcl') || s.includes('h2so4') || s.includes('hno3')) && (s.includes('naoh') || s.includes('koh') || s.includes('ca(oh)') || s.includes('baoh'))) return 'acid_base';
+  if (s.includes('hcl') || s.includes('h2so4') || s.includes('hno3') || s.includes('hf') || s.includes('hbr') || s.includes('hi')) return 'acid';
+  if (s.includes('naoh') || s.includes('koh') || s.includes('ca(oh)2') || s.includes('nh3')) return 'base';
+  if (s.includes('agno3') || s.includes('bacl2') || s.includes('pbno3') || s.includes('fecl3') || s.includes('cuso4') || s.includes('caco3')) return 'precipitate';
+  if ((s.includes('zn') || s.includes('fe') || s.includes('mg') || s.includes('al')) && (s.includes('hcl') || s.includes('h2so4'))) return 'metal_acid';
+  if ((s.includes('na') || s.includes('k') || s.includes('li')) && s.includes('h2o')) return 'metal_water';
+  if (s.includes('electrolysis') || s.includes('elektroliz')) return 'electrolysis';
+  if (s.includes('o2') && !s.includes('h2o')) return 'oxidation';
+  return 'generic';
+}
+
+function initBeaker(W, H, rxnType, heat) {
+  const bW = Math.min(160, W * 0.52), bH = Math.min(110, H * 0.58);
+  const bX = (W - bW) / 2, bY = H - bH - 18;
+  const liqFrac = rxnType === 'combustion' ? 0 : 0.62;
+  const liqH = bH * liqFrac;
+  const nWave = 24;
+  const wavePoints = Array.from({ length: nWave }, (_, i) => ({ x: bX + (i / (nWave - 1)) * bW, y: bY + bH - liqH, vy: 0, dy: 0 }));
+  const nuclei = Array.from({ length: 6 }, () => ({ x: bX + 10 + Math.random() * (bW - 20), y: bY + bH - 10, rate: 0.3 + Math.random() * 0.4 }));
+  beakerState = { x: bX, y: bY, w: bW, h: bH, liquidY: bY + bH - liqH, liquidH: liqH, wavePoints, waveTime: 0, temperature: heat === 'exothermic' ? 85 : heat === 'endothermic' ? 5 : 22, bubbleNuclei: nuclei, sediment: [] };
+}
+
+function updateWaves(disturbance, strength) {
+  const pts = beakerState.wavePoints, N = pts.length;
+  if (!pts || N === 0) return;
+  beakerState.waveTime += 0.04;
+  if (disturbance >= 0 && disturbance < N) pts[disturbance].vy += strength;
+  for (let i = 0; i < N; i++) { const restY = beakerState.liquidY, force = (restY - pts[i].y) * 0.035; pts[i].vy += force; pts[i].vy *= 0.88; pts[i].y += pts[i].vy; }
+  for (let iter = 0; iter < 2; iter++) { for (let i = 1; i < N - 1; i++) { const avg = (pts[i-1].y + pts[i+1].y) / 2; pts[i].y += (avg - pts[i].y) * 0.15; } pts[0].y += (pts[1].y - pts[0].y) * 0.15; pts[N-1].y += (pts[N-2].y - pts[N-1].y) * 0.15; }
+}
+
+function drawLiquid(c, liqColor, rxnType, env, heat, frame) {
+  const { x, y, w, h, wavePoints, liquidH, liquidY, temperature, sediment } = beakerState;
+  if (!liquidH || liquidH <= 0 || !wavePoints || wavePoints.length === 0) return;
+  const bot = y + h, pts = wavePoints, N = pts.length;
+  const grad = c.createLinearGradient(x, liquidY, x, bot);
+  if (env === 'kislotali') { grad.addColorStop(0,'rgba(255,90,90,0.55)'); grad.addColorStop(0.4,'rgba(220,50,60,0.45)'); grad.addColorStop(1,'rgba(180,20,40,0.65)'); }
+  else if (env === 'ishqoriy') { grad.addColorStop(0,'rgba(80,140,255,0.5)'); grad.addColorStop(0.4,'rgba(50,100,230,0.45)'); grad.addColorStop(1,'rgba(30,60,200,0.65)'); }
+  else if (rxnType === 'precipitate') { grad.addColorStop(0,'rgba(180,220,200,0.45)'); grad.addColorStop(0.5,'rgba(140,190,170,0.5)'); grad.addColorStop(1,'rgba(80,140,120,0.7)'); }
+  else if (heat === 'exothermic' || rxnType === 'combustion') { grad.addColorStop(0,'rgba(255,140,30,0.5)'); grad.addColorStop(0.5,'rgba(220,80,10,0.5)'); grad.addColorStop(1,'rgba(180,30,0,0.7)'); }
+  else if (rxnType === 'metal_acid' || rxnType === 'acid') { grad.addColorStop(0,'rgba(255,200,50,0.45)'); grad.addColorStop(0.5,'rgba(200,150,30,0.5)'); grad.addColorStop(1,'rgba(150,100,10,0.65)'); }
+  else { grad.addColorStop(0,'rgba(60,160,240,0.4)'); grad.addColorStop(0.5,'rgba(40,120,210,0.45)'); grad.addColorStop(1,'rgba(20,80,180,0.65)'); }
+  c.beginPath(); c.moveTo(x, bot); c.lineTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < N; i++) { const mx = (pts[i-1].x + pts[i].x) / 2, my = (pts[i-1].y + pts[i].y) / 2; c.quadraticCurveTo(pts[i-1].x, pts[i-1].y, mx, my); }
+  c.lineTo(pts[N-1].x, pts[N-1].y); c.lineTo(x + w, bot); c.closePath(); c.fillStyle = grad; c.fill();
+  c.beginPath(); c.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < N; i++) { const mx = (pts[i-1].x + pts[i].x) / 2, my = (pts[i-1].y + pts[i].y) / 2; c.quadraticCurveTo(pts[i-1].x, pts[i-1].y, mx, my); }
+  c.strokeStyle = env === 'kislotali' ? 'rgba(255,150,150,0.6)' : env === 'ishqoriy' ? 'rgba(150,200,255,0.6)' : heat === 'exothermic' ? 'rgba(255,200,100,0.6)' : 'rgba(200,235,255,0.6)'; c.lineWidth = 1.5; c.stroke();
+  if (temperature > 40 && frame !== undefined) { for (let i = 0; i < 3; i++) { const tt = frame * 0.015 + i * 2.1, cx2 = x + w * 0.2 + w * 0.6 * (i / 2.5); c.beginPath(); for (let j = 0; j < 20; j++) { const ty = liquidY + (j / 19) * liquidH * 0.8, tx = cx2 + Math.sin(tt + j * 0.5) * 3 * (temperature / 100); if (j === 0) c.moveTo(tx, ty); else c.lineTo(tx, ty); } c.strokeStyle = `rgba(255,${180-i*30},${50-i*10},${0.08+i*0.02})`; c.lineWidth = 1.5 + i; c.stroke(); } }
+  if (sediment && sediment.length > 0) { const sedH = Math.min(20, sediment.length * 0.15), sedGrad = c.createLinearGradient(x, bot-sedH, x, bot); sedGrad.addColorStop(0,'rgba(200,220,200,0.3)'); sedGrad.addColorStop(1,'rgba(160,190,160,0.8)'); c.beginPath(); c.rect(x+2, bot-sedH, w-4, sedH); c.fillStyle = sedGrad; c.fill(); }
+}
+
+function drawRealisticBeaker(c) {
+  const { x, y, w, h } = beakerState; const bot = y + h; const taper = 8;
+  c.beginPath(); c.moveTo(x+3,y); c.lineTo(x-taper+3,bot); c.lineTo(x+w+taper-3,bot); c.lineTo(x+w-3,y); c.strokeStyle='rgba(56,189,248,0.12)'; c.lineWidth=4; c.stroke();
+  const glassGrad = c.createLinearGradient(x, y, x+w, y); glassGrad.addColorStop(0,'rgba(255,255,255,0.15)'); glassGrad.addColorStop(0.08,'rgba(255,255,255,0.04)'); glassGrad.addColorStop(0.85,'rgba(255,255,255,0.02)'); glassGrad.addColorStop(1,'rgba(255,255,255,0.12)');
+  c.beginPath(); c.moveTo(x,y); c.lineTo(x-taper,bot); c.lineTo(x+w+taper,bot); c.lineTo(x+w,y); c.fillStyle=glassGrad; c.fill();
+  c.beginPath(); c.moveTo(x,y); c.lineTo(x-taper,bot); c.strokeStyle='rgba(56,189,248,0.65)'; c.lineWidth=1.5; c.stroke();
+  c.beginPath(); c.moveTo(x+w,y); c.lineTo(x+w+taper,bot); c.strokeStyle='rgba(56,189,248,0.65)'; c.lineWidth=1.5; c.stroke();
+  c.beginPath(); c.moveTo(x-taper,bot); c.lineTo(x+w+taper,bot); c.strokeStyle='rgba(56,189,248,0.7)'; c.lineWidth=2; c.stroke();
+  for (let i=1;i<=4;i++) { const ly=y+h*(1-i*0.2), lx1=x+w-14+taper*(i*0.2), lx2=x+w+taper*(i*0.2); c.beginPath(); c.moveTo(lx1,ly); c.lineTo(lx2,ly); c.strokeStyle='rgba(56,189,248,0.3)'; c.lineWidth=1; c.stroke(); c.fillStyle='rgba(56,189,248,0.25)'; c.font='8px monospace'; c.textAlign='right'; c.fillText(`${i*25}%`,lx1-2,ly+3); }
+  c.beginPath(); c.moveTo(x-5,y-2); c.lineTo(x+w+5,y-2); c.strokeStyle='rgba(56,189,248,0.8)'; c.lineWidth=2.5; c.stroke();
+  c.beginPath(); c.moveTo(x-3,y-3); c.lineTo(x+w*0.6,y-3); c.strokeStyle='rgba(255,255,255,0.3)'; c.lineWidth=1; c.stroke();
+  c.beginPath(); c.moveTo(x+5,y+5); c.lineTo(x-taper+5,bot-8); c.strokeStyle='rgba(255,255,255,0.18)'; c.lineWidth=2.5; c.stroke();
+}
+
+function drawMetalPiece(c, frame, rxnType) {
+  if (!metalPiece.active) return;
+  metalPiece.dissolve = Math.min(1, metalPiece.dissolve + (rxnType === 'metal_acid' ? 0.003 : 0.008));
+  const op = 1 - metalPiece.dissolve * 0.7; if (op <= 0) return;
+  const { x: mx, y: my, w: mw, h: mh } = metalPiece;
+  c.globalAlpha = op;
+  const mg = c.createLinearGradient(mx, my, mx+mw, my+mh);
+  if (rxnType === 'metal_water') { mg.addColorStop(0,'rgba(200,200,255,0.9)'); mg.addColorStop(0.5,'rgba(160,160,220,0.8)'); mg.addColorStop(1,'rgba(100,100,180,0.9)'); }
+  else { mg.addColorStop(0,'rgba(180,140,80,0.9)'); mg.addColorStop(0.5,'rgba(150,110,50,0.8)'); mg.addColorStop(1,'rgba(120,80,30,0.9)'); }
+  c.beginPath(); c.roundRect(mx, my, mw, mh, 3); c.fillStyle=mg; c.fill();
+  c.strokeStyle='rgba(255,255,255,0.3)'; c.lineWidth=1; c.stroke();
+  c.globalAlpha = 1;
+}
+
+class PhysicsParticle {
+  constructor(type, x, y, W, H, options = {}) {
+    this.type = type; this.x = x; this.y = y; this.W = W; this.H = H; this.life = 1; this.age = 0;
+    switch(type) {
+      case 'bubble': this.r=0.8+Math.random()*3.5; this.targetR=this.r*(1.4+Math.random()*0.8); this.vx=(Math.random()-0.5)*0.4; this.vy=-(0.6+Math.random()*1.8); this.wobble=Math.random()*Math.PI*2; this.wobbleAmp=0.4+Math.random()*0.3; this.decay=0.004+Math.random()*0.003; break;
+      case 'flame': this.r=2+Math.random()*10; this.vx=(Math.random()-0.5)*1.5; this.vy=-(2.5+Math.random()*4); this.ax=(Math.random()-0.5)*0.08; this.life=0.85+Math.random()*0.15; this.decay=0.018+Math.random()*0.012; this.temp=0.3+Math.random()*0.7; break;
+      case 'smoke': this.r=3+Math.random()*8; this.vx=(Math.random()-0.5)*0.5; this.vy=-(0.3+Math.random()*0.7); this.grow=0.25+Math.random()*0.15; this.decay=0.003+Math.random()*0.002; this.gray=160+Math.random()*60; break;
+      case 'spark': { const ang=options.ang||(-Math.PI/2+(Math.random()-0.5)*Math.PI*0.8), spd=options.spd||(4+Math.random()*6); this.vx=Math.cos(ang)*spd; this.vy=Math.sin(ang)*spd; this.r=1+Math.random()*1.5; this.decay=0.022+Math.random()*0.015; this.trail=[]; this.trailLen=6+Math.floor(Math.random()*4); this.col=options.col||`${255},${180+Math.random()*75|0},20`; break; }
+      case 'droplet': { const ang2=options.ang||(-Math.PI/2+(Math.random()-0.5)*0.6), spd2=options.spd||(3+Math.random()*5); this.vx=Math.cos(ang2)*spd2; this.vy=Math.sin(ang2)*spd2; this.r=2+Math.random()*3; this.decay=0.012; this.trail=[]; this.col=options.col||'100,200,255'; break; }
+      case 'steam': this.r=4+Math.random()*6; this.vx=(Math.random()-0.5)*0.6; this.vy=-(0.8+Math.random()*1.2); this.grow=0.4; this.decay=0.006; break;
+      case 'crystal': { const cr=1.5+Math.random()*4; this.r=cr; this.vx=(Math.random()-0.5)*0.6; this.vy=0.5+Math.random()*1.5; this.decay=0.001; this.angle=Math.random()*Math.PI*2; this.rot=(Math.random()-0.5)*0.06; this.settleY=options.settleY||H-8; this.settled=false; this.col=options.col||'120,220,180'; this.sides=3+Math.floor(Math.random()*3); break; }
+      case 'electron': this.orR=15+Math.random()*30; this.ang=Math.random()*Math.PI*2; this.spd=(0.04+Math.random()*0.05)*(Math.random()<0.5?1:-1); this.cx=x; this.cy=y; this.r=2.5; this.decay=0.002; break;
+      case 'glow': this.r=options.r||20; this.decay=0.04; this.col=options.col||'255,120,0'; break;
+      case 'sizzle': this.r=0.8+Math.random()*1.5; this.vx=(Math.random()-0.5)*3; this.vy=-(0.5+Math.random()*2); this.decay=0.04; this.col=options.col||'255,240,100'; this.trail=[]; break;
+    }
+  }
+  update() {
+    this.age++; this.life -= (this.decay || 0.01);
+    switch(this.type) {
+      case 'bubble': this.wobble += 0.12; this.x += this.vx + Math.sin(this.wobble) * this.wobbleAmp; this.y += this.vy; if (this.r < this.targetR) this.r += 0.04; if (beakerState.x && this.x < beakerState.x+5) this.x = beakerState.x+5; if (beakerState.w && this.x > beakerState.x+beakerState.w-5) this.x = beakerState.x+beakerState.w-5; break;
+      case 'flame': this.vx += this.ax; this.vx *= 0.96; this.x += this.vx; this.y += this.vy; this.vy *= 0.96; this.r *= 0.97; break;
+      case 'smoke': this.x += this.vx; this.y += this.vy; this.r += this.grow; this.vx *= 0.99; break;
+      case 'spark': if(this.trail)this.trail.push({x:this.x,y:this.y}); if(this.trail&&this.trail.length>this.trailLen)this.trail.shift(); this.x+=this.vx; this.y+=this.vy; this.vy+=GRAVITY; this.vx*=AIR_RESISTANCE; if(this.y>this.H-5)this.life=0; break;
+      case 'droplet': if(this.trail)this.trail.push({x:this.x,y:this.y}); if(this.trail&&this.trail.length>4)this.trail.shift(); this.x+=this.vx; this.y+=this.vy; this.vy+=GRAVITY*0.6; this.vx*=AIR_RESISTANCE; if(this.y>this.H-5)this.life=0; break;
+      case 'steam': this.x+=this.vx+(Math.random()-0.5)*0.3; this.y+=this.vy; this.r+=this.grow; break;
+      case 'crystal': if(!this.settled){this.y+=this.vy; this.x+=this.vx; this.angle+=this.rot; this.vy*=0.99; if(this.y>=this.settleY){this.settled=true;this.vy=0;this.vx=0;beakerState.sediment.push({x:this.x,y:this.settleY,r:this.r});}} break;
+      case 'electron': this.ang+=this.spd; this.x=this.cx+Math.cos(this.ang)*this.orR; this.y=this.cy+Math.sin(this.ang)*this.orR*0.55; break;
+      case 'glow': this.r*=1.04; break;
+      case 'sizzle': if(this.trail)this.trail.push({x:this.x,y:this.y}); if(this.trail&&this.trail.length>3)this.trail.shift(); this.x+=this.vx; this.y+=this.vy; this.vy+=GRAVITY*0.3; break;
+    }
+    return this.life > 0;
+  }
+  draw(c) {
+    const a = Math.max(0, Math.min(1, this.life)); c.globalAlpha = a;
+    switch(this.type) {
+      case 'bubble': { c.beginPath(); c.arc(this.x,this.y,this.r,0,Math.PI*2); const bGrad=c.createRadialGradient(this.x-this.r*0.3,this.y-this.r*0.3,this.r*0.1,this.x,this.y,this.r); bGrad.addColorStop(0,'rgba(255,255,255,0.7)'); bGrad.addColorStop(0.4,'rgba(200,235,255,0.25)'); bGrad.addColorStop(1,'rgba(100,180,255,0.0)'); c.fillStyle=bGrad; c.fill(); c.strokeStyle=`rgba(180,220,255,${a*0.5})`; c.lineWidth=0.8; c.stroke(); break; }
+      case 'flame': { const fc=c.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r); const t2=this.temp; fc.addColorStop(0,`rgba(255,255,${Math.floor(200*(1-t2))},${a*0.9})`); fc.addColorStop(0.3,`rgba(255,${Math.floor(160*t2)},0,${a*0.7})`); fc.addColorStop(0.7,`rgba(255,60,0,${a*0.4})`); fc.addColorStop(1,'rgba(100,0,0,0)'); c.beginPath(); c.arc(this.x,this.y,this.r,0,Math.PI*2); c.fillStyle=fc; c.fill(); break; }
+      case 'smoke': { const sc=c.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r); sc.addColorStop(0,`rgba(${this.gray},${this.gray},${this.gray},${a*0.18})`); sc.addColorStop(1,'rgba(100,100,100,0)'); c.beginPath(); c.arc(this.x,this.y,this.r,0,Math.PI*2); c.fillStyle=sc; c.fill(); break; }
+      case 'spark': { if(this.trail&&this.trail.length>1){c.beginPath();c.moveTo(this.trail[0].x,this.trail[0].y);this.trail.forEach(p=>c.lineTo(p.x,p.y));c.strokeStyle=`rgba(${this.col},${a*0.5})`;c.lineWidth=1.5;c.stroke();} c.beginPath();c.arc(this.x,this.y,this.r,0,Math.PI*2);c.fillStyle=`rgba(${this.col},${a})`;c.fill(); break; }
+      case 'droplet': { if(this.trail&&this.trail.length>1){c.beginPath();this.trail.forEach((p,i)=>i===0?c.moveTo(p.x,p.y):c.lineTo(p.x,p.y));c.strokeStyle=`rgba(${this.col},${a*0.4})`;c.lineWidth=2;c.stroke();} c.beginPath();c.arc(this.x,this.y,this.r,0,Math.PI*2);c.fillStyle=`rgba(${this.col},${a*0.8})`;c.fill(); break; }
+      case 'steam': { const stc=c.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r); stc.addColorStop(0,`rgba(220,235,255,${a*0.25})`); stc.addColorStop(1,'rgba(180,200,255,0)'); c.beginPath();c.arc(this.x,this.y,this.r,0,Math.PI*2);c.fillStyle=stc;c.fill(); break; }
+      case 'crystal': { const cr=c.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r*2); cr.addColorStop(0,`rgba(${this.col},${a*0.9})`); cr.addColorStop(1,`rgba(${this.col},0)`); c.save();c.translate(this.x,this.y);c.rotate(this.angle);c.beginPath();const s2=this.sides||4;for(let i=0;i<s2;i++){const ang3=i/s2*Math.PI*2,rx=Math.cos(ang3)*this.r*1.5,ry=Math.sin(ang3)*this.r;i===0?c.moveTo(rx,ry):c.lineTo(rx,ry);}c.closePath();c.fillStyle=cr;c.fill();c.restore(); break; }
+      case 'electron': { const eg2=c.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r*2); eg2.addColorStop(0,`rgba(74,222,128,${a})`); eg2.addColorStop(1,'rgba(74,222,128,0)'); c.beginPath();c.arc(this.x,this.y,this.r,0,Math.PI*2);c.fillStyle=eg2;c.fill(); break; }
+      case 'glow': { const gg=c.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r); gg.addColorStop(0,`rgba(${this.col},${a*0.3})`); gg.addColorStop(1,`rgba(${this.col},0)`); c.beginPath();c.arc(this.x,this.y,this.r,0,Math.PI*2);c.fillStyle=gg;c.fill(); break; }
+      case 'sizzle': { if(this.trail&&this.trail.length>1){c.beginPath();this.trail.forEach((p,i)=>i===0?c.moveTo(p.x,p.y):c.lineTo(p.x,p.y));c.strokeStyle=`rgba(${this.col},${a*0.7})`;c.lineWidth=1.5;c.stroke();} c.beginPath();c.arc(this.x,this.y,this.r,0,Math.PI*2);c.fillStyle=`rgba(${this.col},${a})`;c.fill(); break; }
+    }
+    c.globalAlpha = 1;
+  }
+}
+
+function startVisual(type, color, env, heat, formula) {
+  try {
+    const vc = getEl('visual-container');
+    const rxnCanvas = getEl('reactionCanvas');
+    if (!vc || !rxnCanvas) return;
+    vc.style.display = 'block';
+    const W = vc.offsetWidth || 360, H = 240;
+    rxnCanvas.width = W; rxnCanvas.height = H;
+    ctx = rxnCanvas.getContext('2d');
+    if (!ctx) return;
+    if (animId) { cancelAnimationFrame(animId); animId = null; }
+    particles = [];
+    const rxnType = detectRxnType(formula || '');
+    initBeaker(W, H, rxnType, heat);
+    const bX = beakerState.x, bY = beakerState.y, bW = beakerState.w, bH = beakerState.h;
+    let frame = 0, waveDistIdx = -1;
+    if (rxnType === 'metal_acid' || rxnType === 'metal_water') {
+      metalPiece = { active: true, x: bX + bW * 0.3, y: bY + bH * 0.2, w: bW * 0.4, h: bH * 0.25, dissolve: 0 };
+    } else { metalPiece = { active: false }; }
+    function drawBackground() {
+      ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+      const grd = ctx.createLinearGradient(0, 0, 0, H);
+      if (rxnType === 'combustion') { grd.addColorStop(0, 'rgba(20,5,0,1)'); grd.addColorStop(1, 'rgba(5,0,0,1)'); }
+      else { grd.addColorStop(0, 'rgba(13,17,23,1)'); grd.addColorStop(1, 'rgba(5,10,15,1)'); }
+      ctx.fillStyle = grd; ctx.fillRect(0, 0, W, H);
+    }
+    const inBeaker = () => bX + 5 + Math.random() * (bW - 10);
+    const atSurface = () => beakerState.liquidY + Math.random() * 5;
+    const atTop = () => bY - 5;
+    function spawnParticles() {
+      if (rxnType === 'combustion') {
+        const fx = bX + bW * 0.5 + (Math.random() - 0.5) * bW * 0.3, fy = bY + bH * 0.3;
+        if (frame % 2 === 0) { particles.push(new PhysicsParticle('flame', fx, fy, W, H)); }
+        if (frame % 3 === 0) { particles.push(new PhysicsParticle('smoke', fx, fy - 20, W, H)); }
+        if (frame % 15 === 0) { for (let i = 0; i < 4; i++) particles.push(new PhysicsParticle('spark', fx, fy, W, H, { ang: -Math.PI/2 + (Math.random()-0.5)*1.4, spd: 5+Math.random()*5, col: '255,180,20' })); }
+        if (frame % 4 === 0) { particles.push(new PhysicsParticle('glow', fx, fy, W, H, { r: 30+Math.random()*20, col: '255,100,0' })); }
+      } else if (rxnType === 'acid_base') {
+        if (frame % 5 === 0) { waveDistIdx = Math.floor(Math.random() * beakerState.wavePoints.length); particles.push(new PhysicsParticle('bubble', inBeaker(), atSurface(), W, H)); }
+        if (frame % 8 === 0) { particles.push(new PhysicsParticle('steam', inBeaker(), atTop(), W, H)); }
+        if (frame % 20 === 0) { particles.push(new PhysicsParticle('sizzle', inBeaker(), atSurface(), W, H, { col: '255,255,150' })); }
+      } else if (rxnType === 'metal_acid' || rxnType === 'metal_water') {
+        if (frame % 3 === 0) { waveDistIdx = Math.floor(Math.random() * beakerState.wavePoints.length); particles.push(new PhysicsParticle('bubble', inBeaker(), atSurface() - 5, W, H)); }
+        if (frame % 6 === 0) { particles.push(new PhysicsParticle('spark', inBeaker(), atSurface(), W, H, { ang: -Math.PI/2+(Math.random()-0.5)*0.8, spd: 3+Math.random()*3, col: '200,220,255' })); }
+        if (frame % 12 === 0) { particles.push(new PhysicsParticle('droplet', inBeaker(), atSurface(), W, H, { col: '100,180,255' })); }
+        drawMetalPiece(ctx, frame, rxnType);
+      } else if (rxnType === 'precipitate') {
+        if (frame % 8 === 0) { const py = atSurface(); particles.push(new PhysicsParticle('crystal', inBeaker(), py, W, H, { col: color ? color.replace('#','').match(/.{2}/g).map(h=>parseInt(h,16)).join(',') : '120,220,180', settleY: bY + bH - 5 })); }
+        if (frame % 20 === 0) { waveDistIdx = Math.floor(Math.random() * beakerState.wavePoints.length); }
+      } else if (rxnType === 'electrolysis') {
+        if (frame % 4 === 0) { particles.push(new PhysicsParticle('bubble', bX + bW*0.25, atSurface(), W, H)); particles.push(new PhysicsParticle('bubble', bX + bW*0.75, atSurface(), W, H)); }
+        if(particles.filter(p=>p.type==='electron').length<6&&frame<30)particles.push(new PhysicsParticle('electron',bX+bW/2,bY+bH*0.4,W,H));
+        if(frame%6===0)particles.push(new PhysicsParticle('bubble',inBeaker(),atSurface(),W,H));
+      } else {
+        if (frame % 6 === 0) { waveDistIdx = Math.floor(Math.random() * beakerState.wavePoints.length); particles.push(new PhysicsParticle('bubble', inBeaker(), atSurface(), W, H)); }
+        if (frame % 12 === 0) { particles.push(new PhysicsParticle('steam', inBeaker(), atTop(), W, H)); }
+      }
+    }
+    function loop() {
+      ctx.clearRect(0, 0, W, H); frame++;
+      drawBackground();
+      if (rxnType !== 'combustion') {
+        const wStrength = rxnType==='metal_water'?-5:rxnType==='acid_base'||rxnType==='metal_acid'?-2.5:-1;
+        if(waveDistIdx>=0&&frame%4===0){updateWaves(waveDistIdx,wStrength);waveDistIdx=-1;}else{updateWaves(-1,0);}
+        drawLiquid(ctx,null,rxnType,env,heat,frame);
+        drawRealisticBeaker(ctx);
+      }
+      spawnParticles();
+      const maxP = rxnType==='combustion'?280:rxnType==='metal_water'?240:200;
+      if (particles.length > maxP) particles.splice(0, particles.length - maxP);
+      for (let i = particles.length-1; i >= 0; i--) {
+        if (!particles[i].update()) particles.splice(i, 1);
+        else particles[i].draw(ctx);
+      }
+      animId = requestAnimationFrame(loop);
+    }
+    loop();
+  } catch(e) { console.error('startVisual error:', e); }
+}
+
+async function askAI() {
+  if (!validateRxnInput()) return;
+  const trimmed = currentInput.trim();
+  if (!trimmed) return;
+  showLoader(tr('loader_analysis'));
+  const statusEl = getEl('status');
+  const statusDot = getEl('status-dot');
+  if (statusEl) statusEl.textContent = tr('status_analyzing');
+  if (statusDot) statusDot.style.background = '#fbbf24';
+  try {
+    const resp = await fetch(GROQ_URL, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${GROQ_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [{ role: 'user', content: `Sen kimyogarsan. Reaksiyani tugalla: ${trimmed}. FAQAT JSON: {"t":"to'liq tenglama","i":"o'zbekcha izoh","possible":true,"gas":true,"precipitate":false,"color":"#hex","env":"kislotali|ishqoriy|neytral","heat":"exothermic|endothermic|none"}` }],
+        response_format: { type: 'json_object' }
+      })
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    if (!data.choices || !data.choices[0]) throw new Error('Javob yo\'q');
+    const res = JSON.parse(data.choices[0].message.content);
+    const displayEl = getEl('display');
+    const resBox = getEl('res-box');
+    if (!res.possible) {
+      if (displayEl) { displayEl.textContent = tr('err_no_reaction'); displayEl.style.color = 'var(--md-red)'; }
+      if (statusEl) statusEl.textContent = 'XATO';
+      if (statusDot) statusDot.style.background = 'var(--md-red)';
+    } else {
+      if (displayEl) { displayEl.textContent = res.t || trimmed; displayEl.style.color = '#4ade80'; }
+      if (statusEl) statusEl.textContent = '✓ ' + tr('status_ready');
+      if (statusDot) statusDot.style.background = '#4ade80';
+      const heatIcon = res.heat==='exothermic' ? tr('lbl_heat_exo') : res.heat==='endothermic' ? tr('lbl_heat_endo') : '';
+      if (resBox) {
+        resBox.textContent = '';
+        const boldEl = document.createElement('b'); boldEl.style.color = '#4ade80';
+        boldEl.textContent = tr('lbl_analysis') + ' ';
+        const infoEl = document.createTextNode(res.i || '');
+        resBox.appendChild(boldEl); resBox.appendChild(infoEl);
+        if (heatIcon) { const br = document.createElement('br'); const heatSpan = document.createElement('span'); heatSpan.style.cssText = 'color:#fbbf24;font-size:11px'; heatSpan.textContent = heatIcon; resBox.appendChild(br); resBox.appendChild(heatSpan); }
+        resBox.style.display = 'block';
+      }
+      addHistory('reaction', trimmed);
+      if (res.gas) startVisual('gas', null, res.env, res.heat, res.t);
+      else if (res.precipitate) startVisual('precipitate', res.color, res.env, res.heat, res.t);
+      else startVisual('generic', null, res.env, res.heat, res.t);
+    }
+  } catch(e) {
+    console.error('askAI error:', e);
+    if (statusEl) statusEl.textContent = '⚠ Xatolik';
+    if (statusDot) statusDot.style.background = 'var(--md-red)';
+    showToast(navigator.onLine ? tr('toast_net_err') : 'Internet ulanishi yo\'q');
+  }
+  hideLoader();
+}
+
+// ════════════════════════════════════════════════
+// PAGE 1: AR + MOLECULE INFO
+// ════════════════════════════════════════════════
+let cameraStream = null;
+
+async function initCamera() {
+  const arBadge = getEl('ar-badge');
+  if (cameraStream && cameraStream.active) { if (arBadge) arBadge.textContent = '● ' + tr('ar_camera_ready'); return; }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+    cameraStream = stream;
+    const webcam = getEl('webcam');
+    if (webcam) webcam.srcObject = stream;
+    if (arBadge) arBadge.textContent = '● ' + tr('ar_camera_ready');
+  } catch(e) {
+    console.warn('Camera error:', e);
+    if (arBadge) {
+      if (e.name === 'NotAllowedError') arBadge.textContent = '● KAMERA RUXSATI YO\'Q';
+      else if (e.name === 'NotFoundError') arBadge.textContent = '● KAMERA TOPILMADI';
+      else arBadge.textContent = '● KAMERA YO\'Q';
+    }
+  }
+}
+
+function stopCamera() {
+  try {
+    if (cameraStream) { cameraStream.getTracks().forEach(track => track.stop()); cameraStream = null; }
+    const webcam = getEl('webcam');
+    if (webcam) webcam.srcObject = null;
+    const arBadge = getEl('ar-badge');
+    if (arBadge) arBadge.textContent = '● KAMERA TAYYOR';
+  } catch(e) { console.warn('stopCamera error:', e); }
+}
+
+async function loadAR() {
+  const arInput = getEl('ar-input');
+  const nm = arInput ? arInput.value.trim() : '';
+  if (!nm) { showToast(tr('err_empty_input')); if (arInput) { arInput.classList.add('input-error'); arInput.focus(); } return; }
+  if (arInput) arInput.classList.remove('input-error');
+  const molInfoPanel = getEl('mol-info-panel');
+  if (molInfoPanel) molInfoPanel.classList.remove('show');
+  ['mol-uses-wrap','mol-hazards-wrap','mol-notes-wrap'].forEach(id => { const el = getEl(id); if (el) el.style.display = 'none'; });
+  ['mol-mw','mol-state','mol-density','mol-mp','mol-bp','mol-solubility','mol-color','mol-prop','mol-uses','mol-hazards','mol-notes'].forEach(id => { const el = getEl(id); if (el) el.textContent = '—'; });
+  const molInfoName = getEl('mol-info-name'); if (molInfoName) molInfoName.textContent = '—';
+  const molInfoFormula = getEl('mol-info-formula'); if (molInfoFormula) molInfoFormula.textContent = '—';
+  const arContainer = getEl('ar-3d-container'); if (arContainer) arContainer.style.display = 'none';
+  showLoader(tr('loader_ar'));
+  try {
+    const r = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(nm)}/cids/JSON`);
+    if (!r.ok) throw new Error(`PubChem xatosi: ${r.status}`);
+    const d = await r.json();
+    if (!d.IdentifierList || !d.IdentifierList.CID || !d.IdentifierList.CID[0]) throw new Error('Modda topilmadi');
+    const cid = d.IdentifierList.CID[0];
+    const ri = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/property/MolecularWeight,MolecularFormula,IUPACName/JSON`);
+    if (!ri.ok) throw new Error('Xususiyatlar yuklanmadi');
+    const di = await ri.json();
+    const pi = di.PropertyTable.Properties[0];
+    let density='—', mp='—', bp='—', solubility='—', color='—', uses='', hazards='';
+    try {
+      const r2 = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/view/data/compound/${cid}/JSON`);
+      if (r2.ok) {
+        const d2 = await r2.json();
+        const fv = label => { try { for(let s of d2.Record.Section) { if(s.TOCHeading==='Chemical and Physical Properties') { for(let ss of s.Section) { if(ss.TOCHeading===label && ss.Information && ss.Information[0]) { return ss.Information[0].Value.StringWithMarkup[0].String; } } } } } catch(e){ } return '—'; };
+        const fvSafety = label => { try { for(let s of d2.Record.Section) { if(s.TOCHeading==='Safety and Hazards') { for(let ss of s.Section) { if(ss.TOCHeading===label && ss.Information && ss.Information[0]) { return ss.Information[0].Value.StringWithMarkup[0].String; } } } } } catch(e){ } return ''; };
+        density = fv('Density') || '—'; mp = fv('Melting Point') || '—'; bp = fv('Boiling Point') || '—'; solubility = fv('Solubility') || '—'; color = fv('Color/Form') || '—'; uses = fv('Use') || fv('Uses') || ''; hazards = fvSafety('Hazards') || fvSafety('Hazard Statements') || '';
+      }
+    } catch(e) { console.warn('Extra data load failed (non-critical):', e); }
+    const iupacLower = (pi.IUPACName || '').toLowerCase();
+    let state = '—', prop = '—';
+    if (iupacLower.includes('acid')) { state = 'Suyuq'; prop = 'Kislotali'; }
+    else if (iupacLower.includes('hydroxide') || iupacLower.includes('oxide')) { state = 'Qattiq'; prop = 'Ishqoriy'; }
+    else if (iupacLower.includes('water')) { state = 'Suyuq'; prop = 'Neytral'; }
+    else { state = 'Qattiq/Suyuq'; prop = 'Neytral'; }
+    if (typeof $3Dmol === 'undefined') throw new Error('3Dmol kutubxonasi yuklanmagan');
+    const vDiv = getEl('ar-canvas');
+    if (vDiv) vDiv.textContent = '';
+    if (arContainer) arContainer.style.display = 'block';
+    if (vDiv) {
+      try {
+        const viewer = $3Dmol.createViewer(vDiv, { backgroundColor: 'black', alpha: true });
+        viewer.setBackgroundColor(0x000000, 0);
+        const sdfResp = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/SDF?record_type=3d`);
+        if (sdfResp.ok) { const sdf = await sdfResp.text(); viewer.addModel(sdf, 'sdf'); viewer.setStyle({},{stick:{radius:0.2,colorscheme:'rasmol'},sphere:{scale:0.3,colorscheme:'rasmol'}}); viewer.zoomTo(); viewer.render(); viewer.spin(true); }
+        else { const sdf2dResp = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/SDF`); if (sdf2dResp.ok) { const sdf2d = await sdf2dResp.text(); viewer.addModel(sdf2d, 'sdf'); viewer.setStyle({},{stick:{radius:0.2,colorscheme:'rasmol'}}); viewer.zoomTo(); viewer.render(); } }
+      } catch(viewerErr) { console.warn('3D viewer error:', viewerErr); if (vDiv) vDiv.textContent = '3D ko\'rinish mavjud emas'; }
+    }
+    const setVal = (id, val) => { const el = getEl(id); if (el) el.textContent = val || '—'; };
+    if (molInfoPanel) molInfoPanel.classList.add('show');
+    setVal('mol-info-name', nm.charAt(0).toUpperCase() + nm.slice(1));
+    setVal('mol-info-formula', pi.MolecularFormula);
+    setVal('mol-mw', pi.MolecularWeight ? pi.MolecularWeight + ' g/mol' : '—');
+    setVal('mol-state', state); setVal('mol-density', density); setVal('mol-mp', mp); setVal('mol-bp', bp); setVal('mol-solubility', solubility); setVal('mol-color', color); setVal('mol-prop', prop);
+    if (uses) { setVal('mol-uses', uses); const usesWrap = getEl('mol-uses-wrap'); if (usesWrap) usesWrap.style.display = 'block'; }
+    if (hazards) { setVal('mol-hazards', hazards); const hazWrap = getEl('mol-hazards-wrap'); if (hazWrap) hazWrap.style.display = 'block'; }
+    addHistory('ar', nm);
+    showNotif('✓', tr('toast_mol_ok'));
+  } catch(e) {
+    console.error('loadAR error:', e);
+    showToast(e.message === 'Modda topilmadi' ? tr('toast_mol_err') : tr('toast_net_err'));
+    const arCont = getEl('ar-3d-container'); if (arCont) arCont.style.display = 'none';
+  }
+  hideLoader();
+}
+
+const arInputEl = getEl('ar-input');
+if (arInputEl) arInputEl.addEventListener('keydown', e => { if(e.key==='Enter') loadAR(); });
+
+// ════════════════════════════════════════════════
+// PAGE 2: MOLAR MASS
+// ════════════════════════════════════════════════
+let balAnimId = null;
+function startBalanceAnim() {
+  const cvs = getEl('balanceCanvas');
+  if (!cvs) return;
+  cvs.width = (cvs.parentElement ? cvs.parentElement.offsetWidth : 340) || 340;
+  cvs.height = 100;
+  const c = cvs.getContext('2d');
+  if (!c) return;
+  const W = cvs.width, H = 100;
+  if (balAnimId) { cancelAnimationFrame(balAnimId); balAnimId = null; }
+  let t2 = 0;
+  function draw() {
+    c.clearRect(0,0,W,H); t2+=0.02; const tilt=Math.sin(t2)*8;
+    const cx=W/2, pY=28;
+    c.beginPath();c.moveTo(cx,pY);c.lineTo(cx,H-10);c.strokeStyle='rgba(251,191,36,0.45)';c.lineWidth=2;c.stroke();
+    c.beginPath();c.moveTo(cx-28,H-10);c.lineTo(cx+28,H-10);c.strokeStyle='rgba(251,191,36,0.45)';c.lineWidth=2;c.stroke();
+    c.beginPath();c.arc(cx,pY,5,0,Math.PI*2);c.fillStyle='rgba(251,191,36,0.8)';c.fill();
+    const rad=tilt*Math.PI/180, len=75;
+    const lx=cx-Math.cos(rad)*len, ly=pY+Math.sin(rad)*len, rx=cx+Math.cos(rad)*len, ry=pY-Math.sin(rad)*len;
+    c.beginPath();c.moveTo(lx,ly);c.lineTo(rx,ry);c.strokeStyle='rgba(251,191,36,0.65)';c.lineWidth=2;c.stroke();
+    const panW=33,panH=7;
+    function drawPan(px,py){c.beginPath();c.moveTo(px-panW/2,py);c.lineTo(px+panW/2,py);c.lineTo(px+panW/2-4,py+panH);c.lineTo(px-panW/2+4,py+panH);c.closePath();c.strokeStyle='rgba(251,191,36,0.55)';c.lineWidth=1.5;c.stroke();c.fillStyle='rgba(251,191,36,0.06)';c.fill();c.beginPath();c.moveTo(px,py-18);c.lineTo(px,py);c.strokeStyle='rgba(251,191,36,0.35)';c.lineWidth=1;c.stroke();}
+    drawPan(lx,ly+10); drawPan(rx,ry+10);
+    c.fillStyle='rgba(251,191,36,0.35)';c.font='8px monospace';c.textAlign='center';c.fillText('ANALITIK TAROZI',cx,H-2);
+    balAnimId = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+let molAnimId = null;
+const ATOM_COLS = {H:'rgba(200,210,255',C:'rgba(120,120,120',N:'rgba(60,120,255',O:'rgba(255,80,80',F:'rgba(140,255,140',Cl:'rgba(50,200,50',Na:'rgba(150,80,255',K:'rgba(180,80,200',Ca:'rgba(80,200,200',Fe:'rgba(200,100,50',S:'rgba(220,200,50',P:'rgba(220,130,50',default:'rgba(56,189,248'};
+
+function startMolAnim(formula) {
+  if (!formula) return;
+  const stage = getEl('mol-stage');
+  if (!stage) return;
+  stage.style.display = 'block';
+  const cvs = getEl('molCanvas');
+  if (!cvs) return;
+  cvs.width = (stage.offsetWidth || 340);
+  cvs.height = 120;
+  const c = cvs.getContext('2d');
+  if (!c) return;
+  const W = cvs.width, H = 120;
+  const re = /([A-Z][a-z]?)(\d*)/g;
+  const atoms = []; let m;
+  while ((m = re.exec(formula)) !== null && m[0]) { const s = m[1], cnt = parseInt(m[2]) || 1; for(let i=0; i<Math.min(cnt,10); i++) atoms.push(s); }
+  if (atoms.length === 0) return;
+  const sp = Math.min(52, (W-40) / Math.max(1, atoms.length));
+  const sx = (W - sp*(atoms.length-1)) / 2;
+  const molAtoms = atoms.map((s,i) => ({ s, tx:sx+i*sp, ty:H/2, x:Math.random()*W, y:Math.random()*H, r:s.length===1?15:12, col:(ATOM_COLS[s]||ATOM_COLS.default), pulse:Math.random()*Math.PI*2, arrived:false }));
+  if (molAnimId) { cancelAnimationFrame(molAnimId); molAnimId = null; }
+  function draw() {
+    c.clearRect(0,0,W,H); c.fillStyle='#000'; c.fillRect(0,0,W,H);
+    c.strokeStyle='rgba(255,255,255,0.15)'; c.lineWidth=1.5;
+    for(let i=0; i<molAtoms.length-1; i++) { c.beginPath(); c.moveTo(molAtoms[i].x, molAtoms[i].y); c.lineTo(molAtoms[i+1].x, molAtoms[i+1].y); c.stroke(); }
+    molAtoms.forEach(a => {
+      if (!a.arrived) { a.x += (a.tx-a.x)*0.08; a.y += (a.ty-a.y)*0.08; if (Math.abs(a.tx-a.x)<1 && Math.abs(a.ty-a.y)<1) a.arrived=true; }
+      a.pulse += 0.05;
+      const pr = a.r + Math.sin(a.pulse)*1.5;
+      const g = c.createRadialGradient(a.x,a.y,0,a.x,a.y,pr);
+      g.addColorStop(0,'rgba(255,255,255,0.95)'); g.addColorStop(0.35, a.col+',0.9)'); g.addColorStop(1, a.col+',0.05)');
+      c.beginPath(); c.arc(a.x,a.y,pr,0,Math.PI*2); c.fillStyle=g; c.fill();
+      c.fillStyle='rgba(255,255,255,0.95)'; c.font=`bold ${Math.round(pr*0.75)}px Inter, sans-serif`; c.textAlign='center'; c.textBaseline='middle'; c.fillText(a.s, a.x, a.y);
+    });
+    molAnimId = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+async function calcMolar() {
+  const molarInput = getEl('molar-input');
+  const hintEl = getEl('molar-hint');
+  const inp = molarInput ? molarInput.value.trim() : '';
+  if (!inp) { if (molarInput) { molarInput.classList.add('input-error'); molarInput.focus(); } if (hintEl) { hintEl.textContent = tr('err_empty_input'); hintEl.style.display = 'block'; } return; }
+  if (molarInput) molarInput.classList.remove('input-error');
+  if (hintEl) hintEl.style.display = 'none';
+  showLoader(tr('loader_molar'));
+  try {
+    const r = await fetch(GROQ_URL, { method: 'POST', headers: { Authorization: `Bearer ${GROQ_KEY}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages: [{ role: 'user', content: `Modda: "${inp}". Kimyoviy formulasini tahlil qil. FAQAT JSON: {"name":"to'liq nom","formula":"H2O","elements":[{"sym":"H","count":2,"mass":1,"total":2},{"sym":"O","count":1,"mass":16,"total":16}],"total":18}` }], response_format: { type: 'json_object' } }) });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data = await r.json();
+    if (data.error) throw new Error(data.error.message || 'API xatosi');
+    const res = JSON.parse(data.choices[0].message.content);
+    if (!res || typeof res !== 'object') throw new Error('Noto\'g\'ri javob formati');
+    const molarName = getEl('molar-name'); if (molarName) molarName.textContent = res.name || inp;
+    const elems = Array.isArray(res.elements) ? res.elements : [];
+    const molarDetails = getEl('molar-details');
+    if (molarDetails) {
+      molarDetails.textContent = '';
+      elems.forEach(e => {
+        const row = document.createElement('div'); row.className = 'mr-elem-row';
+        const sym = e.sym || e.element || '?';
+        const colStr = (ATOM_COLS[sym] || ATOM_COLS.default) + ',1)';
+        const symEl = document.createElement('span'); symEl.className = 'mr-elem-sym'; symEl.style.color = colStr; symEl.textContent = sym;
+        const mathEl = document.createElement('span'); mathEl.className = 'mr-elem-math'; mathEl.textContent = `${e.count || 1} × ${e.mass || '?'} g/mol`;
+        const massEl = document.createElement('span'); massEl.className = 'mr-elem-mass'; massEl.style.color = '#fbbf24'; massEl.textContent = `= ${e.total || '?'}`;
+        row.append(symEl, mathEl, massEl); molarDetails.appendChild(row);
+      });
+    }
+    const molarTotal = getEl('molar-total'); if (molarTotal) molarTotal.textContent = (res.total || '?') + ' g/mol';
+    const molarRes = getEl('molar-res'); if (molarRes) molarRes.style.display = 'block';
+    addHistory('molar', inp);
+    if (res.formula) startMolAnim(res.formula);
+  } catch(e) { console.error('calcMolar error:', e); showToast(navigator.onLine ? tr('toast_net_err') : 'Internet ulanishi yo\'q'); }
+  hideLoader();
+}
+
+// ════════════════════════════════════════════════
+// PAGE 3: PERIODIC TABLE
+// ════════════════════════════════════════════════
+const PT_DATA = [
+  {n:1,s:'H',name:'Vodorod',m:1.008,cat:'nonmetal',conf:'1s¹',col:1,row:1},
+  {n:2,s:'He',name:'Geliy',m:4.003,cat:'noble',conf:'1s²',col:18,row:1},
+  {n:3,s:'Li',name:'Litiy',m:6.941,cat:'alkali',conf:'[He]2s¹',col:1,row:2},
+  {n:4,s:'Be',name:'Berilliy',m:9.012,cat:'alkaline',conf:'[He]2s²',col:2,row:2},
+  {n:5,s:'B',name:'Bor',m:10.81,cat:'metalloid',conf:'[He]2s²2p¹',col:13,row:2},
+  {n:6,s:'C',name:'Uglerod',m:12.011,cat:'nonmetal',conf:'[He]2s²2p²',col:14,row:2},
+  {n:7,s:'N',name:'Azot',m:14.007,cat:'nonmetal',conf:'[He]2s²2p³',col:15,row:2},
+  {n:8,s:'O',name:'Kislorod',m:15.999,cat:'nonmetal',conf:'[He]2s²2p⁴',col:16,row:2},
+  {n:9,s:'F',name:'Ftor',m:18.998,cat:'halogen',conf:'[He]2s²2p⁵',col:17,row:2},
+  {n:10,s:'Ne',name:'Neon',m:20.18,cat:'noble',conf:'[He]2s²2p⁶',col:18,row:2},
+  {n:11,s:'Na',name:'Natriy',m:22.99,cat:'alkali',conf:'[Ne]3s¹',col:1,row:3},
+  {n:12,s:'Mg',name:'Magniy',m:24.305,cat:'alkaline',conf:'[Ne]3s²',col:2,row:3},
+  {n:13,s:'Al',name:'Alyuminiy',m:26.982,cat:'other',conf:'[Ne]3s²3p¹',col:13,row:3},
+  {n:14,s:'Si',name:'Kremniy',m:28.086,cat:'metalloid',conf:'[Ne]3s²3p²',col:14,row:3},
+  {n:15,s:'P',name:'Fosfor',m:30.974,cat:'nonmetal',conf:'[Ne]3s²3p³',col:15,row:3},
+  {n:16,s:'S',name:'Oltingugurt',m:32.06,cat:'nonmetal',conf:'[Ne]3s²3p⁴',col:16,row:3},
+  {n:17,s:'Cl',name:'Xlor',m:35.45,cat:'halogen',conf:'[Ne]3s²3p⁵',col:17,row:3},
+  {n:18,s:'Ar',name:'Argon',m:39.948,cat:'noble',conf:'[Ne]3s²3p⁶',col:18,row:3},
+  {n:19,s:'K',name:'Kaliy',m:39.098,cat:'alkali',conf:'[Ar]4s¹',col:1,row:4},
+  {n:20,s:'Ca',name:'Kalsiy',m:40.078,cat:'alkaline',conf:'[Ar]4s²',col:2,row:4},
+  {n:21,s:'Sc',name:'Skandiy',m:44.956,cat:'transition',conf:'[Ar]3d¹4s²',col:3,row:4},
+  {n:22,s:'Ti',name:'Titan',m:47.867,cat:'transition',conf:'[Ar]3d²4s²',col:4,row:4},
+  {n:23,s:'V',name:'Vanadiy',m:50.942,cat:'transition',conf:'[Ar]3d³4s²',col:5,row:4},
+  {n:24,s:'Cr',name:'Xrom',m:51.996,cat:'transition',conf:'[Ar]3d⁵4s¹',col:6,row:4},
+  {n:25,s:'Mn',name:'Marganes',m:54.938,cat:'transition',conf:'[Ar]3d⁵4s²',col:7,row:4},
+  {n:26,s:'Fe',name:'Temir',m:55.845,cat:'transition',conf:'[Ar]3d⁶4s²',col:8,row:4},
+  {n:27,s:'Co',name:'Kobalt',m:58.933,cat:'transition',conf:'[Ar]3d⁷4s²',col:9,row:4},
+  {n:28,s:'Ni',name:'Nikel',m:58.693,cat:'transition',conf:'[Ar]3d⁸4s²',col:10,row:4},
+  {n:29,s:'Cu',name:'Mis',m:63.546,cat:'transition',conf:'[Ar]3d¹⁰4s¹',col:11,row:4},
+  {n:30,s:'Zn',name:'Rux',m:65.38,cat:'transition',conf:'[Ar]3d¹⁰4s²',col:12,row:4},
+  {n:31,s:'Ga',name:'Galliy',m:69.723,cat:'other',conf:'[Ar]3d¹⁰4s²4p¹',col:13,row:4},
+  {n:32,s:'Ge',name:'Germaniy',m:72.63,cat:'metalloid',conf:'[Ar]3d¹⁰4s²4p²',col:14,row:4},
+  {n:33,s:'As',name:'Mishyak',m:74.922,cat:'metalloid',conf:'[Ar]3d¹⁰4s²4p³',col:15,row:4},
+  {n:34,s:'Se',name:'Selen',m:78.971,cat:'nonmetal',conf:'[Ar]3d¹⁰4s²4p⁴',col:16,row:4},
+  {n:35,s:'Br',name:'Brom',m:79.904,cat:'halogen',conf:'[Ar]3d¹⁰4s²4p⁵',col:17,row:4},
+  {n:36,s:'Kr',name:'Kripton',m:83.798,cat:'noble',conf:'[Ar]3d¹⁰4s²4p⁶',col:18,row:4},
+  {n:37,s:'Rb',name:'Rubidiy',m:85.468,cat:'alkali',conf:'[Kr]5s¹',col:1,row:5},
+  {n:38,s:'Sr',name:'Stronsiy',m:87.62,cat:'alkaline',conf:'[Kr]5s²',col:2,row:5},
+  {n:47,s:'Ag',name:'Kumush',m:107.87,cat:'transition',conf:'[Kr]4d¹⁰5s¹',col:11,row:5},
+  {n:50,s:'Sn',name:'Qalay',m:118.71,cat:'other',conf:'[Kr]4d¹⁰5s²5p²',col:14,row:5},
+  {n:53,s:'I',name:'Yod',m:126.9,cat:'halogen',conf:'[Kr]4d¹⁰5s²5p⁵',col:17,row:5},
+  {n:54,s:'Xe',name:'Ksenon',m:131.29,cat:'noble',conf:'[Kr]4d¹⁰5s²5p⁶',col:18,row:5},
+  {n:55,s:'Cs',name:'Seziy',m:132.91,cat:'alkali',conf:'[Xe]6s¹',col:1,row:6},
+  {n:56,s:'Ba',name:'Bariy',m:137.33,cat:'alkaline',conf:'[Xe]6s²',col:2,row:6},
+  {n:74,s:'W',name:'Volfram',m:183.84,cat:'transition',conf:'[Xe]4f¹⁴5d⁴6s²',col:6,row:6},
+  {n:78,s:'Pt',name:'Platin',m:195.08,cat:'transition',conf:'[Xe]4f¹⁴5d⁹6s¹',col:10,row:6},
+  {n:79,s:'Au',name:'Oltin',m:196.97,cat:'transition',conf:'[Xe]4f¹⁴5d¹⁰6s¹',col:11,row:6},
+  {n:80,s:'Hg',name:'Simob',m:200.59,cat:'transition',conf:'[Xe]4f¹⁴5d¹⁰6s²',col:12,row:6},
+  {n:82,s:'Pb',name:"Qo'rg'oshin",m:207.2,cat:'other',conf:'[Xe]4f¹⁴5d¹⁰6s²6p²',col:14,row:6},
+  {n:92,s:'U',name:'Uran',m:238.03,cat:'actinide',conf:'[Rn]5f³6d¹7s²',col:6,row:7}
+];
+const CAT_LABELS = { alkali:'Ishqoriy metal',alkaline:'Ishqoriy-yer',transition:"O'tish metali",other:'Boshqa metal',metalloid:'Metalloid',nonmetal:'Ametall',halogen:'Galogen',noble:'Nodir gaz',lanthanide:'Lantanoid',actinide:'Aktinoid' };
+let ptAllCells = [];
+
+function buildPeriodicTable() {
+  const grid = getEl('pt-grid');
+  if (!grid) return;
+  grid.textContent = ''; ptAllCells = [];
+  const cells = {};
+  PT_DATA.forEach(el => { cells[`${el.row}-${el.col}`] = el; });
+  for (let row = 1; row <= 7; row++) {
+    for (let col = 1; col <= 18; col++) {
+      const el = cells[`${row}-${col}`];
+      if (el) {
+        const div = document.createElement('div');
+        div.className = `pt-cell cat-${el.cat}`;
+        div.setAttribute('role', 'gridcell');
+        div.setAttribute('tabindex', '0');
+        div.setAttribute('aria-label', `${el.name}, atom raqami ${el.n}, massa ${el.m}`);
+        const numEl = document.createElement('div'); numEl.className = 'num'; numEl.textContent = el.n;
+        const symEl = document.createElement('div'); symEl.className = 'sym'; symEl.textContent = el.s;
+        const nameEl = document.createElement('div'); nameEl.className = 'pname'; nameEl.textContent = el.name.substring(0,5);
+        div.append(numEl, symEl, nameEl);
+        div.onclick = () => { div.classList.add('flash'); setTimeout(() => div.classList.remove('flash'), 500); showElPopup(el); };
+        div.onkeydown = e => { if(e.key==='Enter'||e.key===' ') { e.preventDefault(); div.click(); } };
+        grid.appendChild(div); ptAllCells.push({ div, el });
+      } else {
+        const empty = document.createElement('div'); empty.className = 'pt-empty'; empty.setAttribute('aria-hidden', 'true');
+        grid.appendChild(empty);
+      }
+    }
+  }
+}
+buildPeriodicTable();
+
+function filterPT(q) {
+  const s = (q || '').toLowerCase().trim();
+  ptAllCells.forEach(({ div, el }) => {
+    const show = !s || el.name.toLowerCase().includes(s) || el.s.toLowerCase().includes(s) || el.n.toString().includes(s);
+    div.style.opacity = show ? '1' : '0.1';
+    div.style.transform = show ? '' : 'scale(0.85)';
+    div.setAttribute('aria-hidden', show ? 'false' : 'true');
+  });
+}
+
+// Element popup (bottom sheet)
+let popupOrbitId = null;
+
+function showElPopup(el) {
+  if (!el) return;
+  selectedElement = el;
+  const setTxt = (id, val) => { const e = getEl(id); if (e) e.textContent = val; };
+  setTxt('ep-sym', el.s);
+  setTxt('ep-name', el.name);
+  setTxt('ep-num', `${tr('ep_atom_num')} ${el.n}`);
+  setTxt('ep-mass', `${tr('ep_atom_mass')} ${el.m} a.b.m.`);
+  setTxt('ep-cat', CAT_LABELS[el.cat] || el.cat);
+  setTxt('ep-conf', `${tr('ep_electrons')} ${el.conf}`);
+
+  // Extra grid
+  const numValEl = getEl('ep-num-val'); if (numValEl) numValEl.textContent = el.n;
+  const massValEl = getEl('ep-mass-val'); if (massValEl) massValEl.textContent = el.m + ' a.b.m.';
+
+  const popup = getEl('el-popup');
+  if (popup) popup.classList.add('show');
+
+  const cvs = getEl('ep-orbit-canvas');
+  if (!cvs) return;
+  cvs.width = cvs.parentElement ? cvs.parentElement.offsetWidth - 0 : 276;
+  cvs.height = 90;
+  const c = cvs.getContext('2d');
+  if (!c) return;
+  const W = cvs.width, H = 90;
+  const shells = [], mx = [2,8,18,32]; let rem = el.n;
+  for (let i = 0; i < mx.length && rem > 0; i++) {
+    const cnt = Math.min(rem, mx[i]);
+    shells.push({ cnt, electrons: Array.from({length:cnt}, (_,j) => ({ angle:(2*Math.PI/cnt)*j, spd:0.04-i*0.008 })) });
+    rem -= cnt;
+  }
+  const radii = shells.map((_,i) => 12 + i * 14);
+  if (popupOrbitId) { cancelAnimationFrame(popupOrbitId); popupOrbitId = null; }
+  function draw() {
+    c.clearRect(0,0,W,H);
+    const cx=W/2, cy=H/2;
+    const ng=c.createRadialGradient(cx,cy,0,cx,cy,10);
+    ng.addColorStop(0,'#fff'); ng.addColorStop(0.4,'#38bdf8'); ng.addColorStop(1,'transparent');
+    c.beginPath(); c.arc(cx,cy,8,0,Math.PI*2); c.fillStyle=ng; c.fill();
+    c.fillStyle='rgba(0,0,0,0.8)'; c.font=`bold ${el.s.length>2?5:7}px Inter, sans-serif`; c.textAlign='center'; c.textBaseline='middle'; c.fillText(el.s,cx,cy);
+    shells.forEach((sh,si) => {
+      const r=radii[si];
+      c.beginPath(); c.arc(cx,cy,r,0,Math.PI*2); c.strokeStyle='rgba(56,189,248,0.15)'; c.lineWidth=1; c.stroke();
+      sh.electrons.forEach(e => {
+        e.angle += e.spd;
+        const ex=cx+Math.cos(e.angle)*r, ey=cy+Math.sin(e.angle)*r;
+        const eg=c.createRadialGradient(ex,ey,0,ex,ey,3.5);
+        eg.addColorStop(0,'#4ade80'); eg.addColorStop(1,'transparent');
+        c.beginPath(); c.arc(ex,ey,2.5,0,Math.PI*2); c.fillStyle=eg; c.fill();
+      });
+    });
+    popupOrbitId = requestAnimationFrame(draw);
+  }
+  draw();
+  setTimeout(() => { const closeBtn = document.querySelector('.ep-close'); if (closeBtn) closeBtn.focus(); }, 50);
+}
+
+function closeElPopup() {
+  const popup = getEl('el-popup');
+  if (popup) popup.classList.remove('show');
+  if (popupOrbitId) { cancelAnimationFrame(popupOrbitId); popupOrbitId = null; }
+}
+
+const elPopup = getEl('el-popup');
+if (elPopup) { elPopup.addEventListener('click', function(e) { if (e.target === this) closeElPopup(); }); }
+
+function useElementInReaction() {
+  if (!selectedElement) return;
+  closeElPopup();
+  navigateTo(0);
+  if (currentInput && !currentInput.endsWith(' ')) currentInput += ' ';
+  currentInput += selectedElement.s;
+  const displayEl = getEl('display'); if (displayEl) displayEl.textContent = currentInput;
+  const manualInput = getEl('manual-input'); if (manualInput) manualInput.value = currentInput;
+  showToast(`${selectedElement.s} qo'shildi`);
+}
+
+// ════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════
+updateTopbar(0);
+updateSidebar(0);
+applyLanguage();
+
+(function restoreSettings() {
+  try {
+    if (settings.overlay === false) {
+      const togEl = getEl('tog-overlay');
+      if (togEl) { togEl.classList.remove('on'); togEl.setAttribute('aria-checked', 'false'); }
+      const overlayEl = getEl('bg-image-overlay');
+      if (overlayEl) overlayEl.style.opacity = '0';
+    }
+    const badgeEl = getEl('topbar-badge');
+    if (badgeEl) badgeEl.textContent = navigator.onLine ? 'ONLINE' : 'OFFLINE';
+  } catch(e) { console.warn('restoreSettings error:', e); }
+})();
+
+window.addEventListener('online', () => {
+  const badgeEl = getEl('topbar-badge'); if (badgeEl) badgeEl.textContent = 'ONLINE';
+  showToast('Internet ulandi');
+});
+window.addEventListener('offline', () => {
+  const badgeEl = getEl('topbar-badge'); if (badgeEl) badgeEl.textContent = 'OFFLINE';
+  showToast('Internet uzildi');
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { if (bgAnimId) { cancelAnimationFrame(bgAnimId); bgAnimId = null; } }
+  else { if (animEnabled) startBgAnim(); }
+});
+</script>
+</body>
+</html>
